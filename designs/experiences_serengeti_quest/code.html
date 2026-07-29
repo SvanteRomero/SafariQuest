@@ -1,0 +1,424 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Serengeti Quest | Unforgettable Safari Experiences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f5f4ef",
+                    "terracotta": "#B45309",
+                    "on-primary": "#ffffff",
+                    "primary": "#006b29",
+                    "on-surface": "#1b1c19",
+                    "primary-container": "#118738",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-high": "#e9e8e3",
+                    "surface-variant": "#e3e3de",
+                    "deep-earth": "#2D2D2D",
+                    "tertiary": "#ad2a27",
+                    "surface": "#faf9f4",
+                    "on-primary-fixed-variant": "#00531e",
+                    "golden-sun": "#F59E0B",
+                    "tertiary-container": "#cf433c",
+                    "on-secondary-fixed-variant": "#6e3900",
+                    "outline-variant": "#becaba",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#3f4a3e",
+                    "surface-container-highest": "#e3e3de",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#faf9f4",
+                    "primary-fixed": "#8ffa9b",
+                    "inverse-primary": "#73dc82",
+                    "on-primary-container": "#f7fff2",
+                    "inverse-on-surface": "#f2f1ec",
+                    "on-error-container": "#93000a",
+                    "ivory-base": "#FDFCF7",
+                    "surface-dim": "#dbdad5",
+                    "tertiary-fixed": "#ffdad6",
+                    "background": "#faf9f4",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#410002",
+                    "outline": "#6f7a6d",
+                    "tertiary-fixed-dim": "#ffb4ac",
+                    "on-secondary-container": "#663500",
+                    "surface-container": "#efeee9",
+                    "secondary": "#904d00",
+                    "sand-stone": "#E5E7EB",
+                    "surface-tint": "#006e2a",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#2f1500",
+                    "secondary-fixed": "#ffdcc3",
+                    "on-background": "#1b1c19",
+                    "secondary-fixed-dim": "#ffb77d",
+                    "secondary-container": "#fe932c",
+                    "on-primary-fixed": "#002108",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#73dc82",
+                    "on-tertiary-fixed-variant": "#8e1214",
+                    "inverse-surface": "#30312e",
+                    "savanna-green": "#1E8E3E"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "container-max": "1280px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "section-gap": "120px"
+            },
+            "fontFamily": {
+                    "label-md": ["Manrope"],
+                    "headline-lg": ["\"Source Serif 4\""],
+                    "headline-lg-mobile": ["\"Source Serif 4\""],
+                    "headline-md": ["\"Source Serif 4\""],
+                    "body-lg": ["Manrope"],
+                    "body-md": ["Manrope"],
+                    "display-lg": ["\"Source Serif 4\""],
+                    "label-sm": ["Manrope"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-ivory-base text-on-surface selection:bg-savanna-green/30">
+<!-- Top Navigation Bar (Shared Component Strategy) -->
+<nav class="fixed top-0 w-full z-50 bg-ivory-base/80 glass-nav shadow-sm">
+<div class="flex justify-between items-center px-margin-desktop py-4 w-full max-w-container-max mx-auto">
+<a class="font-headline-md text-headline-md font-bold text-savanna-green" href="#">Pande Wilderness Safari</a>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-savanna-green transition-colors" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-savanna-green transition-colors" href="#">Safaris</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-savanna-green transition-colors" href="#">Destinations</a>
+<a class="font-label-md text-label-md text-savanna-green border-b-2 border-savanna-green pb-1 transition-colors" href="#">Experiences</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-savanna-green transition-colors" href="#">About Us</a>
+
+</div>
+<button class="bg-savanna-green text-on-primary px-6 py-2.5 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all">
+                Book Now
+            </button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative h-[90vh] min-h-[600px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-10000 hover:scale-110" data-alt="A breathtaking high-angle view of several colorful hot air balloons floating serenely over the vast Serengeti savanna at sunrise. The landscape is bathed in a warm golden glow, with the silhouettes of acacia trees and grazing wildlife scattered across the plains. The sky transition from deep orange to a soft morning blue, creating an ethereal and adventurous mood that defines a premium safari experience." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBocvQ92dCoBSglruXzQExVqJxoDZF6YnSBcJXtIGNrENpQvecr-mjcOTpvsuZ0xk0B3H_xniCpR9ngzhitfZBMBWmKadthWc_hPBasmHyIMh4Pw-PsNqZ00Y-gMh0W_yJrty3wgf_p4Kel-kA0ODoxSM6jd095mrN2GlgpoZM_cznL6YtbfazO8cEWKmCu5J_Vkxj8c0u2ScZ4XodN-U2kKu6qP9nqxf5ETAXqM7MneH8URPvfC6-c')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
+</div>
+<div class="relative z-10 px-margin-desktop max-w-container-max mx-auto w-full text-white">
+<p class="font-label-md text-label-md uppercase tracking-widest mb-4 opacity-90">Discover the extraordinary</p>
+<h1 class="font-display-lg text-display-lg mb-6 max-w-3xl leading-tight">
+                Unforgettable Safari <br><span class="italic font-normal">Experiences</span>
+</h1>
+<p class="font-body-lg text-body-lg max-w-xl mb-8 opacity-90">
+                From the silent drift of a hot air balloon to the rhythmic pulse of Maasai traditions, every moment in Tanzania is a story waiting to be told.
+            </p>
+<div class="flex gap-4">
+<a class="bg-white text-savanna-green px-8 py-4 rounded-lg font-label-md text-label-md hover:bg-ivory-base transition-all flex items-center gap-2" href="#experiences">
+                    Explore Experiences
+                    <span class="material-symbols-outlined">arrow_downward</span>
+</a>
+</div>
+</div>
+</header>
+<main id="experiences">
+<!-- Experience Section 1: Game Drives -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto overflow-hidden">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="relative group">
+<div class="aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A professional open-sided safari vehicle parked near a pride of lions in the tall golden grass of the Serengeti. The scene is captured in the soft light of late afternoon, with a professional guide explaining the wildlife behavior to captivated travelers. The overall aesthetic is one of high-end exploration, combining luxury with raw, authentic nature." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApIwHcLzdwJ9EjFbVoxd58ANay9BBKLOF1tsr2bJXXYCfYh80WqHyVfoQAk_Sv4TlbUpC8dIC_f1chOeSJ1gpCPilWyfBF_T0iqYvbk2GJC8jmk1DNH2bu1ZSZMk4t1T_sgO2oJXpZudIYOX3EdDWNSLEZJwxSqEIwfOsLZKN4otoW8L82NKmodRVPu_SkwYp1qu7daGzxNPntKT58pyS7bGEZXLC9yhDoLTAId3X5QIQPowiYPnGW">
+</div>
+<div class="absolute -bottom-6 -right-6 bg-savanna-green text-white p-6 rounded-lg hidden lg:block shadow-xl">
+<span class="material-symbols-outlined text-4xl mb-2">visibility</span>
+<p class="font-label-md text-label-md">Daily Departures</p>
+</div>
+</div>
+<div class="space-y-6 md:pl-12">
+<div class="inline-block px-3 py-1 bg-surface-container-high rounded text-savanna-green font-label-sm text-label-sm uppercase tracking-wider">Most Popular</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Private Game Drives</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        Embark on a journey through the wild heart of Tanzania. Our custom-designed 4x4 vehicles offer 360-degree views, ensuring you never miss a moment of the Great Migration or a rare leopard sighting.
+                    </p>
+<ul class="space-y-3">
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-savanna-green">check_circle</span>
+                            Expert certified silver-level guides
+                        </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-savanna-green">check_circle</span>
+                            Sunrise and sunset expeditions
+                        </li>
+</ul>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                        Related Safaris
+                    </button>
+</div>
+</div>
+</section>
+<!-- Experience Section 2: Hot Air Balloon (Shifted Background) -->
+<section class="py-section-gap bg-surface-container-low">
+<div class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="order-2 md:order-1 space-y-6 md:pr-12">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Hot Air Balloon Safaris</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            Ascend into the quiet dawn and float over the infinite plains. Watch the shadows of thousands of wildebeest stretch across the savanna as the sun crests the horizon, followed by a celebratory champagne breakfast in the bush.
+                        </p>
+<div class="p-6 bg-white rounded-xl border border-sand-stone shadow-sm italic text-on-surface-variant font-body-md">
+                            "The most peaceful way to witness the majesty of Africa. An absolute must-do for any traveler."
+                        </div>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                            Related Safaris
+                        </button>
+</div>
+<div class="order-1 md:order-2 aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A wide-angle shot of a champagne breakfast setup in the middle of the Serengeti plains under a large acacia tree. In the background, a hot air balloon is being packed away after a morning flight. The table is elegantly set with white linens, crystal glasses, and fresh fruit, capturing a luxury safari atmosphere with warm morning lighting and soft greens and golds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzDORQGzBhE653IzrnsbqN-MfIO6xMlfVhjnGL9cef0Vh6TBKPMU-J908EA2BPcbmAPdDKhPX6i6csPAy8bxsmN5aSdytbephdU0YGUHEKER3ZdIm6r2P2UGReusGtlRQi-jw36qzNE-G99somszCa4RN3mL4pvfH2-scrrfe7Kea1aFB0quVqkbpKqqqY-QF4sMvtSXA0J9PRVr2hTUwXcVvX9WNiphn4qlHVI2VJGhDt7swCJXQQ">
+</div>
+</div>
+</div>
+</section>
+<!-- Experience Section 3: Walking Safaris -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A group of travelers walking in a single file line through low bushveld, led by an armed park ranger and a local tracker in traditional attire. The focus is on the footprints in the sand as they track wildlife. The environment is rugged and authentic, with the bright African sun creating sharp, beautiful shadows and highlighting the earthy textures of the landscape." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmHfR1Rj3MkCHZ5OMx1tdekEjnLZ0xeF-PqxAYNOYRg7RHIH7bWi6ikRA5iSNvhKfwMJi_LQYxV3pRqHZsBIOnw6Sk3REwWO7IDQ66jwiaYjgM6Vhk5pmRQ0s9b5scqY2Ly7IYKLZdqMxPyIGyq3qbZs_HbIoQnDJV1eY0oeja1_V4fIMreDCN-adtkJojUdJsQCe-XjqyBKIw5_18JHnpzEkhmIECSJQVeAE2x0aM-ka1Mh4eKA-l">
+</div>
+<div class="space-y-6 md:pl-12">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Guided Walking Safaris</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        Step out of the vehicle and into the wild. Guided by expert trackers and armed rangers, you'll learn the secrets of the bush—from identifying tracks and medicinal plants to the thrill of approaching wildlife on foot.
+                    </p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-lg border border-sand-stone">
+<span class="material-symbols-outlined text-savanna-green mb-2">footprint</span>
+<p class="font-label-md text-label-md">Track Big Game</p>
+</div>
+<div class="bg-white p-4 rounded-lg border border-sand-stone">
+<span class="material-symbols-outlined text-savanna-green mb-2">nature</span>
+<p class="font-label-md text-label-md">Eco-Awareness</p>
+</div>
+</div>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                        Related Safaris
+                    </button>
+</div>
+</div>
+</section>
+<!-- Experience Section 4: Maasai Visits (Soft Background) -->
+<section class="py-section-gap bg-surface-container-high/50">
+<div class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="order-2 md:order-1 space-y-6 md:pr-12">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Cultural Maasai Visits</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            Connect with the soulful heritage of the Maasai people. Visit a traditional Boma, participate in ancient dances, and learn about a way of life that has remained harmonious with nature for centuries.
+                        </p>
+<ul class="space-y-3">
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-terracotta">star</span>
+                                Authentic, non-commercial interactions
+                            </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-terracotta">star</span>
+                                Support local community projects
+                            </li>
+</ul>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                            Related Safaris
+                        </button>
+</div>
+<div class="order-1 md:order-2 aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A portrait of Maasai warriors in their vibrant red shukas, standing together on a hilltop during sunset. Their traditional beaded jewelry glints in the fading light. The background features the iconic rolling hills of the Ngorongoro Conservation Area. The image is respectful, rich in color, and evokes a deep sense of cultural heritage and pride." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc6RSNaLc-kVI9Wy6wRk9jyDxkwtBqt4bOREWoaUjZ2QAKtUEaaGdgG2Ey5AQph6h1jICr-sWSbHFI5NRrteZ4wB432lDuowZCLjjLI1jCZooOTLSSpk2GrarC0mU9yfU3T9VQrjJmyqqtze6diRc9rq5PVAvgVQH88vLFjTILWo56y3rbRJS6U4tOQBPyZK00QH_5HJ9VI0mZwjrhoWpfY9SXmg9hZRHkq2Wqh8rQ0OxS198D1eoe">
+</div>
+</div>
+</div>
+</section>
+<!-- Experience Section 5: Birdwatching -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A stunning close-up of a lilac-breasted roller bird perched on a thorny acacia branch, its vibrant multi-colored feathers perfectly in focus. The background is a soft-bokeh savanna landscape. The lighting is crisp and natural, highlighting the exquisite details of the bird's plumage, creating a sophisticated and peaceful atmosphere for nature enthusiasts." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_ORo1_3S7apImjfiqvmeFxw1Uh1uYhpr7tRzyTH3v2RQwu3OPWFiR-hJv6rKbbo9h86TufJOmSCEh-0QI5rpLSSYdF2r4nPQDnUXb-I5DZ8WWnXaWktzZ2F6FBwgYF8IlRlge6D0fqNN2iKg76uO2Hb7KCc9gdI90dy1sBiahrPtDgNw8C_-xNSbgijUQAcQl8VXI6UmtOZQBnBgBfCaHH35S5ej6xbpLNVyRIqc7a3QUsm7PE_ki">
+</div>
+<div class="space-y-6 md:pl-12">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Birdwatching Paradises</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        With over 1,100 species, Tanzania is an ornithologist’s dream. From the flamingos of Lake Manyara to the endemic species of the Udzungwa Mountains, our specialized guides help you spot the rarest avian treasures.
+                    </p>
+<div class="flex items-center gap-4 py-4 border-y border-sand-stone">
+<div class="text-center px-4">
+<span class="block font-headline-md text-headline-md text-savanna-green">1,100+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Species</span>
+</div>
+<div class="w-px h-12 bg-sand-stone"></div>
+<div class="text-center px-4">
+<span class="block font-headline-md text-headline-md text-savanna-green">7</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Endemic Hubs</span>
+</div>
+</div>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                        Related Safaris
+                    </button>
+</div>
+</div>
+</section>
+<!-- Experience Section 6: Zanzibar Beach Extensions -->
+<section class="py-section-gap bg-ivory-base relative">
+<div class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid md:grid-cols-2 gap-gutter items-center reveal active">
+<div class="order-2 md:order-1 space-y-6 md:pr-12">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Zanzibar Beach Extensions</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            The perfect "Bush to Beach" finale. Trade the golden savanna for the turquoise waters of the Indian Ocean. Relax on pristine white sands, explore the spice markets of Stone Town, or dive into vibrant coral reefs.
+                        </p>
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-terracotta">waves</span>
+<span class="text-label-sm font-label-sm uppercase">Turquoise Seas</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-terracotta">restaurant</span>
+<span class="text-label-sm font-label-sm uppercase">Spice Tours</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-terracotta">scuba_diving</span>
+<span class="text-label-sm font-label-sm uppercase">Diving</span>
+</div>
+</div>
+<button class="border-2 border-terracotta text-terracotta px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:text-white transition-all">
+                            Related Safaris
+                        </button>
+</div>
+<div class="order-1 md:order-2 aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A luxurious beach scene on the Zanzibar archipelago, featuring a white sand beach meeting crystal-clear turquoise waters. A traditional wooden dhow sailboat drifts slowly on the horizon under a bright tropical sun. Palm trees sway gently in the breeze. The aesthetic is serene, high-end, and perfectly balances the ruggedness of the safari with coastal luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVxdXJx03Mb2UV9wLDYT43eBslxTXT_UPsLxYuaTT354MqAcaOTfOo_KMEIYHSFDLG0PUSwl66yl7ylYCOwdxo2qGTWBMYSMFIZBIwBBvQfo9YddSy5O9n4RzScoaKZzcukBoZGSyyydL_ZH1f0h-PW1--n2j_ThBHLU3GPoyY28w_p-aihxWqaUsQjyG18pQD3GyDMQbbMpWnBMgp-FDGuXNmSmtO6T7_b4fq0KiKcRF4igduVUzm">
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-sand-stone">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="space-y-4">
+<h3 class="font-headline-md text-headline-md text-savanna-green font-bold">Pande Wilderness Safari</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Your gateway to the most authentic and breathtaking safari adventures in Tanzania. Certified and trusted since 2010.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Quick Links</h4>
+<ul class="space-y-2">
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Safaris</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Destinations</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">About Us</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Legals</h4>
+<ul class="space-y-2">
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Privacy Policy</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Terms of Service</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Park Regulations</a></li>
+<li class=""><a class="font-body-md text-body-md text-on-surface-variant hover:text-terracotta transition-colors" href="#">Sitemap</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Connect</h4>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-savanna-green hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-savanna-green hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">mail</span>
+</a>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Arusha, Tanzania</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">+255 123 456 789</p>
+</div>
+</div>
+<div class="border-t border-sand-stone py-8 text-center px-margin-mobile">
+<p class="font-body-md text-body-md text-on-surface-variant opacity-70">© 2024 Pande Wilderness Safari. All Rights Reserved. Certified Safari Operators.</p>
+</div>
+</footer>
+<script>
+        // Reveal on scroll logic
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if(target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+
+</body></html>
