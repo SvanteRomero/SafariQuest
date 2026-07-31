@@ -111,12 +111,12 @@ export function Home() {
         />
       </section>
 
-      {/* Why Panda Wilderness Travels */}
+      {/* Why Pande Wilderness Safari */}
       <section className="py-20 md:py-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
         <Reveal className="text-center mb-16">
           <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">Our Expertise</span>
           <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-            Why Panda Wilderness Travels?
+            Why Pande Wilderness Safari?
           </h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
