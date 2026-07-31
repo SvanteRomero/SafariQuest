@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { MapPin, Phone, EnvelopeSimple, ShieldCheck, Users, Binoculars, CheckCircle } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
+import { contact } from '../config/contact'
 
 const STATS = [
   { icon: ShieldCheck, value: '15+', label: 'Years Guiding Tanzania' },
@@ -77,18 +78,18 @@ export function About() {
             <ul className="space-y-5">
               <li className="flex items-start gap-3 text-on-surface-variant">
                 <MapPin size={22} className="text-savanna-green shrink-0 mt-0.5" />
-                <span>Post 44, Arusha-Dodoma Rd, Arusha, Tanzania</span>
+                <span>{contact.address}</span>
               </li>
               <li className="flex items-center gap-3 text-on-surface-variant">
                 <Phone size={22} className="text-savanna-green shrink-0" />
-                <a className="hover:text-savanna-green transition-colors" href="tel:+255784123456">
-                  +255 784 123 456
+                <a className="hover:text-savanna-green transition-colors" href={`tel:${contact.phoneHref}`}>
+                  {contact.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3 text-on-surface-variant">
                 <EnvelopeSimple size={22} className="text-savanna-green shrink-0" />
-                <a className="hover:text-savanna-green transition-colors" href="mailto:hello@serengetiquest.com">
-                  hello@serengetiquest.com
+                <a className="hover:text-savanna-green transition-colors" href={`mailto:${contact.email}`}>
+                  {contact.email}
                 </a>
               </li>
             </ul>

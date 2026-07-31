@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Phone, EnvelopeSimple, PaperPlaneTilt, InstagramLogo, FacebookLogo, WhatsappLogo } from '@phosphor-icons/react'
+import { contact } from '../config/contact'
 
 export function Footer() {
   return (
@@ -11,13 +12,13 @@ export function Footer() {
             Crafting authentic Tanzanian memories since 2008. Your window into the wild heart of Africa.
           </p>
           <div className="flex items-center gap-4 text-on-surface-variant">
-            <a href="#" aria-label="Instagram" className="hover:text-savanna-green transition-colors">
+            <a href={contact.social.instagram || '#'} aria-label="Instagram" className="hover:text-savanna-green transition-colors">
               <InstagramLogo size={22} />
             </a>
-            <a href="#" aria-label="Facebook" className="hover:text-savanna-green transition-colors">
+            <a href={contact.social.facebook || '#'} aria-label="Facebook" className="hover:text-savanna-green transition-colors">
               <FacebookLogo size={22} />
             </a>
-            <a href="#" aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
+            <a href={contact.social.whatsapp || '#'} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
               <WhatsappLogo size={22} />
             </a>
           </div>
@@ -48,15 +49,15 @@ export function Footer() {
           <ul className="space-y-3 mb-6">
             <li className="flex items-start gap-2 text-on-surface-variant">
               <MapPin size={18} className="shrink-0 mt-0.5" />
-              <span>Post 44, Arusha-Dodoma Rd, Arusha, Tanzania</span>
+              <span>{contact.address}</span>
             </li>
             <li className="flex items-center gap-2 text-on-surface-variant">
               <Phone size={18} className="shrink-0" />
-              <a className="hover:text-terracotta transition-colors" href="tel:+255784123456">+255 784 123 456</a>
+              <a className="hover:text-terracotta transition-colors" href={`tel:${contact.phoneHref}`}>{contact.phone}</a>
             </li>
             <li className="flex items-center gap-2 text-on-surface-variant">
               <EnvelopeSimple size={18} className="shrink-0" />
-              <a className="hover:text-terracotta transition-colors" href="mailto:hello@serengetiquest.com">hello@serengetiquest.com</a>
+              <a className="hover:text-terracotta transition-colors" href={`mailto:${contact.email}`}>{contact.email}</a>
             </li>
           </ul>
           <form className="flex" onSubmit={(e) => e.preventDefault()}>
