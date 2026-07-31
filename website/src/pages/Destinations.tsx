@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { CalendarBlank, MapPinLine, ArrowRight, Compass, ShieldCheck } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
+import { DestinationSlideshow } from '../components/DestinationSlideshow'
 import { destinations } from '../data/destinations'
 
 export function Destinations() {
@@ -48,12 +49,7 @@ export function Destinations() {
               className="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500 flex flex-col"
             >
               <div className="relative h-64 overflow-hidden">
-                <img
-                  src={destination.image}
-                  alt={destination.imageAlt}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                <DestinationSlideshow images={destination.images} alt={destination.imageAlt} />
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-label-sm font-semibold text-savanna-green">
                   {destination.badge}
                 </div>
