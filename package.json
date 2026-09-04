@@ -1,0 +1,8 @@
+{
+  "name": "safariquest",
+  "private": true,
+  "description": "Repo root — holds Railway Infrastructure as Code (.railway/). The app lives in website/.",
+  "devDependencies": {
+    "railway": "^3.11.0"
+  }
+}

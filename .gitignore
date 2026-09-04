@@ -1,3 +1,6 @@
 .claude/
 .artifacts/
 .vscode/
+CLAUDE.md
+.agent/
+node_modules/
