@@ -5,3 +5,4 @@ CLAUDE.md
 .agent/
 node_modules/
 designs/
+.DS_Store
