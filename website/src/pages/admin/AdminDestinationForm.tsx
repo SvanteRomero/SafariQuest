@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CaretRight, Check, Plus, Trash, X } from '@phosphor-icons/react'
 import {
@@ -12,118 +12,8 @@ import {
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
 import { ImageDropzone } from '../../components/admin/ImageDropzone'
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-}
-
-function ChipInput({
-  label,
-  placeholder,
-  values,
-  onAdd,
-  onRemove,
-}: {
-  label: string
-  placeholder: string
-  values: string[]
-  onAdd: (value: string) => void
-  onRemove: (index: number) => void
-}) {
-  const [draft, setDraft] = useState('')
-  const inputId = useId()
-
-  function submit() {
-    const trimmed = draft.trim()
-    if (trimmed) {
-      onAdd(trimmed)
-      setDraft('')
-    }
-  }
-
-  return (
-    <div>
-      <label htmlFor={inputId} className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">
-        {label}
-      </label>
-      <div className="flex flex-wrap items-center gap-2 p-3 bg-surface-container-low rounded-xl">
-        {values.map((v, i) => (
-          <span
-            key={`${v}-${i}`}
-            className="px-3 py-1 rounded-full bg-surface-container-lowest shadow-sm text-sm flex items-center gap-1.5 break-all"
-          >
-            {v}
-            <button type="button" onClick={() => onRemove(i)} className="hover:text-error shrink-0">
-              <X size={12} />
-            </button>
-          </span>
-        ))}
-        <input
-          id={inputId}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          onBlur={submit}
-          placeholder={placeholder}
-          className="bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-on-surface-variant px-2 py-1 min-w-[160px] flex-1"
-        />
-      </div>
-    </div>
-  )
-}
-
-function UrlAddField({ label, placeholder, onAdd }: { label: string; placeholder: string; onAdd: (value: string) => void }) {
-  const [value, setValue] = useState('')
-  const inputId = useId()
-
-  function submit() {
-    const trimmed = value.trim()
-    if (trimmed) {
-      onAdd(trimmed)
-      setValue('')
-    }
-  }
-
-  return (
-    <div>
-      <label htmlFor={inputId} className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">
-        {label}
-      </label>
-      <div className="flex gap-2">
-        <input
-          id={inputId}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          placeholder={placeholder}
-          className="flex-1 bg-surface-container-low border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-        />
-        <button
-          type="button"
-          onClick={submit}
-          className="flex items-center gap-1 bg-surface-container-low border border-sand-stone px-4 rounded-lg text-sm text-on-surface hover:bg-surface-container-high transition-colors"
-        >
-          <Plus size={14} />
-          Add
-        </button>
-      </div>
-    </div>
-  )
-}
+import { ChipInput, UrlAddField } from '../../components/admin/FormControls'
+import { slugify } from '../../lib/slugify'
 
 export function AdminDestinationForm() {
   const { slug: existingSlug } = useParams<{ slug: string }>()

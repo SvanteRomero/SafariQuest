@@ -162,25 +162,27 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        # Read from each entry rather than popping keys out of it — REGION_SAFARIS is a
+        # module-level list, so mutating an entry in place would corrupt it for any later
+        # call of this command within the same process (e.g. a second test invoking it,
+        # or a CommandError partway through this loop leaving that entry's keys missing).
+        omit = {"itinerary", "slug", "region_slug", "park_slugs"}
         for entry in REGION_SAFARIS:
-            itinerary = entry.pop("itinerary")
-            slug = entry.pop("slug")
-            region_slug = entry.pop("region_slug")
-            park_slugs = entry.pop("park_slugs", [])
+            itinerary = entry["itinerary"]
+            slug = entry["slug"]
+            region_slug = entry["region_slug"]
+            park_slugs = entry.get("park_slugs", [])
             try:
                 region = Destination.objects.get(slug=region_slug)
             except Destination.DoesNotExist:
                 raise CommandError(f"Destination '{region_slug}' does not exist — seed destinations first.")
 
-            defaults = {**entry, "region": region}
+            defaults = {k: v for k, v in entry.items() if k not in omit}
+            defaults["region"] = region
             region_safari, created = RegionSafari.objects.update_or_create(slug=slug, defaults=defaults)
             region_safari.parks.set(Park.objects.filter(slug__in=park_slugs))
             region_safari.itinerary.all().delete()
             for day in itinerary:
                 RegionSafariItineraryDay.objects.create(safari=region_safari, **day)
 
-            entry["itinerary"] = itinerary
-            entry["region_slug"] = region_slug
-            entry["park_slugs"] = park_slugs
-            entry["slug"] = slug
             self.stdout.write(self.style.SUCCESS(f"{'Created' if created else 'Updated'} {slug}"))

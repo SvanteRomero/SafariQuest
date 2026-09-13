@@ -1,6 +1,6 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CaretRight, Check, Plus, X } from '@phosphor-icons/react'
+import { CaretRight, Check } from '@phosphor-icons/react'
 import {
   createRegionSafari,
   getRegionSafari,
@@ -12,136 +12,11 @@ import { getDestinations } from '../../api/destinations'
 import { getParks } from '../../api/parks'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
-import { uploadImage } from '../../api/uploads'
-import { ImageDropzone } from '../../components/admin/ImageDropzone'
+import { ChipInput, ToggleSwitch } from '../../components/admin/FormControls'
+import { MediaSection } from '../../components/admin/MediaSection'
+import { ItineraryEditor } from '../../components/admin/ItineraryEditor'
+import { slugify } from '../../lib/slugify'
 import type { ItineraryDay } from '../../api/safaris'
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-}
-
-function ChipInput({
-  label,
-  placeholder,
-  values,
-  onAdd,
-  onRemove,
-}: {
-  label: string
-  placeholder: string
-  values: string[]
-  onAdd: (value: string) => void
-  onRemove: (index: number) => void
-}) {
-  const [draft, setDraft] = useState('')
-  const inputId = useId()
-
-  function submit() {
-    const trimmed = draft.trim()
-    if (trimmed) {
-      onAdd(trimmed)
-      setDraft('')
-    }
-  }
-
-  return (
-    <div>
-      <label htmlFor={inputId} className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">
-        {label}
-      </label>
-      <div className="flex flex-wrap items-center gap-2 p-3 bg-surface-container-low rounded-xl">
-        {values.map((v, i) => (
-          <span
-            key={`${v}-${i}`}
-            className="px-3 py-1 rounded-full bg-surface-container-lowest shadow-sm text-sm flex items-center gap-1.5 break-all"
-          >
-            {v}
-            <button type="button" onClick={() => onRemove(i)} className="hover:text-error shrink-0">
-              <X size={12} />
-            </button>
-          </span>
-        ))}
-        <input
-          id={inputId}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          onBlur={submit}
-          placeholder={placeholder}
-          className="bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-on-surface-variant px-2 py-1 min-w-[160px] flex-1"
-        />
-      </div>
-    </div>
-  )
-}
-
-function UrlAddField({ label, placeholder, onAdd }: { label: string; placeholder: string; onAdd: (value: string) => void }) {
-  const [value, setValue] = useState('')
-  const inputId = useId()
-
-  function submit() {
-    const trimmed = value.trim()
-    if (trimmed) {
-      onAdd(trimmed)
-      setValue('')
-    }
-  }
-
-  return (
-    <div>
-      <label htmlFor={inputId} className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">
-        {label}
-      </label>
-      <div className="flex gap-2">
-        <input
-          id={inputId}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          placeholder={placeholder}
-          className="flex-1 bg-surface-container-low border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-        />
-        <button
-          type="button"
-          onClick={submit}
-          className="flex items-center gap-1 bg-surface-container-low border border-sand-stone px-4 rounded-lg text-sm text-on-surface hover:bg-surface-container-high transition-colors"
-        >
-          <Plus size={14} />
-          Add
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      aria-pressed={checked}
-      className={`w-11 h-6 rounded-full relative p-0.5 transition-colors focus:outline-none ${checked ? 'bg-savanna-green' : 'bg-sand-stone'}`}
-    >
-      <span
-        className={`block w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`}
-      />
-    </button>
-  )
-}
 
 export function AdminRegionSafariForm() {
   const { slug: existingSlug } = useParams<{ slug: string }>()
@@ -216,18 +91,6 @@ function RegionSafariFormFields({
   function handleRegionChange(value: string) {
     setRegion(value)
     setParkIds((list) => list.filter((id) => (parksList ?? []).find((p) => p.id === id)?.region === value))
-  }
-
-  function addDay() {
-    setItinerary((list) => [...list, { day: list.length + 1, title: '', description: '' }])
-  }
-
-  function updateDay(index: number, field: 'title' | 'description', value: string) {
-    setItinerary((list) => list.map((d, i) => (i === index ? { ...d, [field]: value } : d)))
-  }
-
-  function removeDay(index: number) {
-    setItinerary((list) => list.filter((_, i) => i !== index).map((d, i) => ({ ...d, day: i + 1 })))
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -465,97 +328,16 @@ function RegionSafariFormFields({
             </div>
           </section>
 
-          <section className="p-6 rounded-2xl bg-surface-container-lowest shadow-sm border border-sand-stone/50 space-y-5">
-            <h3 className="font-headline-md text-[18px] text-on-surface">Media</h3>
-            <div>
-              <span className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">Hero Image</span>
-              {image ? (
-                <div className="relative h-48 rounded-xl overflow-hidden bg-surface-container border border-sand-stone group">
-                  <img src={image} alt="" className="w-full h-full object-cover" />
-                  <label
-                    htmlFor="rs-image-upload"
-                    className="absolute inset-0 flex items-center justify-center bg-deep-earth/0 group-hover:bg-deep-earth/50 text-white text-sm font-label-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-                  >
-                    Replace image
-                  </label>
-                  <input
-                    id="rs-image-upload"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    className="sr-only"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-                      try {
-                        setImage(await uploadImage(file))
-                      } catch (err) {
-                        setUploadError(err instanceof ApiError ? err.message : 'Failed to upload image.')
-                      } finally {
-                        e.target.value = ''
-                      }
-                    }}
-                  />
-                </div>
-              ) : (
-                <ImageDropzone onUploaded={setImage} onError={setUploadError} />
-              )}
-              {uploadError && <p className="text-error text-xs mt-2">{uploadError}</p>}
-            </div>
-            <div>
-              <label htmlFor="rs-image" className="block font-label-sm text-label-sm mb-1.5">
-                Or paste an image URL
-              </label>
-              <input
-                id="rs-image"
-                required
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-              />
-            </div>
-            <div>
-              <label htmlFor="rs-image-alt" className="block font-label-sm text-label-sm mb-1.5">
-                Image Alt Text
-              </label>
-              <input
-                id="rs-image-alt"
-                required
-                value={imageAlt}
-                onChange={(e) => setImageAlt(e.target.value)}
-                className="w-full bg-surface-container-low border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-              />
-            </div>
-            <div>
-              <span className="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">
-                Gallery Images (optional)
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {galleryImages.map((src, i) => (
-                  <div key={`${src}-${i}`} className="relative h-24 rounded-lg overflow-hidden bg-surface-container border border-sand-stone group">
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setGalleryImages((list) => list.filter((_, idx) => idx !== i))}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-deep-earth/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
-                <ImageDropzone
-                  variant="tile"
-                  onUploaded={(url) => setGalleryImages((list) => [...list, url])}
-                  onError={setUploadError}
-                />
-              </div>
-            </div>
-            <UrlAddField
-              label="Or paste a gallery image URL"
-              placeholder="https://..."
-              onAdd={(v) => setGalleryImages((list) => [...list, v])}
-            />
-          </section>
+          <MediaSection
+            image={image}
+            onImageChange={setImage}
+            imageAlt={imageAlt}
+            onImageAltChange={setImageAlt}
+            galleryImages={galleryImages}
+            onGalleryImagesChange={setGalleryImages}
+            uploadError={uploadError}
+            onUploadError={setUploadError}
+          />
 
           <section className="p-6 rounded-2xl bg-surface-container-lowest shadow-sm border border-sand-stone/50 space-y-5">
             <h3 className="font-headline-md text-[18px] text-on-surface">Highlights, Inclusions &amp; Exclusions</h3>
@@ -582,44 +364,7 @@ function RegionSafariFormFields({
             />
           </section>
 
-          <section className="p-6 rounded-2xl bg-surface-container-lowest shadow-sm border border-sand-stone/50 space-y-4">
-            <h3 className="font-headline-md text-[18px] text-on-surface">Day-by-Day Itinerary</h3>
-            <div className="space-y-3">
-              {itinerary.map((day, index) => (
-                <div key={index} className="p-4 rounded-xl bg-surface-container-low space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="px-3 py-1.5 rounded-lg bg-savanna-green text-on-primary font-label-md text-xs font-bold shrink-0">
-                      DAY {day.day}
-                    </span>
-                    <input
-                      value={day.title}
-                      onChange={(e) => updateDay(index, 'title', e.target.value)}
-                      placeholder="Day title, e.g. Arrival & transfer to camp"
-                      className="flex-1 bg-transparent border-b border-sand-stone px-1 py-1 text-sm font-label-md text-on-surface focus:outline-none focus:border-savanna-green"
-                    />
-                    <button type="button" onClick={() => removeDay(index)} className="text-on-surface-variant hover:text-error p-1">
-                      <X size={16} />
-                    </button>
-                  </div>
-                  <textarea
-                    value={day.description}
-                    onChange={(e) => updateDay(index, 'description', e.target.value)}
-                    rows={2}
-                    placeholder="Describe the day's activities..."
-                    className="w-full bg-surface-container-lowest border border-sand-stone rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-savanna-green resize-y"
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={addDay}
-              className="w-full py-3 rounded-xl border-2 border-dashed border-sand-stone hover:border-savanna-green transition-colors flex items-center justify-center gap-2 text-on-surface-variant hover:text-savanna-green font-label-md text-sm"
-            >
-              <Plus size={18} />
-              Append Day {itinerary.length + 1} to Itinerary
-            </button>
-          </section>
+          <ItineraryEditor itinerary={itinerary} onChange={setItinerary} />
         </div>
 
         <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-24">
