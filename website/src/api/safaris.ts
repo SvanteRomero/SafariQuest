@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api'
+import { fromApiShape, toApiShape } from '../lib/caseMap'
 
 export interface ItineraryDay {
   day: number
@@ -49,26 +50,17 @@ interface SafariApiShape {
 }
 
 function mapSafari(raw: SafariApiShape): SafariPackage {
-  return {
-    id: raw.slug,
-    title: raw.title,
-    image: raw.image,
-    imageAlt: raw.image_alt,
-    galleryImages: raw.gallery_images,
-    rating: Number(raw.rating),
-    days: raw.days,
-    accommodation: raw.accommodation,
-    price: raw.price,
-    badge: raw.badge || undefined,
-    signature: raw.signature,
-    destination: raw.destination,
-    parks: raw.parks,
-    overview: raw.overview,
-    highlights: raw.highlights,
-    included: raw.included,
-    excluded: raw.excluded,
-    itinerary: raw.itinerary,
-  }
+  return fromApiShape<SafariApiShape, SafariPackage>(
+    raw,
+    {
+      id: (r) => r.slug,
+      rating: (r) => Number(r.rating),
+      // '' from the API means "no badge" — kept as undefined rather than an
+      // empty string so consumers can write `{safari.badge && <Badge/>}`.
+      badge: (r) => r.badge || undefined,
+    },
+    ['slug'],
+  )
 }
 
 export async function getSafaris(): Promise<SafariPackage[]> {
@@ -102,36 +94,20 @@ export interface SafariPackageInput {
   itinerary: ItineraryDay[]
 }
 
-function toApiShape(input: SafariPackageInput): SafariApiShape {
-  return {
-    slug: input.slug,
-    title: input.title,
-    image: input.image,
-    image_alt: input.imageAlt,
-    gallery_images: input.galleryImages,
-    rating: String(input.rating),
-    days: input.days,
-    accommodation: input.accommodation,
-    price: input.price,
-    badge: input.badge ?? '',
-    signature: input.signature,
-    destination: input.destination,
-    parks: input.parks,
-    overview: input.overview,
-    highlights: input.highlights,
-    included: input.included,
-    excluded: input.excluded,
-    itinerary: input.itinerary,
-  }
+function toSafariApiShape(input: SafariPackageInput): SafariApiShape {
+  return toApiShape<SafariPackageInput, SafariApiShape>(input, {
+    rating: (i) => String(i.rating),
+    badge: (i) => i.badge ?? '',
+  })
 }
 
 export async function createSafari(input: SafariPackageInput): Promise<SafariPackage> {
-  const raw = await apiPost<SafariApiShape>('/api/safaris/', toApiShape(input))
+  const raw = await apiPost<SafariApiShape>('/api/safaris/', toSafariApiShape(input))
   return mapSafari(raw)
 }
 
 export async function updateSafari(slug: string, input: SafariPackageInput): Promise<SafariPackage> {
-  const raw = await apiPatch<SafariApiShape>(`/api/safaris/${slug}/`, toApiShape(input))
+  const raw = await apiPatch<SafariApiShape>(`/api/safaris/${slug}/`, toSafariApiShape(input))
   return mapSafari(raw)
 }
 

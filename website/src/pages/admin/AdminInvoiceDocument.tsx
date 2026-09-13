@@ -1,154 +1,216 @@
-import { Link, useParams } from 'react-router-dom'
-import { DownloadSimple, EnvelopeSimple, Mountains, CalendarBlank, UsersThree, ArrowLeft } from '@phosphor-icons/react'
-import { adminInvoices } from '../../data/adminInvoices'
+import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { ArrowLeft, CalendarBlank, Mountains, Printer, Users } from '@phosphor-icons/react'
+import {
+  getInvoice,
+  updateInvoiceStatus,
+  INVOICE_STATUS_LABELS,
+  SETTABLE_INVOICE_STATUSES,
+  type InvoiceDetail,
+  type SettableInvoiceStatus,
+} from '../../api/invoices'
+import { useFetch } from '../../lib/useFetch'
+import { ApiError } from '../../lib/api'
+import { contact } from '../../config/contact'
+
+// Same 30% figure Checkout.tsx quotes a tourist at booking time — there's no
+// separate deposit-schedule model on Invoice (just one amount + status), so
+// the split shown here is derived from that existing rule rather than a
+// second, disconnected number.
+const DEPOSIT_FRACTION = 0.3
+
+function formatInvoiceNumber(invoice: InvoiceDetail) {
+  const year = invoice.issuedDate.slice(0, 4)
+  return `INV-${year}-${String(invoice.id).padStart(4, '0')}`
+}
 
 export function AdminInvoiceDocument() {
   const { invoiceId } = useParams<{ invoiceId: string }>()
-  const invoice = adminInvoices.find((inv) => inv.id === invoiceId)
+  const { data: invoice, loading, error, refetch } = useFetch<InvoiceDetail>(
+    () => getInvoice(Number(invoiceId)),
+    [invoiceId],
+  )
+  const [savingStatus, setSavingStatus] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
 
-  if (!invoice) {
-    return (
-      <div>
-        <p className="text-on-surface-variant mb-4">Invoice not found.</p>
-        <Link to="/admin/invoices" className="text-savanna-green font-label-md">
-          Back to Invoices
-        </Link>
-      </div>
-    )
+  // Payment status is set by hand — there is no gateway. The endpoint and the
+  // API client for this both already existed; nothing in the UI ever called
+  // them, so every invoice stayed "unpaid" forever and the Finance summary
+  // reported £0 collected no matter what had actually been paid.
+  async function handleStatusChange(status: SettableInvoiceStatus) {
+    if (!invoice) return
+    setActionError(null)
+    setSavingStatus(true)
+    try {
+      await updateInvoiceStatus(invoice.id, status)
+      refetch()
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Failed to update the invoice status.')
+    } finally {
+      setSavingStatus(false)
+    }
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 max-w-[210mm] mx-auto">
-        <Link to="/admin/invoices" className="flex items-center gap-1.5 text-on-surface-variant hover:text-savanna-green text-sm transition-colors">
+      <div className="flex items-center justify-between mb-6 max-w-[210mm] mx-auto print:hidden">
+        <Link
+          to="/admin/invoices"
+          className="flex items-center gap-1.5 text-on-surface-variant hover:text-savanna-green text-sm transition-colors"
+        >
           <ArrowLeft size={16} />
           Back to Invoices
         </Link>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="min-h-[40px] flex items-center gap-2 border border-sand-stone px-4 rounded-lg font-label-md text-sm hover:bg-surface-container-low transition-colors"
-          >
-            <DownloadSimple size={16} />
-            PDF
-          </button>
-          <button
-            type="button"
-            className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity"
-          >
-            <EnvelopeSimple size={16} />
-            Email Invoice
-          </button>
-        </div>
+        {invoice && (
+          <div className="flex items-center gap-3">
+            <label htmlFor="invoice-status" className="text-sm text-on-surface-variant">
+              Payment status
+            </label>
+            <select
+              id="invoice-status"
+              value={invoice.status === 'overdue' ? 'unpaid' : invoice.status}
+              disabled={savingStatus}
+              onChange={(e) => handleStatusChange(e.target.value as SettableInvoiceStatus)}
+              className="min-h-[44px] px-3 py-2 bg-surface-container-lowest border border-sand-stone rounded-lg text-sm text-on-surface focus:outline-none focus:border-savanna-green focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
+            >
+              {SETTABLE_INVOICE_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {INVOICE_STATUS_LABELS[status]}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 bg-savanna-green text-on-primary rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity"
+            >
+              <Printer size={16} />
+              Print
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* A4-style printable document */}
-      <main className="max-w-[210mm] mx-auto bg-surface-container-lowest shadow-md border border-sand-stone/50 rounded-xl p-8 md:p-12 flex flex-col">
-        {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-12 border-b border-sand-stone pb-8">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 mb-3">
-              <Mountains size={28} weight="fill" className="text-savanna-green" />
-              <span className="font-headline-md text-[20px] text-savanna-green font-bold">Pande Wilderness Safari</span>
-            </div>
-            <div className="font-label-sm text-label-sm text-on-surface-variant flex flex-col gap-1">
-              <p>123 Savannah Way, Arusha, Tanzania</p>
-              <p>+255 123 456 789</p>
-              <p>billing@pandewildernesssafari.com</p>
-            </div>
-          </div>
-          <div className="text-left sm:text-right">
-            <h1 className="font-headline-lg text-[28px] text-savanna-green uppercase tracking-wider mb-2">Invoice</h1>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-label-md text-sm">
-              <span className="text-on-surface-variant">Invoice Number:</span>
-              <span className="text-on-surface font-bold text-right">{invoice.id}</span>
-              <span className="text-on-surface-variant">Issue Date:</span>
-              <span className="text-on-surface text-right">{invoice.issuedDate}</span>
-              <span className="text-on-surface-variant">Due Date:</span>
-              <span className="text-terracotta font-bold text-right">{invoice.dueDate}</span>
-            </div>
-          </div>
-        </header>
+      {actionError && (
+        <p className="text-center text-error mb-4 max-w-[210mm] mx-auto print:hidden">{actionError}</p>
+      )}
 
-        {/* Bill To & Trip Reference */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          <div>
-            <h2 className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2 border-b border-sand-stone pb-1 inline-block">
-              Bill To
-            </h2>
-            <p className="font-headline-md text-[18px] text-on-surface mt-2">{invoice.customerName}</p>
-            <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">Booking Ref: {invoice.bookingId}</p>
-          </div>
-          <div className="bg-surface-container-low p-5 rounded-lg border border-sand-stone">
-            <h2 className="font-label-sm text-label-sm text-savanna-green uppercase tracking-wider mb-2 flex items-center gap-2">
-              <CalendarBlank size={16} />
-              Trip Reference
-            </h2>
-            <p className="font-body-lg text-[16px] font-bold text-on-surface mb-2">{invoice.packageTitle}</p>
-            <p className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant">
-              <UsersThree size={14} /> Booking {invoice.bookingId}
-            </p>
-          </div>
-        </section>
+      {loading && <p className="text-center text-on-surface-variant py-10">Loading…</p>}
+      {error && <p className="text-center text-error py-10">{error}</p>}
 
-        {/* Line items */}
-        <section className="mb-10 flex-grow">
-          <table className="w-full text-left border-collapse">
+      {!loading && !error && invoice && (
+        <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 p-12 max-w-[210mm] mx-auto print:shadow-none print:border-none">
+          <div className="flex justify-between items-start mb-8 pb-8 border-b border-sand-stone">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Mountains size={26} weight="fill" className="text-savanna-green" />
+                <h1 className="font-headline-md text-[20px] text-on-surface">Pande Wilderness Safari</h1>
+              </div>
+              <div className="text-on-surface-variant text-xs space-y-0.5">
+                {contact.address && <p>{contact.address}</p>}
+                {contact.phone && <p>{contact.phone}</p>}
+                {contact.email && <p>{contact.email}</p>}
+              </div>
+            </div>
+            <div className="text-right">
+              <h2 className="font-headline-lg text-[26px] text-savanna-green mb-2">INVOICE</h2>
+              <div className="text-xs space-y-1">
+                <p className="text-on-surface-variant">
+                  Invoice Number: <span className="text-on-surface font-label-md">{formatInvoiceNumber(invoice)}</span>
+                </p>
+                <p className="text-on-surface-variant">
+                  Issue Date: <span className="text-on-surface font-label-md">{invoice.issuedDate}</span>
+                </p>
+                <p className="text-on-surface-variant">
+                  Due Date: <span className="text-terracotta font-label-md">{invoice.dueDate}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            <div>
+              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Bill To</p>
+              <p className="font-label-md text-sm text-on-surface font-bold">{invoice.customerName}</p>
+              <p className="text-sm text-on-surface-variant">{invoice.customerEmail}</p>
+            </div>
+            <div className="bg-surface-container-low rounded-lg p-4">
+              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1.5">
+                Trip Reference
+              </p>
+              <p className="font-label-md text-sm text-on-surface mb-1.5">{invoice.packageTitle}</p>
+              <div className="flex items-center gap-4 text-xs text-on-surface-variant">
+                <span className="flex items-center gap-1">
+                  <CalendarBlank size={13} /> {invoice.startDate} – {invoice.endDate}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users size={13} /> {invoice.guests} Pax
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <table className="w-full text-left mb-8">
             <thead>
-              <tr className="border-b-2 border-savanna-green bg-surface-container-low">
-                <th className="py-3 px-4 font-label-md text-sm text-on-surface uppercase">Description</th>
-                <th className="py-3 px-4 font-label-md text-sm text-on-surface uppercase text-right">Amount</th>
+              <tr className="border-b border-sand-stone text-on-surface-variant text-xs uppercase tracking-wider">
+                <th className="py-3 font-medium">Description</th>
+                <th className="py-3 font-medium text-right">Qty</th>
+                <th className="py-3 font-medium text-right">Unit Price</th>
+                <th className="py-3 font-medium text-right">Total</th>
               </tr>
             </thead>
-            <tbody>
-              {invoice.lineItems.map((li) => (
-                <tr key={li.label} className="border-b border-sand-stone">
-                  <td className="py-4 px-4 text-on-surface text-sm font-medium">{li.label}</td>
-                  <td className="py-4 px-4 text-right text-on-surface text-sm font-bold">${li.amount.toLocaleString()}</td>
+            <tbody className="divide-y divide-sand-stone">
+              {invoice.lineItems.map((li, i) => (
+                <tr key={i}>
+                  <td className="py-3 text-sm text-on-surface">{li.label}</td>
+                  <td className="py-3 text-sm text-on-surface-variant text-right">{li.quantity}</td>
+                  <td className="py-3 text-sm text-on-surface-variant text-right">${li.unitPrice.toLocaleString()}</td>
+                  <td className="py-3 text-sm text-on-surface text-right">${li.quotePrice.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </section>
 
-        {/* Payment schedule & total */}
-        <section className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-12">
-          <div className="w-full sm:w-1/2 bg-surface-container-low rounded-lg p-5 border-l-4 border-golden-sun">
-            <h3 className="font-label-md text-sm text-on-surface uppercase mb-3 flex items-center gap-2">
-              <CalendarBlank size={16} className="text-golden-sun" />
-              Payment Schedule
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center pb-2 border-b border-dashed border-sand-stone">
-                <span className="text-on-surface-variant">30% Deposit (Due {invoice.dueDate})</span>
-                <span className="font-bold text-on-surface">${Math.round(invoice.amount * 0.3).toLocaleString()}</span>
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="bg-surface-container-low rounded-lg p-4 border-l-4 border-golden-sun h-fit">
+              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">
+                Payment Schedule
+              </p>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-on-surface-variant">Deposit ({Math.round(DEPOSIT_FRACTION * 100)}%, due {invoice.dueDate})</span>
+                <span className="text-on-surface font-label-md">
+                  ${Math.round(invoice.amount * DEPOSIT_FRACTION).toLocaleString()}
+                </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-on-surface-variant">Remaining Balance (Before departure)</span>
-                <span className="font-bold text-on-surface">${Math.round(invoice.amount * 0.7).toLocaleString()}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Balance (due before departure)</span>
+                <span className="text-on-surface font-label-md">
+                  ${Math.round(invoice.amount * (1 - DEPOSIT_FRACTION)).toLocaleString()}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Subtotal</span>
+                <span className="text-on-surface">${invoice.amount.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t border-sand-stone bg-savanna-green text-on-primary rounded-lg px-4 py-3">
+                <span className="font-label-md text-sm">TOTAL DUE</span>
+                <span className="font-headline-md text-[22px]">${invoice.amount.toLocaleString()}</span>
               </div>
             </div>
           </div>
-          <div className="w-full sm:w-72">
-            <div className="flex justify-between items-center px-4 py-3 bg-savanna-green/10 text-savanna-green rounded-lg border border-savanna-green/30 shadow-sm">
-              <span className="font-label-md text-sm uppercase tracking-wide">Total Due</span>
-              <span className="font-headline-md text-[20px] font-bold">${invoice.amount.toLocaleString()}</span>
-            </div>
-          </div>
-        </section>
 
-        {/* Footer */}
-        <footer className="mt-auto pt-8 border-t border-sand-stone text-center">
-          <h4 className="font-label-md text-label-md text-savanna-green uppercase mb-2">Payment Instructions &amp; Terms</h4>
-          <p className="font-label-sm text-label-sm text-on-surface-variant max-w-2xl mx-auto mb-4">
-            Please make bank transfers to: Pande Wilderness Safari Ltd, Account: 00123456789, Bank: Serengeti International, Swift: SRGTTZ. All
-            payments must be made in USD. Cancellations within 60 days of travel may incur fees.
-          </p>
-          <p className="font-body-md text-sm text-on-surface italic font-medium">
-            Thank you for choosing Pande Wilderness Safari — safe travels!
-          </p>
-        </footer>
-      </main>
+          <div className="pt-6 border-t border-sand-stone text-center">
+            <p className="text-on-surface-variant text-xs mb-1">
+              Bank transfer details will be shared directly by your safari consultant. All payments are quoted in USD.
+            </p>
+            <p className="text-on-surface-variant text-xs italic">
+              Thank you for choosing Pande Wilderness Safari. We look forward to hosting your adventure.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -15,24 +15,36 @@ got wired together in production.
 ```
 src/
   api/          one file per backend resource (destinations.ts, safaris.ts,
-                bookings.ts, ...) — each exports typed fetch functions and
-                converts between the API's snake_case shape and the
-                frontend's camelCase domain types
+                bookings.ts, invoices.ts, support.ts, ...) — each exports
+                typed fetch functions and converts between the API's
+                snake_case shape and the frontend's camelCase domain types
   auth/         AuthContext (session state, login/logout, role) + RequireRole
                 (route guard component)
   lib/
-    api.ts      the one place that knows the API base URL, attaches
-                credentials, and retries a 401 once via /api/auth/refresh/
-    useFetch.ts small hook wrapping the api/* functions with
-                loading/error/data/refetch state
+    api.ts            the one place that knows the API base URL, attaches
+                      credentials, handles CSRF, and retries a 401 once via
+                      /api/auth/refresh/
+    caseMap.ts        shared snake_case ↔ camelCase mapping helper
+                      (fromApiShape/toApiShape) — every api/*.ts mapper is
+                      built on this instead of hand-writing the same
+                      field-by-field conversion in each file
+    useFetch.ts       small hook wrapping the api/* functions with
+                      loading/error/data/refetch state
+    usePaginatedFetch.ts  the paginated counterpart to useFetch, for the
+                      handful of endpoints that return {count, next,
+                      previous, results} — see "Paginated lists" below
+    funnelTracking.ts fires the Trip Curator funnel events (visited/started/
+                      submitted) the admin Analytics page's funnel reads
+    seasonalPrice.ts  applies a Season's multiplier to a package's base
+                      price for a given trip date, client-side (checkout)
   components/   shared UI (Header, Footer, SafariCard, ...) plus
                 per-portal layout shells: components/admin, components/
                 account, components/guide, components/plan
   pages/        one file per route; pages/admin, pages/account, pages/guide,
                 pages/plan mirror the portal split below
-  data/         a few small local datasets (FAQs, guide reviews, etc.) that
-                aren't worth a backend model yet — everything else is
-                fetched live via api/
+  data/         a couple of small local datasets (FAQs, static "experiences"
+                copy) that aren't backed by a model on purpose — everything
+                else is fetched live via api/
 ```
 
 ### The four portals, one router
@@ -46,7 +58,7 @@ src/
 | Auth | `/sign-in`, `/set-password` | anyone |
 | Tourist account | `/account`, `/account/trips`, `/account/trips/:tripId`, `/account/invoices`, `/account/complaints`, `/account/profile` | `tourist` |
 | Guide portal | `/guide`, `/guide/trips/:tripId`, `/guide/trips/:tripId/progress`, `/guide/reviews`, `/guide/support`, `/guide/profile` | `guide` |
-| Admin/ops portal | `/admin`, `/admin/inquiries`, `/admin/clients`, `/admin/invoices`, `/admin/finance`, `/admin/pricing`, `/admin/guides`, `/admin/complaints`, `/admin/content`, `/admin/analytics`, `/admin/users` | `admin` / `sales` / `operations` |
+| Admin portal | `/admin`, `/admin/inquiries`, `/admin/clients`, `/admin/invoices`, `/admin/invoices/:invoiceId`, `/admin/finance`, `/admin/pricing`, `/admin/guides`, `/admin/complaints`, `/admin/content` (Safaris / Region Safaris / Regions / Parks tabs, each with its own `Admin*Form`), `/admin/analytics`, `/admin/users` (includes the audit-log widget) | `admin` |
 
 `auth/RequireRole` wraps the account/guide/admin route trees and redirects
 to `/sign-in` (or the correct portal home, via `ROLE_HOME`) if the signed-in
@@ -65,15 +77,39 @@ across `/plan/experiences` → `/plan/details` → `/plan/review`.
 
 ### Admin content editing
 
-`pages/admin/AdminContent.tsx` is the CMS-style hub with three tabs
-(Regions, Parks, Safaris), each backed by a matching
-`Admin*Form.tsx` (`AdminDestinationForm`, `AdminParkForm`,
-`AdminSafariForm`) that reuses `components/admin/ImageDropzone.tsx` to
-upload images through the backend's `/api/uploads/` endpoint before saving
-the record. The admin bookings pipeline
-(`AdminBookingsPipeline` / `AdminBookingDetail`) is a kanban over the
-backend's `Booking.stage` field, with a quote builder and note thread per
-booking.
+`pages/admin/AdminContent.tsx` is the CMS-style hub with four tabs
+(Safaris, Region Safaris, Regions, Parks), each backed by a matching
+`Admin*Form.tsx` (`AdminSafariForm`, `AdminRegionSafariForm`,
+`AdminDestinationForm`, `AdminParkForm`) that reuses
+`components/admin/ImageDropzone.tsx` to upload images through the backend's
+`/api/uploads/` endpoint before saving the record. The admin bookings
+pipeline (`AdminBookingsPipeline` / `AdminBookingDetail`) is a kanban over
+the backend's `Booking.stage` field, with a quote builder and note thread
+per booking.
+
+### Financial ops, CRM, and analytics (admin)
+
+- `AdminInvoices` / `AdminInvoiceDocument` / `AdminFinance` read
+  `api/invoices.ts` — a real, paginated invoice register plus a printable
+  A4 document (`window.print()`, no server-generated PDF) and a
+  revenue/collections summary. Invoices are issued automatically server-side
+  when a quote is sent; there's no create flow here, only status updates and
+  a "send reminder" action.
+- `AdminCustomers` / `AdminCustomerDetail` (Client Directory / Client 360)
+  read `api/customers.ts`, including each customer's invoice history now
+  that invoices exist.
+- `AdminComplaints` and the tourist/guide `AccountComplaints` /
+  `GuideSupport` pages all read `api/support.ts` — one real `SupportTicket`
+  model behind all three views (admin sees everything; tourists/guides see
+  only their own, via `GET /api/support/tickets/mine/`).
+- `AdminAnalytics` computes its KPI cards and tables client-side from real
+  `getBookings()`/`getSafaris()` data (no dedicated analytics endpoint for
+  those), plus a real conversion funnel from `api/analytics.ts` —
+  `lib/funnelTracking.ts` fires a `visited`/`started`/`submitted` event at
+  each Trip Curator step, keyed by an anonymous per-browser session id.
+- The Users page's Activity Log widget reads `api/auditLog.ts`
+  (`GET /api/audit-log/`), and its activate/deactivate control calls
+  `PATCH /api/users/{id}/`.
 
 ### Auth flow
 
@@ -83,7 +119,41 @@ token stored in `localStorage`/JS-readable state — see the backend README's
 cookie-auth section). `lib/api.ts` centralizes this: every request goes
 through one `request()` helper that sets `credentials: 'include'`, and a
 single 401 anywhere triggers one `/api/auth/refresh/` attempt before
-failing for real.
+failing for real. It also fetches and caches a CSRF token (`GET
+/api/auth/csrf/`), since the SPA's origin differs from the API's and
+`document.cookie` can't read the API's `csrftoken` cookie across that
+boundary — every unsafe request (POST/PATCH/DELETE) sends it back as
+`X-CSRFToken`, and a 403 naming CSRF triggers one re-fetch-and-retry, the
+same shape as the 401/refresh handling above.
+
+Every request also carries a timeout (20s, 60s for `apiUpload`) — without
+one, a hung backend left a caller's `loading` state `true` forever, with no
+error and no way out. And `parseErrorMessage` reports every invalid field
+from a DRF validation error, not just the first — a form with several bad
+fields used to make you fix one, resubmit, and get told about the next.
+
+### Paginated lists
+
+Five backend endpoints return `{count, next, previous, results}` instead of
+a bare array (see the backend README's Pagination section for which ones
+and why). Two matching primitives in `lib/api.ts` handle that:
+
+- `apiGetPage<T>(path)` — one page, normalized to `{results, count, hasNext,
+  hasPrevious}`. Pair it with `lib/usePaginatedFetch.ts` (the paginated
+  counterpart to `useFetch`) for a view that browses the list one page at a
+  time with a `<Pager>` (`components/admin/Pager.tsx`) — see
+  `pages/admin/AdminInvoices.tsx` for the pattern.
+- `apiGetAllPages<T>(path, params)` — fetches every page and flattens it.
+  For the handful of API-client functions (`getBookings`, `getCustomers`)
+  whose callers need the *whole* list rather than one page: a customer's own
+  trips, a guide's own schedule, an admin view that computes stats or
+  searches across every row. Reach for a real pager by default; only fall
+  back to this when the consuming page's own logic — not just habit — needs
+  the complete set. Getting this backwards is worse in different directions:
+  a real pager under a "must have everything" view (Kanban columns, global
+  stats, cross-page search) *silently* shows wrong data, while defaulting to
+  auto-follow-all everywhere quietly defeats the point of paginating in the
+  first place.
 
 ## Local setup
 
@@ -122,9 +192,9 @@ same artifact.
 
 | Variable | Purpose |
 |---|---|
-| `VITE_API_URL` | Base URL of the backend API. Falls back to `http://localhost:8000` if unset — which is exactly what caused production to show "Something went wrong" before this was wired up (see root `CHANGELOG.md`). |
+| `VITE_API_URL` | Base URL of the backend API. **Required for `vite build`** — the build itself fails without it (`vite.config.ts`), rather than silently shipping a bundle hardcoded to `http://localhost:8000`, which is what caused production to show "Something went wrong" the first time (see root `CHANGELOG.md`). Falls back to `http://localhost:8000` for `vite dev` only. |
 | `VITE_CONTACT_ADDRESS`, `VITE_CONTACT_EMAIL`, `VITE_CONTACT_PHONE`, `VITE_CONTACT_PHONE_HREF` | Footer/contact info. |
-| `VITE_SOCIAL_FACEBOOK`, `VITE_SOCIAL_INSTAGRAM`, `VITE_SOCIAL_WHATSAPP` | Footer social links. |
+| `VITE_SOCIAL_FACEBOOK`, `VITE_SOCIAL_INSTAGRAM`, `VITE_SOCIAL_WHATSAPP` | Footer social links, genuinely optional — empty in `.env`/`.env.example` today. Typed `string \| undefined`, not `string`; the footer only renders each icon when its value is set (`components/Footer.tsx`), rather than the `href="#"` dead links an unconditional render used to produce. |
 
 ## Deployment (Railway)
 

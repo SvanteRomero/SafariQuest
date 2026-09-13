@@ -1,4 +1,5 @@
-import { apiGet, apiPatch, apiPost } from '../lib/api'
+import { apiGet, apiGetAllPages, apiGetPage, apiPatch, apiPost, type Page } from '../lib/api'
+import { fromApiShape } from '../lib/caseMap'
 
 export type BookingStage = 'new_inquiry' | 'quoted' | 'deposit_paid' | 'confirmed' | 'completed'
 
@@ -14,15 +15,15 @@ export const STAGE_ORDER: BookingStage[] = ['new_inquiry', 'quoted', 'deposit_pa
 
 export interface QuoteLineItem {
   label: string
-  cost: number
-  markupPercent: number
+  quantity: number
+  unitPrice: number
   quotePrice: number
 }
 
 export interface QuoteLineItemInput {
   label: string
-  cost: number
-  markupPercent: number
+  quantity: number
+  unitPrice: number
 }
 
 export interface BookingNote {
@@ -30,6 +31,19 @@ export interface BookingNote {
   author: string
   text: string
   createdAt: string
+}
+
+export type MilestoneStatus = 'upcoming' | 'current' | 'completed'
+
+export interface TripMilestone {
+  id: number
+  day: number
+  title: string
+  description: string
+  status: MilestoneStatus
+  note: string
+  photo: string
+  completedAt: string | null
 }
 
 export interface Booking {
@@ -47,11 +61,20 @@ export interface Booking {
   subtotal: number
 }
 
+export interface Review {
+  guideRating: number
+  tripRating: number
+  testimonial: string
+  createdAt: string
+}
+
 export interface BookingDetail extends Booking {
   message: string
   createdAt: string
   lineItems: QuoteLineItem[]
   notes: BookingNote[]
+  milestones: TripMilestone[]
+  review: Review | null
 }
 
 export interface BookingFilters {
@@ -60,7 +83,10 @@ export interface BookingFilters {
   guide?: number | 'unassigned'
 }
 
-interface BookingApiShape {
+// Exported: the identical shape and mapper used to appear a second time in
+// customers.ts (a customer's booking history), copy-pasted verbatim. Both
+// call sites go through this one now.
+export interface BookingApiShape {
   id: number
   customer_name: string
   customer_email: string
@@ -75,28 +101,61 @@ interface BookingApiShape {
   subtotal: number
 }
 
+interface TripMilestoneApiShape {
+  id: number
+  day: number
+  title: string
+  description: string
+  status: MilestoneStatus
+  note: string
+  photo: string
+  completed_at: string | null
+}
+
+interface ReviewApiShape {
+  guide_rating: number
+  trip_rating: number
+  testimonial: string
+  created_at: string
+}
+
+// Exported: invoices.ts's line items are the identical shape (a snapshot of
+// the same QuoteLineItem, on an Invoice instead of a Booking) and previously
+// hand-wrote the same 4-field mapper a second time.
+export interface QuoteLineItemApiShape {
+  label: string
+  quantity: number
+  unit_price: number
+  quote_price: number
+}
+
+export function mapQuoteLineItem(raw: QuoteLineItemApiShape): QuoteLineItem {
+  return fromApiShape<QuoteLineItemApiShape, QuoteLineItem>(raw)
+}
+
 interface BookingDetailApiShape extends BookingApiShape {
   message: string
   created_at: string
-  line_items: { label: string; cost: number; markup_percent: number; quote_price: number }[]
+  line_items: QuoteLineItemApiShape[]
   notes: { id: number; author_name: string; text: string; created_at: string }[]
+  milestones: TripMilestoneApiShape[]
+  review: ReviewApiShape | null
 }
 
-function mapBooking(raw: BookingApiShape): Booking {
-  return {
-    id: raw.id,
-    customerName: raw.customer_name,
-    customerEmail: raw.customer_email,
-    packageTitle: raw.package_title,
-    region: raw.region,
-    startDate: raw.start_date,
-    endDate: raw.end_date,
-    guests: raw.guests,
-    stage: raw.stage,
-    assignedGuideId: raw.assigned_guide,
-    assignedGuideName: raw.assigned_guide_name,
-    subtotal: raw.subtotal,
-  }
+function mapMilestone(raw: TripMilestoneApiShape): TripMilestone {
+  return fromApiShape<TripMilestoneApiShape, TripMilestone>(raw)
+}
+
+// Exported for customers.ts, which shows a customer's own booking history —
+// the identical shape and transform, previously duplicated there verbatim.
+export function mapBooking(raw: BookingApiShape): Booking {
+  // assigned_guide -> assignedGuideId isn't a case conversion, it's a rename
+  // for clarity (this is an id, name-only fields elsewhere in this shape
+  // aren't suffixed that way) — so it needs an explicit override rather than
+  // the default auto-camelCase, and assigned_guide has to be dropped or its
+  // auto-converted form (assignedGuide) would also appear, duplicating the
+  // same value under a second, unused name.
+  return fromApiShape<BookingApiShape, Booking>(raw, { assignedGuideId: (r) => r.assigned_guide }, ['assigned_guide'])
 }
 
 function mapBookingDetail(raw: BookingDetailApiShape): BookingDetail {
@@ -104,24 +163,48 @@ function mapBookingDetail(raw: BookingDetailApiShape): BookingDetail {
     ...mapBooking(raw),
     message: raw.message,
     createdAt: raw.created_at,
-    lineItems: raw.line_items.map((li) => ({
-      label: li.label,
-      cost: li.cost,
-      markupPercent: li.markup_percent,
-      quotePrice: li.quote_price,
-    })),
+    lineItems: raw.line_items.map(mapQuoteLineItem),
     notes: raw.notes.map((n) => ({ id: n.id, author: n.author_name, text: n.text, createdAt: n.created_at })),
+    milestones: raw.milestones.map(mapMilestone),
+    review: raw.review
+      ? {
+          guideRating: raw.review.guide_rating,
+          tripRating: raw.review.trip_rating,
+          testimonial: raw.review.testimonial,
+          createdAt: raw.review.created_at,
+        }
+      : null,
   }
 }
 
-export async function getBookings(filters: BookingFilters = {}): Promise<Booking[]> {
+function bookingFilterParams(filters: BookingFilters): URLSearchParams {
   const params = new URLSearchParams()
   if (filters.stage) params.set('stage', filters.stage)
   if (filters.region) params.set('region', filters.region)
   if (filters.guide !== undefined) params.set('guide', String(filters.guide))
-  const query = params.toString()
-  const raw = await apiGet<BookingApiShape[]>(`/api/bookings/${query ? `?${query}` : ''}`)
+  return params
+}
+
+/** All bookings matching `filters`. /api/bookings/ is paginated server-side,
+ * but every caller of this function wants a small, inherently bounded list —
+ * a customer's own trips, a guide's own schedule — so pages are fetched and
+ * flattened here rather than pushing pagination out to 7 different call
+ * sites that have no use for it. The one caller that genuinely needs to
+ * browse an unbounded list (the admin inquiries pipeline) uses
+ * getBookingsPage below instead, with a real pager. */
+export async function getBookings(filters: BookingFilters = {}): Promise<Booking[]> {
+  const raw = await apiGetAllPages<BookingApiShape>('/api/bookings/', bookingFilterParams(filters))
   return raw.map(mapBooking)
+}
+
+/** One page of bookings matching `filters`, for the admin inquiries pipeline
+ * — the one view where the underlying list is genuinely unbounded (every
+ * inquiry ever made) and a real pager is worth the UI. */
+export async function getBookingsPage(filters: BookingFilters, page: number): Promise<Page<Booking>> {
+  const params = bookingFilterParams(filters)
+  params.set('page', String(page))
+  const raw = await apiGetPage<BookingApiShape>(`/api/bookings/?${params.toString()}`)
+  return { ...raw, results: raw.results.map(mapBooking) }
 }
 
 export async function getBooking(id: number): Promise<BookingDetail> {
@@ -142,7 +225,11 @@ export async function updateBooking(
 
 export async function updateQuote(id: number, lineItems: QuoteLineItemInput[]): Promise<BookingDetail> {
   const payload = {
-    line_items: lineItems.map((li) => ({ label: li.label, cost: li.cost, markup_percent: li.markupPercent })),
+    line_items: lineItems.map((li) => ({
+      label: li.label,
+      quantity: li.quantity,
+      unit_price: li.unitPrice,
+    })),
   }
   const raw = await apiPatch<BookingDetailApiShape>(`/api/bookings/${id}/quote/`, payload)
   return mapBookingDetail(raw)
@@ -155,5 +242,55 @@ export async function sendQuote(id: number): Promise<BookingDetail> {
 
 export async function addNote(id: number, text: string): Promise<BookingDetail> {
   const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/notes/`, { text })
+  return mapBookingDetail(raw)
+}
+
+export async function completeMilestone(
+  bookingId: number,
+  milestoneId: number,
+  input: { note?: string; photo?: string } = {},
+): Promise<BookingDetail> {
+  const raw = await apiPost<BookingDetailApiShape>(
+    `/api/bookings/${bookingId}/milestones/${milestoneId}/complete/`,
+    input,
+  )
+  return mapBookingDetail(raw)
+}
+
+export async function submitReview(
+  bookingId: number,
+  input: { guideRating: number; tripRating: number; testimonial?: string },
+): Promise<BookingDetail> {
+  const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${bookingId}/review/`, {
+    guide_rating: input.guideRating,
+    trip_rating: input.tripRating,
+    testimonial: input.testimonial,
+  })
+  return mapBookingDetail(raw)
+}
+
+export interface BookingCreateInput {
+  name?: string
+  email?: string
+  safari?: string
+  regionSafari?: string
+  startDate: string
+  endDate: string
+  guests: number
+  message?: string
+}
+
+export async function createBooking(input: BookingCreateInput): Promise<BookingDetail> {
+  const payload: Record<string, unknown> = {
+    start_date: input.startDate,
+    end_date: input.endDate,
+    guests: input.guests,
+  }
+  if (input.name) payload.name = input.name
+  if (input.email) payload.email = input.email
+  if (input.safari) payload.safari = input.safari
+  if (input.regionSafari) payload.region_safari = input.regionSafari
+  if (input.message) payload.message = input.message
+  const raw = await apiPost<BookingDetailApiShape>('/api/bookings/', payload)
   return mapBookingDetail(raw)
 }

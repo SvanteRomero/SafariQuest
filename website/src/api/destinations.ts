@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api'
+import { fromApiShape, toApiShape } from '../lib/caseMap'
 
 export interface DestinationExperience {
   name: string
@@ -38,21 +39,10 @@ interface DestinationApiShape {
 }
 
 function mapDestination(raw: DestinationApiShape): Destination {
-  return {
-    id: raw.slug,
-    name: raw.name,
-    images: raw.images,
-    imageAlt: raw.image_alt,
-    badge: raw.badge,
-    tags: raw.tags,
-    bestTimeToVisit: raw.best_time_to_visit,
-    highlight: raw.highlight,
-    linkLabel: raw.link_label,
-    about: raw.about,
-    wildlife: raw.wildlife,
-    gettingThere: raw.getting_there,
-    experiences: raw.experiences,
-  }
+  // id is the API's slug under a different name (not just a different case),
+  // so it needs an override — and slug has to be dropped or its own
+  // auto-converted form would also appear in the result alongside id.
+  return fromApiShape<DestinationApiShape, Destination>(raw, { id: (r) => r.slug }, ['slug'])
 }
 
 export async function getDestinations(): Promise<Destination[]> {
@@ -81,31 +71,19 @@ export interface DestinationInput {
   experiences: DestinationExperience[]
 }
 
-function toApiShape(input: DestinationInput): DestinationApiShape {
-  return {
-    slug: input.slug,
-    name: input.name,
-    images: input.images,
-    image_alt: input.imageAlt,
-    badge: input.badge,
-    tags: input.tags,
-    best_time_to_visit: input.bestTimeToVisit,
-    highlight: input.highlight,
-    link_label: input.linkLabel,
-    about: input.about,
-    wildlife: input.wildlife,
-    getting_there: input.gettingThere,
-    experiences: input.experiences,
-  }
+function toDestinationApiShape(input: DestinationInput): DestinationApiShape {
+  // Pure case conversion this direction — DestinationInput already has slug
+  // (not id) since the write payload is keyed the same way the API is.
+  return toApiShape<DestinationInput, DestinationApiShape>(input)
 }
 
 export async function createDestination(input: DestinationInput): Promise<Destination> {
-  const raw = await apiPost<DestinationApiShape>('/api/destinations/', toApiShape(input))
+  const raw = await apiPost<DestinationApiShape>('/api/destinations/', toDestinationApiShape(input))
   return mapDestination(raw)
 }
 
 export async function updateDestination(slug: string, input: DestinationInput): Promise<Destination> {
-  const raw = await apiPatch<DestinationApiShape>(`/api/destinations/${slug}/`, toApiShape(input))
+  const raw = await apiPatch<DestinationApiShape>(`/api/destinations/${slug}/`, toDestinationApiShape(input))
   return mapDestination(raw)
 }
 

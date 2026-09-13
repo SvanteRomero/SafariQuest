@@ -21,14 +21,19 @@ class SeasonAPITests(APITestCase):
     def _login_as(self, user):
         self.client.post(reverse("login"), {"email": user.email, "password": "pw12345"})
 
-    def test_anonymous_cannot_list_seasons(self):
+    def test_anonymous_can_list_seasons(self):
+        # Public read (5.3): the site needs season data to price a package for a trip date
+        # without requiring a login.
         response = self.client.get(self.list_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_non_admin_cannot_list_seasons(self):
+    def test_non_admin_can_list_but_not_create_seasons(self):
         self._login_as(self.tourist)
         response = self.client.get(self.list_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        create_response = self.client.post(self.list_url, self.payload, format="json")
+        self.assertEqual(create_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_create_and_patch_season(self):
         self._login_as(self.admin)

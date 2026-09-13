@@ -46,7 +46,7 @@ class BookingListDetailTests(APITestCase):
             assigned_guide=self.guide,
             message="Family safari, big-cat viewing please.",
         )
-        QuoteLineItem.objects.create(booking=self.booking, label="Vehicle", cost=2800, markup_percent=20, order=0)
+        QuoteLineItem.objects.create(booking=self.booking, label="Vehicle", quantity=1, unit_price=3360, order=0)
 
         self.other_booking = Booking.objects.create(
             customer=self.customer,
@@ -63,48 +63,59 @@ class BookingListDetailTests(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_tourist_cannot_list_bookings(self):
+    def test_tourist_sees_only_their_own_bookings(self):
         self._login_as(self.tourist)
         response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 0)
+
+        self._login_as(self.customer)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 2)
+
+    def test_tourist_cannot_update_bookings(self):
+        self._login_as(self.customer)
+        response = self.client.patch(reverse("booking-detail", args=[self.booking.id]), {"stage": "confirmed"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_list_bookings(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data["count"], 2)
 
     def test_list_filters_by_region(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url, {"region": "Zanzibar Extensions"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.other_booking.id)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["id"], self.other_booking.id)
 
     def test_list_filters_by_stage(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url, {"stage": "new_inquiry"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data["count"], 2)
 
     def test_list_filters_by_unassigned_guide(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url, {"guide": "unassigned"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.other_booking.id)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["id"], self.other_booking.id)
 
     def test_list_filters_by_guide_id(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url, {"guide": self.guide.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], self.booking.id)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(response.data["results"][0]["id"], self.booking.id)
 
     def test_list_item_shape(self):
         self._login_as(self.admin)
         response = self.client.get(self.list_url, {"guide": self.guide.id})
-        item = response.data[0]
+        item = response.data["results"][0]
         self.assertEqual(item["customer_name"], "Mark Thompson")
         self.assertEqual(item["package_title"], "7-Day Great Migration Quest")
         self.assertEqual(item["region"], "Serengeti National Park")
@@ -120,3 +131,17 @@ class BookingListDetailTests(APITestCase):
         self.assertEqual(len(response.data["line_items"]), 1)
         self.assertEqual(response.data["line_items"][0]["quote_price"], 3360)
         self.assertEqual(response.data["notes"], [])
+
+    def test_list_is_paginated(self):
+        self._login_as(self.admin)
+        for i in range(30):
+            start_day = i % 24 + 1  # keeps start_day+5 within October's 31 days
+            Booking.objects.create(
+                customer=self.customer, safari=self.safari_serengeti,
+                start_date=date(2026, 10, start_day), end_date=date(2026, 10, start_day + 5), guests=2,
+            )
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 32)  # 2 from setUp + 30 here
+        self.assertEqual(len(response.data["results"]), 25)  # StandardPagination.page_size
+        self.assertIsNotNone(response.data["next"])

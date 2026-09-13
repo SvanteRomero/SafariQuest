@@ -1,41 +1,33 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, DotsThreeVertical } from '@phosphor-icons/react'
-import { adminInvoices, type InvoiceStatus } from '../../data/adminInvoices'
+import { Receipt } from '@phosphor-icons/react'
+import { getInvoicesPage, INVOICE_STATUS_LABELS, type InvoiceStatus } from '../../api/invoices'
+import { usePaginatedFetch } from '../../lib/usePaginatedFetch'
+import { STANDARD_PAGE_SIZE } from '../../lib/api'
+import { Pager } from '../../components/admin/Pager'
 
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
-  Paid: 'bg-savanna-green/15 text-savanna-green border border-savanna-green/20',
-  'Deposit Paid': 'bg-golden-sun/15 text-secondary border border-golden-sun/30',
-  Unpaid: 'bg-surface-container text-on-surface-variant border border-sand-stone',
-  Overdue: 'bg-error-container text-error border border-error/20',
+  unpaid: 'bg-surface-container text-on-surface-variant',
+  deposit_paid: 'bg-golden-sun/20 text-secondary',
+  paid: 'bg-savanna-green/15 text-savanna-green',
+  overdue: 'bg-error-container text-error',
 }
 
-const STAT_CARDS: { key: InvoiceStatus | 'All'; label: string; border: string; text: string }[] = [
-  { key: 'All', label: 'All Invoices', border: 'border-l-outline-variant', text: 'text-on-surface' },
-  { key: 'Paid', label: 'Paid in Full', border: 'border-l-savanna-green', text: 'text-savanna-green' },
-  { key: 'Deposit Paid', label: 'Deposit Paid', border: 'border-l-golden-sun', text: 'text-secondary' },
-  { key: 'Unpaid', label: 'Unpaid', border: 'border-l-outline', text: 'text-on-surface-variant' },
-  { key: 'Overdue', label: 'Overdue', border: 'border-l-error', text: 'text-error' },
+const FILTERS: { label: string; value: InvoiceStatus | 'all' }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Unpaid', value: 'unpaid' },
+  { label: 'Deposit Paid', value: 'deposit_paid' },
+  { label: 'Paid', value: 'paid' },
+  { label: 'Overdue', value: 'overdue' },
 ]
 
-const TABS: (InvoiceStatus | 'All')[] = ['All', 'Paid', 'Deposit Paid', 'Unpaid', 'Overdue']
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
-
 export function AdminInvoices() {
-  const [tab, setTab] = useState<InvoiceStatus | 'All'>('All')
-  const filtered = tab === 'All' ? adminInvoices : adminInvoices.filter((inv) => inv.status === tab)
-
-  const totalAmount = filtered.reduce((s, i) => s + i.amount, 0)
-  const totalPaid = filtered.filter((i) => i.status === 'Paid').reduce((s, i) => s + i.amount, 0)
-  const totalBalance = totalAmount - totalPaid
+  const [filter, setFilter] = useState<InvoiceStatus | 'all'>('all')
+  const { data: allInvoices, loading, error, page, count, hasNext, hasPrevious, nextPage, prevPage } =
+    usePaginatedFetch(
+      (pageNum) => getInvoicesPage(filter === 'all' ? undefined : filter, pageNum),
+      [filter],
+    )
 
   return (
     <div>
@@ -44,127 +36,88 @@ export function AdminInvoices() {
         <p className="text-on-surface-variant text-sm">Every invoice issued across all bookings, by payment status.</p>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
-        {STAT_CARDS.map((card) => {
-          const cardInvoices = card.key === 'All' ? adminInvoices : adminInvoices.filter((i) => i.status === card.key)
-          const cardTotal = cardInvoices.reduce((s, i) => s + i.amount, 0)
-          return (
-            <button
-              key={card.key}
-              type="button"
-              onClick={() => setTab(card.key)}
-              className={`text-left bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-sand-stone/50 border-l-4 ${card.border} ${
-                tab === card.key ? 'ring-2 ring-savanna-green/40' : ''
-              }`}
-            >
-              <p className="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">{card.label}</p>
-              <p className={`font-headline-md text-[24px] ${card.text}`}>${(cardTotal / 1000).toFixed(cardTotal >= 1000 ? 1 : 0)}{cardTotal >= 1000 ? 'k' : ''}</p>
-              <p className="text-on-surface-variant text-xs mt-1">{cardInvoices.length} Invoices</p>
-            </button>
-          )
-        })}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFilter(f.value)}
+            className={`px-4 py-2 rounded-lg text-sm font-label-md transition-colors ${
+              filter === f.value
+                ? 'bg-savanna-green text-on-primary'
+                : 'bg-surface-container-lowest border border-sand-stone text-on-surface-variant hover:bg-surface-container'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 overflow-hidden">
-        <div className="border-b border-sand-stone px-5 pt-2 flex gap-6 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={`pb-3 pt-2 px-1 border-b-2 whitespace-nowrap font-label-md text-sm transition-colors ${
-                tab === t ? 'border-savanna-green text-savanna-green' : 'border-transparent text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+      {loading && <p className="text-center text-on-surface-variant py-10">Loading…</p>}
+      {error && <p className="text-center text-error py-10">{error}</p>}
 
-        <div className="px-5 py-3 text-on-surface-variant text-xs">
-          Showing {filtered.length} of {adminInvoices.length} entries
+      {!loading && !error && allInvoices.length === 0 && (
+        <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 p-12 flex flex-col items-center text-center">
+          <div className="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center mb-4">
+            <Receipt size={26} className="text-on-surface-variant" />
+          </div>
+          <h3 className="font-headline-md text-[18px] text-on-surface mb-2">No invoices found</h3>
+          <p className="text-on-surface-variant text-sm max-w-md">
+            {filter === 'all'
+              ? 'Invoices are issued automatically when a quote is sent to a customer.'
+              : 'No invoices currently match this filter.'}
+          </p>
         </div>
+      )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant text-xs uppercase tracking-wider">
-                <th className="px-5 py-3 font-medium">Invoice #</th>
-                <th className="px-5 py-3 font-medium">Client</th>
-                <th className="px-5 py-3 font-medium">Trip Name</th>
-                <th className="px-5 py-3 font-medium">Issue Date</th>
-                <th className="px-5 py-3 font-medium text-right">Total Amount</th>
-                <th className="px-5 py-3 font-medium text-right">Paid</th>
-                <th className="px-5 py-3 font-medium text-right">Balance</th>
-                <th className="px-5 py-3 font-medium text-center">Status</th>
-                <th className="px-5 py-3 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand-stone">
-              {filtered.map((inv) => {
-                const paid = inv.status === 'Paid' ? inv.amount : inv.status === 'Deposit Paid' ? Math.round(inv.amount * 0.3) : 0
-                const balance = inv.amount - paid
-                return (
-                  <tr key={inv.id} className={`hover:bg-surface-container-low transition-colors group ${inv.status === 'Overdue' ? 'bg-error-container/10' : ''}`}>
+      {!loading && !error && allInvoices.length > 0 && (
+        <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container-low text-on-surface-variant text-xs uppercase tracking-wider">
+                  <th className="px-5 py-3 font-medium">Customer</th>
+                  <th className="px-5 py-3 font-medium">Package</th>
+                  <th className="px-5 py-3 font-medium">Amount</th>
+                  <th className="px-5 py-3 font-medium">Issued</th>
+                  <th className="px-5 py-3 font-medium">Due</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-sand-stone">
+                {allInvoices.map((invoice) => (
+                  <tr key={invoice.id} className="hover:bg-surface-container-low transition-colors">
                     <td className="px-5 py-4">
-                      <Link to={`/admin/invoices/${inv.id}`} className="font-label-md text-sm text-savanna-green hover:underline">
-                        #{inv.id}
+                      <Link to={`/admin/invoices/${invoice.id}`} className="block">
+                        <span className="font-label-md text-sm text-on-surface">{invoice.customerName}</span>
+                        <p className="text-xs text-on-surface-variant">{invoice.customerEmail}</p>
                       </Link>
                     </td>
+                    <td className="px-5 py-4 text-sm text-on-surface-variant">{invoice.packageTitle}</td>
+                    <td className="px-5 py-4 text-sm text-on-surface">${invoice.amount.toLocaleString()}</td>
+                    <td className="px-5 py-4 text-sm text-on-surface-variant">{invoice.issuedDate}</td>
+                    <td className="px-5 py-4 text-sm text-on-surface-variant">{invoice.dueDate}</td>
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-xs font-label-md text-on-surface-variant shrink-0">
-                          {initials(inv.customerName)}
-                        </div>
-                        <span className="text-sm text-on-surface">{inv.customerName}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-on-surface-variant text-sm">{inv.packageTitle}</td>
-                    <td className="px-5 py-4 text-on-surface-variant text-sm">{inv.issuedDate}</td>
-                    <td className="px-5 py-4 text-right font-label-md text-sm text-on-surface">${inv.amount.toLocaleString()}</td>
-                    <td className="px-5 py-4 text-right text-sm text-savanna-green">${paid.toLocaleString()}</td>
-                    <td className={`px-5 py-4 text-right text-sm ${balance > 0 ? 'text-terracotta' : 'text-on-surface-variant'}`}>${balance.toLocaleString()}</td>
-                    <td className="px-5 py-4 text-center">
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs ${STATUS_STYLES[inv.status]}`}>{inv.status}</span>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link
-                          to={`/admin/invoices/${inv.id}`}
-                          className="p-1.5 text-on-surface-variant hover:text-savanna-green hover:bg-surface-container rounded transition-colors"
-                          title="View invoice"
-                        >
-                          <Eye size={18} />
-                        </Link>
-                        <button type="button" className="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" title="More actions">
-                          <DotsThreeVertical size={18} />
-                        </button>
-                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-label-sm ${STATUS_STYLES[invoice.status]}`}>
+                        {INVOICE_STATUS_LABELS[invoice.status]}
+                      </span>
                     </td>
                   </tr>
-                )
-              })}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="px-5 py-10 text-center text-on-surface-variant text-sm">
-                    No invoices in this status.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="px-5 py-4 border-t border-sand-stone bg-surface-container-low flex flex-col sm:flex-row justify-between gap-2 text-sm">
-          <span className="font-label-md text-on-surface">Page Subtotals (Visible rows)</span>
-          <div className="flex gap-6 text-on-surface-variant">
-            <span>Total Amount: <span className="font-label-md text-on-surface">${totalAmount.toLocaleString()}</span></span>
-            <span>Total Paid: <span className="font-label-md text-savanna-green">${totalPaid.toLocaleString()}</span></span>
-            <span>Total Balance: <span className="font-label-md text-terracotta">${totalBalance.toLocaleString()}</span></span>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <Pager
+            page={page}
+            count={count}
+            pageSize={STANDARD_PAGE_SIZE}
+            hasNext={hasNext}
+            hasPrevious={hasPrevious}
+            onNext={nextPage}
+            onPrevious={prevPage}
+          />
         </div>
-      </div>
+      )}
     </div>
   )
 }

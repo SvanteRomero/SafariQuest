@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api'
+import { fromApiShape, toApiShape } from '../lib/caseMap'
 
 export interface Season {
   id: number
@@ -24,22 +25,16 @@ interface SeasonApiShape {
 }
 
 function mapSeason(raw: SeasonApiShape): Season {
-  return {
-    id: raw.id,
-    name: raw.name,
-    startDate: raw.start_date,
-    endDate: raw.end_date,
-    multiplier: Number(raw.multiplier),
-  }
+  return fromApiShape<SeasonApiShape, Season>(raw, { multiplier: (r) => Number(r.multiplier) })
 }
 
-function toApiPayload(input: SeasonInput) {
-  return {
-    name: input.name,
-    start_date: input.startDate,
-    end_date: input.endDate,
-    multiplier: input.multiplier,
-  }
+// No id (a create/update body doesn't send one — Django takes it from the
+// URL on update, assigns it on create) and no overrides: unlike mapSeason
+// above, multiplier needs no coercion on the way OUT — the API accepts a
+// plain JSON number for this field; Number(...) is only needed on the way in
+// because the API always returns it serialized as a string.
+function toSeasonApiPayload(input: SeasonInput): Omit<SeasonApiShape, 'id'> {
+  return toApiShape<SeasonInput, Omit<SeasonApiShape, 'id'>>(input)
 }
 
 export async function getSeasons(): Promise<Season[]> {
@@ -48,12 +43,12 @@ export async function getSeasons(): Promise<Season[]> {
 }
 
 export async function createSeason(input: SeasonInput): Promise<Season> {
-  const raw = await apiPost<SeasonApiShape>('/api/pricing/seasons/', toApiPayload(input))
+  const raw = await apiPost<SeasonApiShape>('/api/pricing/seasons/', toSeasonApiPayload(input))
   return mapSeason(raw)
 }
 
 export async function updateSeason(id: number, input: SeasonInput): Promise<Season> {
-  const raw = await apiPatch<SeasonApiShape>(`/api/pricing/seasons/${id}/`, toApiPayload(input))
+  const raw = await apiPatch<SeasonApiShape>(`/api/pricing/seasons/${id}/`, toSeasonApiPayload(input))
   return mapSeason(raw)
 }
 

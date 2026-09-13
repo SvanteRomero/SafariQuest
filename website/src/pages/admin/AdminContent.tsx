@@ -4,10 +4,11 @@ import { Plus, PencilSimple, CaretDown, MapPin, Trash } from '@phosphor-icons/re
 import { deleteSafari, getSafaris } from '../../api/safaris'
 import { deleteDestination, getDestinations } from '../../api/destinations'
 import { deletePark, getParks } from '../../api/parks'
+import { deleteRegionSafari, getRegionSafaris } from '../../api/regionSafaris'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
 
-const TABS = ['Safaris', 'Regions', 'Parks'] as const
+const TABS = ['Safaris', 'Region Safaris', 'Regions', 'Parks'] as const
 type Tab = (typeof TABS)[number]
 
 const STATUS_FILTERS = ['All Packages', 'Published', 'Drafts'] as const
@@ -30,6 +31,13 @@ export function AdminContent() {
     useFetch(getSafaris, [])
 
   const { data: parks, loading: parksLoading, error: parksError, refetch: refetchParks } = useFetch(getParks, [])
+
+  const {
+    data: regionSafaris,
+    loading: regionSafarisLoading,
+    error: regionSafarisError,
+    refetch: refetchRegionSafaris,
+  } = useFetch(getRegionSafaris, [])
 
   function setTab(next: Tab) {
     setTabState(next)
@@ -78,6 +86,20 @@ export function AdminContent() {
     }
   }
 
+  async function handleDeleteRegionSafari(slug: string, title: string) {
+    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return
+    setDeleteError(null)
+    setDeletingSlug(slug)
+    try {
+      await deleteRegionSafari(slug)
+      refetchRegionSafaris()
+    } catch (err) {
+      setDeleteError(err instanceof ApiError ? err.message : 'Failed to delete mini safari.')
+    } finally {
+      setDeletingSlug(null)
+    }
+  }
+
   // All real safari packages are live/published — there is no draft flag in the data model yet.
   const visiblePackages = statusFilter === 'Drafts' ? [] : safariPackages ?? []
 
@@ -98,13 +120,21 @@ export function AdminContent() {
                 ? '/admin/content/destinations/new'
                 : tab === 'Parks'
                   ? '/admin/content/parks/new'
-                  : '/admin/content/safaris/new',
+                  : tab === 'Region Safaris'
+                    ? '/admin/content/region-safaris/new'
+                    : '/admin/content/safaris/new',
             )
           }
           className="flex items-center gap-2 bg-savanna-green text-on-primary py-2.5 px-6 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity w-fit shrink-0 shadow-sm"
         >
           <Plus size={18} />
-          {tab === 'Regions' ? 'Add New Destination' : tab === 'Parks' ? 'Add New Park' : 'Add New Safari Package'}
+          {tab === 'Regions'
+            ? 'Add New Destination'
+            : tab === 'Parks'
+              ? 'Add New Park'
+              : tab === 'Region Safaris'
+                ? 'Add New Mini Safari'
+                : 'Add New Safari Package'}
         </button>
       </div>
 
@@ -216,6 +246,92 @@ export function AdminContent() {
                       {statusFilter === 'Drafts'
                         ? 'No draft packages — every safari package is currently published.'
                         : 'No safari packages yet — add your first package to get started.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : tab === 'Region Safaris' ? (
+        <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 overflow-hidden">
+          {deleteError && (
+            <div className="mx-4 mt-4 bg-error-container text-error rounded-lg px-4 py-3 text-sm">{deleteError}</div>
+          )}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container-low text-on-surface-variant text-xs uppercase tracking-wider">
+                  <th className="px-5 py-3 font-medium">Mini Safari</th>
+                  <th className="px-5 py-3 font-medium">Region</th>
+                  <th className="px-5 py-3 font-medium">Duration</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-sand-stone">
+                {regionSafarisLoading && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-8 text-center text-on-surface-variant text-sm">
+                      Loading mini safaris…
+                    </td>
+                  </tr>
+                )}
+                {regionSafarisError && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-8 text-center text-error text-sm">
+                      {regionSafarisError}
+                    </td>
+                  </tr>
+                )}
+                {!regionSafarisLoading &&
+                  !regionSafarisError &&
+                  (regionSafaris ?? []).map((rs) => {
+                    const regionName = (destinations ?? []).find((d) => d.id === rs.region)?.name ?? rs.region
+                    return (
+                      <tr key={rs.id} className="hover:bg-surface-container-low transition-colors group">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <img src={rs.image} alt={rs.imageAlt} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                            <div>
+                              <p className="font-label-md text-sm text-on-surface">{rs.title}</p>
+                              <p className="text-on-surface-variant text-xs">{regionName}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-on-surface-variant text-sm">{regionName}</td>
+                        <td className="px-5 py-4 text-on-surface-variant text-sm">{rs.days} days</td>
+                        <td className="px-5 py-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-savanna-green/15 text-savanna-green">
+                            <span className="w-1.5 h-1.5 rounded-full bg-savanna-green" />
+                            {rs.signature ? 'Featured' : 'Published'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                            <Link
+                              to={`/admin/content/region-safaris/${rs.id}/edit`}
+                              className="inline-flex text-on-surface-variant hover:text-savanna-green p-1.5 rounded-full hover:bg-surface-container transition-colors"
+                            >
+                              <PencilSimple size={18} />
+                            </Link>
+                            <button
+                              type="button"
+                              disabled={deletingSlug === rs.id}
+                              onClick={() => handleDeleteRegionSafari(rs.id, rs.title)}
+                              className="inline-flex text-on-surface-variant hover:text-error p-1.5 rounded-full hover:bg-surface-container transition-colors disabled:opacity-50"
+                            >
+                              <Trash size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                {!regionSafarisLoading && !regionSafarisError && (regionSafaris ?? []).length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-8 text-center text-on-surface-variant text-sm">
+                      No mini safaris yet — add your first region-scoped experience to get started.
                     </td>
                   </tr>
                 )}

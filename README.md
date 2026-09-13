@@ -42,6 +42,13 @@ content-management tab of the admin portal. See `backend/README.md` for the
 model definitions and `website/README.md` for how the frontend mirrors
 this.
 
+There's a second, simpler product alongside multi-park safaris: a
+**`RegionSafari`** is a mini safari scoped to a single region (no
+cross-region itinerary), for a shorter or lower-commitment trip. It has its
+own admin editor tab (Content → Region Safaris) and its own API
+(`/api/region-safaris/`), and the booking flow accepts either a `SafariPackage`
+or a `RegionSafari` as the thing being booked.
+
 ## Quick start
 
 Run both sides locally, in separate terminals:

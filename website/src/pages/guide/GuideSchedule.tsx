@@ -2,23 +2,45 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell, CalendarBlank, CalendarCheck, CaretRight, CheckCircle } from '@phosphor-icons/react'
 import { GuideBottomNav } from '../../components/guide/GuideBottomNav'
-import { guideTrips } from '../../data/guideTrips'
+import { getBookings, type Booking } from '../../api/bookings'
+import { useFetch } from '../../lib/useFetch'
 import { useAuth } from '../../auth/AuthContext'
 
 const FILTERS = ['Today', 'Upcoming', 'Past'] as const
 type Filter = (typeof FILTERS)[number]
 
-const STATUS_TO_FILTER: Record<string, Filter> = {
-  'in-progress': 'Today',
-  confirmed: 'Upcoming',
-  completed: 'Past',
+function tripFilter(trip: Booking, today: Date): Filter {
+  const start = new Date(`${trip.startDate}T00:00:00`)
+  const end = new Date(`${trip.endDate}T00:00:00`)
+  if (trip.stage === 'completed' || end < today) return 'Past'
+  if (start <= today && today <= end) return 'Today'
+  return 'Upcoming'
 }
 
 export function GuideSchedule() {
   const { user } = useAuth()
   const firstName = user?.name?.split(' ')[0] || user?.email || 'there'
   const [filter, setFilter] = useState<Filter>('Today')
-  const visibleTrips = guideTrips.filter((trip) => STATUS_TO_FILTER[trip.status] === filter)
+  const { data: bookings, loading, error } = useFetch<Booking[]>(() => getBookings(), [])
+  const trips = bookings ?? []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const groups = trips.reduce<Record<Filter, Booking[]>>(
+    (acc, trip) => {
+      acc[tripFilter(trip, today)].push(trip)
+      return acc
+    },
+    { Today: [], Upcoming: [], Past: [] },
+  )
+  const visibleTrips = groups[filter]
+
+  const weekEnd = new Date(today)
+  weekEnd.setDate(weekEnd.getDate() + 7)
+  const tripsThisWeek = trips.filter((t) => {
+    const start = new Date(`${t.startDate}T00:00:00`)
+    return start >= today && start <= weekEnd
+  }).length
 
   return (
     <div className="min-h-screen bg-surface-bright">
@@ -33,7 +55,6 @@ export function GuideSchedule() {
           className="relative p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
         >
           <Bell size={22} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary" />
         </button>
       </header>
 
@@ -52,7 +73,7 @@ export function GuideSchedule() {
               <span className="font-label-sm text-label-sm text-on-surface-variant">Today</span>
             </div>
             <p className="font-display-lg text-2xl text-on-surface font-bold">
-              1 <span className="font-body-md text-body-md text-on-surface-variant font-normal">trip</span>
+              {groups.Today.length} <span className="font-body-md text-body-md text-on-surface-variant font-normal">trip{groups.Today.length === 1 ? '' : 's'}</span>
             </p>
           </div>
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant/50">
@@ -61,7 +82,7 @@ export function GuideSchedule() {
               <span className="font-label-sm text-label-sm text-on-surface-variant">This Week</span>
             </div>
             <p className="font-display-lg text-2xl text-on-surface font-bold">
-              3 <span className="font-body-md text-body-md text-on-surface-variant font-normal">trips</span>
+              {tripsThisWeek} <span className="font-body-md text-body-md text-on-surface-variant font-normal">trip{tripsThisWeek === 1 ? '' : 's'}</span>
             </p>
           </div>
         </div>
@@ -81,63 +102,60 @@ export function GuideSchedule() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-4">
-          {visibleTrips.length === 0 && (
-            <p className="font-body-md text-body-md text-on-surface-variant text-center py-12">
-              No {filter.toLowerCase()} trips.
-            </p>
-          )}
-          {visibleTrips.map((trip) => {
-            const isInProgress = trip.status === 'in-progress'
-            const isCompleted = trip.status === 'completed'
-            return (
-              <Link
-                key={trip.id}
-                to={`/guide/trips/${trip.id}`}
-                className={`block bg-surface-container-lowest rounded-xl p-4 border relative overflow-hidden ${
-                  isInProgress ? 'border-golden-sun/40 shadow-sm' : 'border-surface-variant/50'
-                } ${isCompleted ? 'opacity-70' : ''}`}
-              >
-                {isInProgress && <div className="absolute top-0 left-0 w-1.5 h-full bg-golden-sun" />}
-                <div className={`flex items-start justify-between gap-3 ${isInProgress ? 'pl-2' : ''}`}>
-                  <div>
-                    {isInProgress && (
-                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary border border-secondary-container/30 mb-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-golden-sun animate-pulse" />
-                        <span className="font-label-sm text-label-sm">{trip.statusLabel}</span>
-                      </div>
-                    )}
-                    {!isInProgress && (
+        {loading && <p className="text-center text-on-surface-variant py-12">Loading…</p>}
+        {error && <p className="text-center text-error py-12">{error}</p>}
+
+        {!loading && !error && (
+          <div className="flex flex-col gap-4">
+            {visibleTrips.length === 0 && (
+              <p className="font-body-md text-body-md text-on-surface-variant text-center py-12">
+                No {filter.toLowerCase()} trips.
+              </p>
+            )}
+            {visibleTrips.map((trip) => {
+              const isToday = filter === 'Today'
+              const isPast = filter === 'Past'
+              return (
+                <Link
+                  key={trip.id}
+                  to={`/guide/trips/${trip.id}`}
+                  className={`block bg-surface-container-lowest rounded-xl p-4 border relative overflow-hidden ${
+                    isToday ? 'border-golden-sun/40 shadow-sm' : 'border-surface-variant/50'
+                  } ${isPast ? 'opacity-70' : ''}`}
+                >
+                  {isToday && <div className="absolute top-0 left-0 w-1.5 h-full bg-golden-sun" />}
+                  <div className={`flex items-start justify-between gap-3 ${isToday ? 'pl-2' : ''}`}>
+                    <div>
                       <span
                         className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-label-sm text-label-sm mb-2 ${
-                          isCompleted ? 'bg-surface-container text-on-surface-variant' : 'bg-surface-container text-on-surface'
+                          isPast ? 'bg-surface-container text-on-surface-variant' : 'bg-surface-container text-on-surface'
                         }`}
                       >
-                        {isCompleted && <CheckCircle size={14} />}
-                        {trip.statusLabel}
+                        {isPast && <CheckCircle size={14} />}
+                        {trip.stage.replace('_', ' ')}
                       </span>
-                    )}
-                    <h3 className={`font-headline-md text-[20px] ${isCompleted ? 'text-on-surface-variant' : 'text-on-surface'}`}>
-                      {trip.packageTitle}
-                    </h3>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">
-                      {isCompleted ? trip.dateRange : `${trip.guest.name} party`}
-                    </p>
-                    {!isCompleted && (
-                      <div className="flex items-center gap-4 mt-3 text-on-surface-variant">
-                        <span className="flex items-center gap-1 font-label-sm text-label-sm">
-                          <CalendarBlank size={16} />
-                          {trip.dateRange}
-                        </span>
-                      </div>
-                    )}
+                      <h3 className={`font-headline-md text-[20px] ${isPast ? 'text-on-surface-variant' : 'text-on-surface'}`}>
+                        {trip.packageTitle}
+                      </h3>
+                      <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">
+                        {isPast ? `${trip.startDate} – ${trip.endDate}` : `${trip.customerName} party`}
+                      </p>
+                      {!isPast && (
+                        <div className="flex items-center gap-4 mt-3 text-on-surface-variant">
+                          <span className="flex items-center gap-1 font-label-sm text-label-sm">
+                            <CalendarBlank size={16} />
+                            {trip.startDate} – {trip.endDate}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <CaretRight size={20} className="text-on-surface-variant mt-1 shrink-0" />
                   </div>
-                  <CaretRight size={20} className="text-on-surface-variant mt-1 shrink-0" />
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </main>
 
       <GuideBottomNav active="schedule" />

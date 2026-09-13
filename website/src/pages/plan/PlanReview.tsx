@@ -2,26 +2,87 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MapPin, CalendarBlank, NotePencil, ShieldCheck, PencilSimple, PaperPlaneRight } from '@phosphor-icons/react'
 import { getDestinations } from '../../api/destinations'
-import { getSafaris } from '../../api/safaris'
+import { getSafaris, type SafariPackage } from '../../api/safaris'
+import { getRegionSafaris, type RegionSafari } from '../../api/regionSafaris'
+import { createBooking } from '../../api/bookings'
 import { useFetch } from '../../lib/useFetch'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
+import { useAuth } from '../../auth/AuthContext'
+import { ApiError } from '../../lib/api'
+import { addDays } from '../../lib/date'
+import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanReview() {
   const { plan } = useTripPlan()
   const navigate = useNavigate()
+  const { refreshUser } = useAuth()
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
   const { data: destinations } = useFetch(getDestinations, [])
   const { data: safaris } = useFetch(getSafaris, [])
+  const { data: regionSafaris } = useFetch(getRegionSafaris, [])
 
   const selectedDestinations = (destinations ?? []).filter((d) => plan.destinationIds.includes(d.id))
-  const selectedExperiences = (safaris ?? [])
-    .filter((s) => plan.experienceIds.includes(s.id))
-    .map((s) => ({ id: s.id, title: s.title }))
+  const selectedSafaris = (safaris ?? []).filter((s) => plan.experienceIds.includes(s.id))
+  const selectedRegionSafaris = (regionSafaris ?? []).filter((s) => plan.experienceIds.includes(s.id))
+  const selectedExperiences: { id: string; title: string }[] = [
+    ...selectedSafaris.map((s) => ({ id: s.id, title: s.title })),
+    ...selectedRegionSafaris.map((s) => ({ id: s.id, title: s.title })),
+  ]
   const travelers = plan.adults + plan.children
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function buildMessage(): string {
+    const lines = [
+      `Destinations: ${selectedDestinations.map((d) => d.name).join(', ') || 'None selected'}`,
+      `Experiences: ${selectedExperiences.map((e) => e.title).join(', ') || 'None selected'}`,
+      `Accommodation style: ${plan.accommodationTier}`,
+    ]
+    if (phone) lines.push(`Phone / WhatsApp: ${phone}`)
+    if (plan.notes) lines.push(`Notes: ${plan.notes}`)
+    return lines.join('\n')
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    navigate('/inquiry-received', { state: { name } })
+    setFormError(null)
+
+    // Booking has one primary product (safari or region_safari); everything else selected is
+    // folded into the message for the admin to read while quoting.
+    const primarySafari: SafariPackage | undefined = selectedSafaris[0]
+    const primaryRegionSafari: RegionSafari | undefined = selectedRegionSafaris[0]
+
+    if (!primarySafari && !primaryRegionSafari) {
+      setFormError('Select at least one experience before submitting your inquiry.')
+      return
+    }
+    if (!plan.travelDates) {
+      setFormError('Choose an estimated start date before submitting your inquiry.')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      await createBooking({
+        name,
+        email,
+        safari: primarySafari?.id,
+        regionSafari: !primarySafari ? primaryRegionSafari?.id : undefined,
+        startDate: plan.travelDates,
+        endDate: addDays(plan.travelDates, plan.days),
+        guests: travelers,
+        message: buildMessage(),
+      })
+      await refreshUser()
+      trackFunnelEvent('submitted')
+      navigate('/inquiry-received', { state: { name } })
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -85,7 +146,7 @@ export function PlanReview() {
                 <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                   Travel Dates
                 </p>
-                <p className="font-label-md text-on-surface">{plan.travelDates || 'Flexible'}</p>
+                <p className="font-label-md text-on-surface">{plan.travelDates || 'Not set'}</p>
               </div>
               <div>
                 <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
@@ -156,6 +217,8 @@ export function PlanReview() {
                 id="review-email"
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="jane@example.com"
                 className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
               />
@@ -178,6 +241,8 @@ export function PlanReview() {
                   id="review-phone"
                   type="tel"
                   required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="(000) 000-0000"
                   className="flex-1 min-w-0 min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
                 />
@@ -192,11 +257,18 @@ export function PlanReview() {
               </p>
             </div>
 
+            {formError && (
+              <p role="alert" className="text-error font-label-sm text-label-sm">
+                {formError}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary py-4 rounded-lg font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md"
+              disabled={submitting}
+              className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary py-4 rounded-lg font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit Inquiry
+              {submitting ? 'Submitting…' : 'Submit Inquiry'}
               <PaperPlaneRight size={18} weight="bold" />
             </button>
           </form>

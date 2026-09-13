@@ -1,18 +1,6 @@
-import { CreditCard, DownloadSimple } from '@phosphor-icons/react'
-import { myTrips } from '../../data/myTrips'
-
-const STATUS_STYLES: Record<'paid' | 'due', string> = {
-  paid: 'bg-savanna-green/10 text-savanna-green',
-  due: 'bg-golden-sun/15 text-secondary',
-}
+import { CreditCard } from '@phosphor-icons/react'
 
 export function AccountInvoices() {
-  const invoices = myTrips.map((trip, i) => ({
-    id: `INV-${1000 + i}`,
-    trip,
-    status: trip.status === 'completed' ? ('paid' as const) : ('due' as const),
-  }))
-
   return (
     <div>
       <div className="mb-10">
@@ -24,37 +12,14 @@ export function AccountInvoices() {
         </p>
       </div>
 
-      {invoices.length === 0 ? (
-        <p className="text-on-surface-variant">No invoices yet.</p>
-      ) : (
-        <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(45,45,45,0.06)] border border-surface-variant overflow-hidden">
-          <div className="divide-y divide-sand-stone">
-            {invoices.map((invoice) => (
-              <div key={invoice.id} className="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-savanna-green shrink-0">
-                  <CreditCard size={22} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-label-md text-label-md text-on-surface truncate">{invoice.trip.packageTitle}</p>
-                  <p className="text-on-surface-variant text-sm">
-                    {invoice.id} · {invoice.trip.dateRange}
-                  </p>
-                </div>
-                <span className={`px-3 py-1 rounded-full font-label-sm text-label-sm shrink-0 ${STATUS_STYLES[invoice.status]}`}>
-                  {invoice.status === 'paid' ? 'Paid' : 'Balance Due'}
-                </span>
-                <button
-                  type="button"
-                  className="min-h-[44px] inline-flex items-center gap-2 border border-sand-stone text-on-surface px-4 rounded-lg font-label-md text-label-sm hover:bg-surface-container-low transition-colors shrink-0"
-                >
-                  <DownloadSimple size={16} />
-                  Download
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_4px_20px_rgba(45,45,45,0.06)] border border-surface-variant text-center">
+        <CreditCard size={40} className="text-on-surface-variant mx-auto mb-4" />
+        <p className="font-headline-md text-headline-md text-on-surface mb-2">Invoicing isn&apos;t set up yet</p>
+        <p className="text-on-surface-variant max-w-md mx-auto">
+          Deposit and balance invoices aren&apos;t generated yet. Your safari specialist will send payment details
+          directly once your quote is confirmed.
+        </p>
+      </div>
     </div>
   )
 }

@@ -1,13 +1,24 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Camera, CheckCircle, PaperPlaneTilt, ShieldCheck } from '@phosphor-icons/react'
-import { myTrips } from '../../data/myTrips'
+import { ArrowLeft, CheckCircle, PaperPlaneTilt, ShieldCheck } from '@phosphor-icons/react'
+import { getBooking } from '../../api/bookings'
+import { createTicket } from '../../api/support'
+import { useFetch } from '../../lib/useFetch'
+import { ApiError } from '../../lib/api'
 
 export function ReportIssue() {
   const { tripId } = useParams<{ tripId: string }>()
-  const trip = myTrips.find((t) => t.id === tripId)
+  const { data: trip, loading } = useFetch(() => getBooking(Number(tripId)), [tripId])
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [description, setDescription] = useState('')
+  const [photo, setPhoto] = useState('')
+
+  if (loading) {
+    return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+  }
 
   if (!trip) {
     return (
@@ -18,6 +29,21 @@ export function ReportIssue() {
         </Link>
       </div>
     )
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    if (!trip) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      await createTicket({ booking: trip.id, description, photo: photo || undefined })
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to submit your report.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -64,21 +90,22 @@ export function ReportIssue() {
                 </div>
                 <div className="font-headline-md text-[18px] text-on-surface">{trip.packageTitle}</div>
               </div>
-              <div className="hidden sm:block w-px h-10 bg-surface-container-highest" />
-              <div>
-                <div className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                  Guide
-                </div>
-                <div className="text-on-surface">{trip.guide.name}</div>
-              </div>
+              {trip.assignedGuideName && (
+                <>
+                  <div className="hidden sm:block w-px h-10 bg-surface-container-highest" />
+                  <div>
+                    <div className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
+                      Guide
+                    </div>
+                    <div className="text-on-surface">{trip.assignedGuideName}</div>
+                  </div>
+                </>
+              )}
             </div>
 
             <form
               className="bg-surface-container-lowest border border-surface-variant/40 rounded-xl p-6 md:p-10 shadow-sm space-y-8"
-              onSubmit={(e) => {
-                e.preventDefault()
-                setSubmitted(true)
-              }}
+              onSubmit={handleSubmit}
             >
               <div>
                 <label htmlFor="issue-description" className="block font-label-md text-label-md text-on-surface mb-2">
@@ -88,24 +115,27 @@ export function ReportIssue() {
                   id="issue-description"
                   required
                   rows={6}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Please describe the issue in detail..."
                   className="w-full bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green resize-y"
                 />
               </div>
 
               <div>
-                <p className="block font-label-md text-label-md text-on-surface mb-2">Optional: Upload Photos</p>
-                <button
-                  type="button"
-                  className="w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed border-sand-stone rounded-lg py-10 text-on-surface-variant hover:border-savanna-green hover:text-savanna-green transition-colors"
-                >
-                  <Camera size={36} />
-                  <span className="text-on-surface">Click to upload or drag and drop</span>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant">
-                    PNG, JPG, or PDF (max. 10MB)
-                  </span>
-                </button>
+                <label htmlFor="issue-photo" className="block font-label-md text-label-md text-on-surface mb-2">
+                  Optional: Photo URL
+                </label>
+                <input
+                  id="issue-photo"
+                  value={photo}
+                  onChange={(e) => setPhoto(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                />
               </div>
+
+              {error && <p className="text-error text-sm">{error}</p>}
 
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-surface-variant/30">
                 <div className="flex items-start gap-3 flex-1">
@@ -117,9 +147,10 @@ export function ReportIssue() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full md:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary px-8 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity"
+                  disabled={submitting}
+                  className="w-full md:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary px-8 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity disabled:opacity-60"
                 >
-                  Submit Report
+                  {submitting ? 'Submitting…' : 'Submit Report'}
                   <PaperPlaneTilt size={18} />
                 </button>
               </div>

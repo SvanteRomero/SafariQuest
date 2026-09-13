@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Ticket, Money, Compass, Lightning, DownloadSimple, ArrowRight, CalendarBlank } from '@phosphor-icons/react'
 import { getBookings, STAGE_LABELS, type Booking, type BookingStage } from '../../api/bookings'
-import { adminCustomers } from '../../data/adminCustomers'
 import { useAuth } from '../../auth/AuthContext'
 import { useFetch } from '../../lib/useFetch'
 
@@ -37,17 +36,6 @@ const SEASONS = [
   { key: 'Rainy (Mar-May)', months: [2, 3, 4], color: 'bg-outline' },
 ] as const
 
-const ORIGIN_DOT = ['bg-savanna-green', 'bg-terracotta', 'bg-golden-sun', 'bg-primary-fixed-dim', 'bg-secondary-container', 'bg-outline']
-
-const COUNTRY_COORDS: Record<string, { top: number; left: number }> = {
-  'United States': { top: 38, left: 20 },
-  'United Kingdom': { top: 26, left: 47 },
-  Germany: { top: 25, left: 53 },
-  Sweden: { top: 15, left: 54 },
-  Singapore: { top: 58, left: 78 },
-  Nigeria: { top: 58, left: 50 },
-}
-
 function initials(name: string) {
   return name
     .split(' ')
@@ -56,32 +44,6 @@ function initials(name: string) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-}
-
-function WorldMapDecor({ markers }: { markers: { label: string; top: number; left: number; color: string }[] }) {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <svg viewBox="0 0 1000 500" className="w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <rect width="1000" height="500" fill="transparent" />
-        <g fill="#becaba" opacity="0.55">
-          <path d="M60,110 Q140,70 225,105 Q265,150 235,215 Q195,265 130,245 Q65,210 60,150 Z" />
-          <path d="M175,260 Q225,248 245,300 Q235,385 195,425 Q160,385 158,320 Z" />
-          <path d="M478,85 Q545,65 575,108 Q562,150 518,152 Q478,132 478,85 Z" />
-          <path d="M468,160 Q562,150 585,262 Q562,362 498,382 Q448,320 458,230 Z" />
-          <path d="M598,78 Q755,55 825,140 Q805,222 700,232 Q605,190 598,78 Z" />
-          <path d="M758,340 Q832,328 852,370 Q820,402 768,390 Z" />
-        </g>
-      </svg>
-      {markers.map((m) => (
-        <span
-          key={m.label}
-          className={`absolute w-2.5 h-2.5 rounded-full ${m.color} ring-4 ring-white/50 shadow-sm`}
-          style={{ top: `${m.top}%`, left: `${m.left}%`, transform: 'translate(-50%, -50%)' }}
-          title={m.label}
-        />
-      ))}
-    </div>
-  )
 }
 
 export function AdminDashboard() {
@@ -154,16 +116,6 @@ export function AdminDashboard() {
     return { ...season, count }
   })
   const maxSeasonCount = Math.max(...bookingsBySeason.map((s) => s.count), 1)
-
-  const originCounts = Array.from(
-    adminCustomers.reduce((map, c) => {
-      map.set(c.origin, (map.get(c.origin) ?? 0) + 1)
-      return map
-    }, new Map<string, number>()),
-  ).sort((a, b) => b[1] - a[1])
-  const topOrigins = originCounts.slice(0, 3)
-  const [topOriginName, topOriginCount] = originCounts[0]
-  const topOriginPct = Math.round((topOriginCount / adminCustomers.length) * 100)
 
   return (
     <div>
@@ -249,40 +201,6 @@ export function AdminDashboard() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50 mb-8">
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-5">
-              <div>
-                <h3 className="font-headline-md text-[18px] text-on-surface">Global Customer Origin</h3>
-                <p className="text-on-surface-variant text-sm mt-0.5">Primary source markets for incoming safaris</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {topOrigins.map(([origin, count], i) => (
-                  <div key={origin} className="flex items-center gap-2 border border-sand-stone rounded-full px-3 py-1">
-                    <span className={`w-2 h-2 rounded-full ${ORIGIN_DOT[i % ORIGIN_DOT.length]}`} />
-                    <span className="text-xs font-label-md text-on-surface-variant">
-                      {origin} ({Math.round((count / adminCustomers.length) * 100)}%)
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="relative w-full h-[320px] rounded-xl overflow-hidden bg-surface-container-low">
-              <WorldMapDecor
-                markers={originCounts
-                  .filter(([origin]) => COUNTRY_COORDS[origin])
-                  .map(([origin], i) => ({ label: origin, ...COUNTRY_COORDS[origin], color: ORIGIN_DOT[i % ORIGIN_DOT.length] }))}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low/60 to-transparent pointer-events-none" />
-              <div className="absolute bottom-5 right-5 max-w-xs bg-surface-container-lowest/95 backdrop-blur-md rounded-lg shadow-xl border border-sand-stone p-4">
-                <h5 className="font-label-md text-sm text-on-surface mb-1.5">Market Insights</h5>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  {topOriginName} is currently the top source market, representing {topOriginPct}% of tracked customers across{' '}
-                  {originCounts.length} countries.
-                </p>
               </div>
             </div>
           </div>

@@ -30,7 +30,7 @@ class QuoteUpdateTests(APITestCase):
         self.booking = Booking.objects.create(
             customer=customer, safari=safari, start_date=date(2026, 9, 1), end_date=date(2026, 9, 7), guests=4
         )
-        QuoteLineItem.objects.create(booking=self.booking, label="Old item", cost=100, markup_percent=10, order=0)
+        QuoteLineItem.objects.create(booking=self.booking, label="Old item", quantity=1, unit_price=110, order=0)
         self.quote_url = reverse("booking-quote", args=[self.booking.id])
 
     def _login_as(self, user):
@@ -40,8 +40,8 @@ class QuoteUpdateTests(APITestCase):
         self._login_as(self.admin)
         payload = {
             "line_items": [
-                {"label": "Vehicle & driver-guide (7 days)", "cost": 2800, "markup_percent": 20},
-                {"label": "Luxury tented camp", "cost": 9600, "markup_percent": 15},
+                {"label": "Vehicle & driver-guide (7 days)", "quantity": 1, "unit_price": 3360},
+                {"label": "Luxury tented camp", "quantity": 1, "unit_price": 11040},
             ]
         }
         response = self.client.patch(self.quote_url, payload, format="json")
@@ -52,9 +52,9 @@ class QuoteUpdateTests(APITestCase):
         self.assertEqual(self.booking.line_items.count(), 2)
         self.assertFalse(self.booking.line_items.filter(label="Old item").exists())
 
-    def test_rejects_negative_cost(self):
+    def test_rejects_negative_unit_price(self):
         self._login_as(self.admin)
-        payload = {"line_items": [{"label": "Vehicle", "cost": -100, "markup_percent": 20}]}
+        payload = {"line_items": [{"label": "Vehicle", "quantity": 1, "unit_price": -100}]}
         response = self.client.patch(self.quote_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

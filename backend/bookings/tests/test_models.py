@@ -52,13 +52,15 @@ class BookingModelTests(TestCase):
             ],
         )
 
-    def test_quote_line_item_price_applies_markup_and_rounds(self):
-        item = QuoteLineItem.objects.create(booking=self.booking, label="Vehicle", cost=2800, markup_percent=20, order=0)
+    def test_quote_line_item_price_multiplies_quantity_by_unit_price(self):
+        item = QuoteLineItem.objects.create(
+            booking=self.booking, label="Vehicle", quantity=2, unit_price=1680, order=0
+        )
         self.assertEqual(item.quote_price, 3360)
 
     def test_booking_subtotal_sums_all_line_items(self):
-        QuoteLineItem.objects.create(booking=self.booking, label="Vehicle", cost=2800, markup_percent=20, order=0)
-        QuoteLineItem.objects.create(booking=self.booking, label="Camp", cost=9600, markup_percent=15, order=1)
+        QuoteLineItem.objects.create(booking=self.booking, label="Vehicle", quantity=2, unit_price=1680, order=0)
+        QuoteLineItem.objects.create(booking=self.booking, label="Camp", quantity=1, unit_price=11040, order=1)
         self.assertEqual(self.booking.subtotal, 3360 + 11040)
 
     def test_booking_with_no_line_items_has_zero_subtotal(self):

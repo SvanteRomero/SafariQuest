@@ -24,8 +24,6 @@ import { useAuth } from '../../auth/AuthContext'
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrator',
-  sales: 'Sales Agent',
-  operations: 'Operations',
 }
 
 function initials(nameOrEmail: string) {

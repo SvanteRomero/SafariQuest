@@ -1,14 +1,22 @@
 import { Link, useParams } from 'react-router-dom'
-import { Star, Check, CaretRight, ChatCircleDots, ArrowLeft } from '@phosphor-icons/react'
-import { adminStaff } from '../../data/adminStaff'
-
-const STAGE_ORDER = ['New Inquiry', 'Quoted', 'Deposit Paid', 'Confirmed', 'Completed'] as const
+import { Star, CaretRight, ChatCircleDots, ArrowLeft } from '@phosphor-icons/react'
+import { getGuide } from '../../api/guides'
+import { getBookings, STAGE_LABELS } from '../../api/bookings'
+import { useFetch } from '../../lib/useFetch'
 
 export function AdminGuideDetail() {
   const { id } = useParams<{ id: string }>()
-  const staff = adminStaff.find((s) => s.id === id)
+  const { data: guide, loading: guideLoading, error: guideError } = useFetch(() => getGuide(id!), [id])
+  const { data: bookings, loading: bookingsLoading, error: bookingsError } = useFetch(
+    () => getBookings({ guide: Number(id) }),
+    [id],
+  )
 
-  if (!staff) {
+  if (guideLoading || bookingsLoading) {
+    return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+  }
+
+  if (guideError || !guide) {
     return (
       <div>
         <p className="text-on-surface-variant mb-4">Staff member not found.</p>
@@ -19,12 +27,10 @@ export function AdminGuideDetail() {
     )
   }
 
-  // No backend yet for guide trip assignments; the pipeline booking data
-  // (website/src/api/bookings.ts) isn't keyed to this mock staff roster.
-  const activeBookings: { id: string; customerName: string; packageTitle: string; dateRange: string }[] = []
-  const upcomingBookings: { id: string; customerName: string; packageTitle: string; dateRange: string }[] = []
+  const allBookings = bookings ?? []
+  const activeBookings = allBookings.filter((b) => b.stage !== 'completed' && b.stage !== 'new_inquiry')
+  const upcomingBookings = allBookings.filter((b) => b.stage === 'confirmed' || b.stage === 'quoted')
   const currentTrip = activeBookings[0]
-  const currentStageIndex = -1
 
   return (
     <div>
@@ -35,20 +41,21 @@ export function AdminGuideDetail() {
 
       <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50 mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center font-headline-md text-xl text-on-surface-variant border-2 border-sand-stone shrink-0">
-          {staff.name.charAt(0)}
+          {guide.name.charAt(0)}
         </div>
         <div className="flex-1">
-          <h2 className="font-headline-md text-[24px] text-on-surface">{staff.name}</h2>
+          <h2 className="font-headline-md text-[24px] text-on-surface">{guide.name}</h2>
           <p className="text-on-surface-variant text-sm">
-            {staff.role} &bull; {staff.status}
+            {guide.role} &bull; {guide.status}
           </p>
         </div>
         <div className="flex items-center gap-1 text-golden-sun bg-surface-container-low rounded-lg px-4 py-2">
           <Star size={20} weight="fill" />
-          <span className="font-headline-md text-on-surface">{staff.rating}</span>
-          <span className="text-on-surface-variant text-sm ml-1">({staff.reviewCount} reviews)</span>
+          <span className="font-headline-md text-on-surface">{guide.rating}</span>
         </div>
       </div>
+
+      {(guideError || bookingsError) && <p className="text-error text-sm mb-6">{bookingsError}</p>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 flex flex-col gap-8">
@@ -68,35 +75,14 @@ export function AdminGuideDetail() {
             {currentTrip && (
               <div className="bg-surface-container-low rounded-xl p-4 border border-sand-stone/50">
                 <p className="font-body-md text-on-surface font-semibold mb-1">
-                  {currentTrip.id.toUpperCase()} &middot; {currentTrip.customerName}
+                  Booking #{currentTrip.id} &middot; {currentTrip.customerName}
                 </p>
-                <p className="font-label-sm text-on-surface-variant mb-4">
-                  {currentTrip.packageTitle} &bull; {currentTrip.dateRange}
+                <p className="font-label-sm text-on-surface-variant mb-2">
+                  {currentTrip.packageTitle} &bull; {currentTrip.startDate} – {currentTrip.endDate}
                 </p>
-                <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:ml-2.5 before:w-0.5 before:h-full before:bg-sand-stone">
-                  {STAGE_ORDER.map((stage, i) => {
-                    const isDone = i < currentStageIndex
-                    const isCurrent = i === currentStageIndex
-                    return (
-                      <div key={stage} className="relative">
-                        <span
-                          className={`absolute -left-6 w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-surface-container-low ${
-                            isDone ? 'bg-savanna-green' : isCurrent ? 'bg-primary-container' : 'bg-surface-dim'
-                          }`}
-                        >
-                          {isDone && <Check size={12} weight="bold" className="text-white" />}
-                          {isCurrent && <span className="w-2 h-2 rounded-full bg-on-primary-container" />}
-                        </span>
-                        <div className="flex justify-between items-start">
-                          <p className={`font-label-md text-sm ${isCurrent ? 'text-savanna-green font-bold' : isDone ? 'text-on-surface' : 'text-on-surface-variant'}`}>
-                            {stage}
-                          </p>
-                          {isCurrent && <span className="font-label-sm text-xs text-savanna-green font-bold">Current Stage</span>}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-label-sm bg-surface-container text-on-surface">
+                  {STAGE_LABELS[currentTrip.stage]}
+                </span>
               </div>
             )}
           </section>
@@ -114,7 +100,7 @@ export function AdminGuideDetail() {
                   <div className="flex-1 min-w-0">
                     <p className="font-label-md text-sm text-on-surface font-bold truncate">{b.packageTitle}</p>
                     <p className="font-label-sm text-on-surface-variant text-xs">
-                      {b.customerName} &bull; {b.dateRange}
+                      {b.customerName} &bull; {b.startDate} – {b.endDate}
                     </p>
                   </div>
                   <CaretRight size={16} className="text-on-surface-variant shrink-0" />
@@ -129,23 +115,9 @@ export function AdminGuideDetail() {
             <h3 className="font-label-md text-sm text-on-surface font-bold uppercase tracking-wider">Recent Reviews</h3>
             <ChatCircleDots size={18} className="text-on-surface-variant" />
           </div>
-          <div className="space-y-4">
-            {staff.reviews.length === 0 && <p className="text-on-surface-variant text-sm">No reviews yet.</p>}
-            {staff.reviews.map((r, i) => (
-              <div key={i} className={`pb-4 ${i < staff.reviews.length - 1 ? 'border-b border-sand-stone/50' : ''}`}>
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex gap-0.5 text-golden-sun">
-                    {Array.from({ length: 5 }).map((_, star) => (
-                      <Star key={star} size={14} weight="fill" className={star < r.rating ? '' : 'text-outline-variant'} />
-                    ))}
-                  </div>
-                  <span className="font-label-sm text-on-surface-variant text-xs">{r.date}</span>
-                </div>
-                <p className="font-body-md text-sm text-on-surface">&ldquo;{r.comment}&rdquo;</p>
-                <p className="font-label-sm text-on-surface-variant text-xs mt-2">&mdash; {r.guestName}</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-on-surface-variant text-sm">
+            Individual guest reviews aren&apos;t recorded yet — only the aggregate rating above is tracked.
+          </p>
         </section>
       </div>
     </div>

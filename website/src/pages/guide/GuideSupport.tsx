@@ -1,8 +1,11 @@
-import { useState } from 'react'
-import { BookOpen, Broadcast, Camera, ChatCircle, FirstAidKit, Phone } from '@phosphor-icons/react'
+import { useState, type FormEvent } from 'react'
+import { BookOpen, Broadcast, FirstAidKit, ChatCircle, Phone } from '@phosphor-icons/react'
 import { GuideTopBar } from '../../components/guide/GuideTopBar'
 import { GuideBottomNav } from '../../components/guide/GuideBottomNav'
-import { guideTrips } from '../../data/guideTrips'
+import { getBookings, type Booking } from '../../api/bookings'
+import { createTicket } from '../../api/support'
+import { useFetch } from '../../lib/useFetch'
+import { ApiError } from '../../lib/api'
 
 const CATEGORIES = ['Vehicle Issue', 'Guest Emergency', 'Guide Safety', 'Equipment', 'Other']
 
@@ -14,6 +17,34 @@ const HELP_LINKS = [
 
 export function GuideSupport() {
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { data: bookings } = useFetch<Booking[]>(() => getBookings(), [])
+  const trips = bookings ?? []
+
+  const [tripId, setTripId] = useState('')
+  const [category, setCategory] = useState(CATEGORIES[0])
+  const [description, setDescription] = useState('')
+  const [photo, setPhoto] = useState('')
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    setError(null)
+    setSubmitting(true)
+    try {
+      await createTicket({
+        booking: tripId ? Number(tripId) : undefined,
+        category,
+        description,
+        photo: photo || undefined,
+      })
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to submit report.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface-bright">
@@ -50,24 +81,21 @@ export function GuideSupport() {
               Report submitted — Operations has been notified.
             </p>
           ) : (
-            <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault()
-                setSubmitted(true)
-              }}
-            >
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="issue-trip" className="font-label-sm text-label-sm text-on-surface-variant mb-1.5 block">
-                  Trip
+                  Trip (optional)
                 </label>
                 <select
                   id="issue-trip"
+                  value={tripId}
+                  onChange={(e) => setTripId(e.target.value)}
                   className="w-full bg-surface border border-surface-variant rounded-lg py-2.5 px-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  {guideTrips.map((trip) => (
+                  <option value="">None</option>
+                  {trips.map((trip) => (
                     <option key={trip.id} value={trip.id}>
-                      {trip.packageTitle} — {trip.dateRange}
+                      {trip.packageTitle} — {trip.startDate} – {trip.endDate}
                     </option>
                   ))}
                 </select>
@@ -78,6 +106,8 @@ export function GuideSupport() {
                 </label>
                 <select
                   id="issue-category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
                   className="w-full bg-surface border border-surface-variant rounded-lg py-2.5 px-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   {CATEGORIES.map((cat) => (
@@ -94,23 +124,26 @@ export function GuideSupport() {
                 <textarea
                   id="issue-description"
                   required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={4}
                   placeholder="What happened?"
                   className="w-full bg-surface border border-surface-variant rounded-lg p-3 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-outline-variant rounded-lg py-3 text-on-surface-variant hover:border-primary hover:text-primary transition-colors font-label-md text-label-md"
-              >
-                <Camera size={20} />
-                Add Photo
-              </button>
+              <input
+                value={photo}
+                onChange={(e) => setPhoto(e.target.value)}
+                placeholder="Photo URL (optional)"
+                className="w-full bg-surface border border-surface-variant rounded-lg py-2.5 px-3 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {error && <p className="text-error text-sm">{error}</p>}
               <button
                 type="submit"
-                className="w-full bg-savanna-green text-on-primary py-3 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
+                disabled={submitting}
+                className="w-full bg-savanna-green text-on-primary py-3 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm disabled:opacity-60"
               >
-                Submit Report
+                {submitting ? 'Submitting…' : 'Submit Report'}
               </button>
             </form>
           )}

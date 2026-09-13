@@ -16,7 +16,13 @@ import {
   Info,
 } from '@phosphor-icons/react'
 import { getSafari, type SafariPackage } from '../api/safaris'
+import { createBooking } from '../api/bookings'
+import { getSeasons } from '../api/pricing'
 import { useFetch } from '../lib/useFetch'
+import { useAuth } from '../auth/AuthContext'
+import { ApiError } from '../lib/api'
+import { addDays } from '../lib/date'
+import { activeSeasonForDate, seasonalPrice } from '../lib/seasonalPrice'
 import { contact } from '../config/contact'
 
 type PaymentOption = 'card' | 'transfer' | 'mobile'
@@ -31,7 +37,9 @@ const STEPS: { key: CheckoutStep; label: string }[] = [
 export function Checkout() {
   const { id } = useParams<{ id: string }>()
   const { data: safari, loading, error } = useFetch<SafariPackage>(() => getSafari(id!), [id])
+  const { data: seasons } = useFetch(getSeasons, [])
   const navigate = useNavigate()
+  const { refreshUser } = useAuth()
 
   const [step, setStep] = useState<CheckoutStep>('details')
   const [fullName, setFullName] = useState('')
@@ -40,6 +48,8 @@ export function Checkout() {
   const [adults, setAdults] = useState(2)
   const [children, setChildren] = useState(0)
   const [payment, setPayment] = useState<PaymentOption>('card')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   if (loading) {
     return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
@@ -61,19 +71,51 @@ export function Checkout() {
     )
   }
 
-  const total = safari.price * adults + safari.price * 0.5 * children
+  const activeSeason = activeSeasonForDate(seasons ?? [], preferredDate)
+  const adultPrice = seasonalPrice(safari.price, seasons ?? [], preferredDate)
+  const childPrice = Math.round(adultPrice * 0.5)
+  const total = adultPrice * adults + childPrice * children
   const deposit = total * 0.3
   const activeIndex = STEPS.findIndex((s) => s.key === step)
   const safariTitle = safari.title
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const PAYMENT_LABEL: Record<PaymentOption, string> = {
+    card: 'Credit Card',
+    transfer: 'Bank Transfer',
+    mobile: 'Mobile Money',
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (step === 'details') {
       setStep('review')
-    } else if (step === 'review') {
+      return
+    }
+    if (step === 'review') {
       setStep('payment')
-    } else {
+      return
+    }
+
+    if (!safari) return
+
+    setSubmitError(null)
+    setSubmitting(true)
+    try {
+      await createBooking({
+        name: fullName,
+        email,
+        safari: safari.id,
+        startDate: preferredDate,
+        endDate: addDays(preferredDate, safari.days),
+        guests: adults + children,
+        message: `${adults} adult${adults !== 1 ? 's' : ''}${children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}. Payment method selected at checkout: ${PAYMENT_LABEL[payment]} (not yet processed — no payment gateway is integrated).`,
+      })
+      await refreshUser()
       navigate('/booking-confirmed', { state: { title: safariTitle } })
+    } catch (err) {
+      setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -158,32 +200,30 @@ export function Checkout() {
                       <label htmlFor="checkout-adults" className="font-label-md text-label-sm text-on-surface-variant">
                         Adults (12+ yrs)
                       </label>
-                      <select
+                      <input
                         id="checkout-adults"
+                        type="number"
+                        min={1}
+                        step={1}
+                        required
                         value={adults}
-                        onChange={(e) => setAdults(Number(e.target.value))}
+                        onChange={(e) => setAdults(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
                         className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                      >
-                        <option value={1}>1 Adult</option>
-                        <option value={2}>2 Adults</option>
-                        <option value={3}>3 Adults</option>
-                        <option value={4}>4+ Adults</option>
-                      </select>
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-children" className="font-label-md text-label-sm text-on-surface-variant">
                         Children (2-11 yrs)
                       </label>
-                      <select
+                      <input
                         id="checkout-children"
+                        type="number"
+                        min={0}
+                        step={1}
                         value={children}
-                        onChange={(e) => setChildren(Number(e.target.value))}
+                        onChange={(e) => setChildren(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
                         className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                      >
-                        <option value={0}>0 Children</option>
-                        <option value={1}>1 Child</option>
-                        <option value={2}>2 Children</option>
-                      </select>
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-date" className="font-label-md text-label-sm text-on-surface-variant">
@@ -192,6 +232,7 @@ export function Checkout() {
                       <input
                         id="checkout-date"
                         type="date"
+                        required
                         value={preferredDate}
                         onChange={(e) => setPreferredDate(e.target.value)}
                         className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
@@ -242,7 +283,7 @@ export function Checkout() {
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                         Preferred Start Date
                       </p>
-                      <p className="font-label-md text-on-surface">{preferredDate || 'Flexible'}</p>
+                      <p className="font-label-md text-on-surface">{preferredDate}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
@@ -375,17 +416,22 @@ export function Checkout() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-on-surface-variant">
                     <span>
-                      {adults} adult{adults !== 1 ? 's' : ''} × ${safari.price.toLocaleString()}
+                      {adults} adult{adults !== 1 ? 's' : ''} × ${adultPrice.toLocaleString()}
                     </span>
-                    <span>${(safari.price * adults).toLocaleString()}</span>
+                    <span>${(adultPrice * adults).toLocaleString()}</span>
                   </div>
                   {children > 0 && (
                     <div className="flex justify-between text-on-surface-variant">
                       <span>
-                        {children} child{children !== 1 ? 'ren' : ''} × ${(safari.price * 0.5).toLocaleString()}
+                        {children} child{children !== 1 ? 'ren' : ''} × ${childPrice.toLocaleString()}
                       </span>
-                      <span>${(safari.price * 0.5 * children).toLocaleString()}</span>
+                      <span>${(childPrice * children).toLocaleString()}</span>
                     </div>
+                  )}
+                  {activeSeason && (
+                    <p className="text-xs text-terracotta">
+                      {activeSeason.name} pricing applied ({activeSeason.multiplier}×)
+                    </p>
                   )}
                 </div>
 
@@ -398,12 +444,24 @@ export function Checkout() {
                   <span>${deposit.toLocaleString()}</span>
                 </div>
 
+                {submitError && (
+                  <p role="alert" className="text-center text-error font-label-sm text-label-sm">
+                    {submitError}
+                  </p>
+                )}
                 <button
                   type="submit"
                   form="checkout-form"
-                  className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-lg shadow-savanna-green/20"
+                  disabled={submitting}
+                  className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-lg shadow-savanna-green/20 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {step === 'payment' ? 'Complete Booking' : step === 'review' ? 'Continue to Payment' : 'Continue to Review'}
+                  {step === 'payment'
+                    ? submitting
+                      ? 'Completing…'
+                      : 'Complete Booking'
+                    : step === 'review'
+                      ? 'Continue to Payment'
+                      : 'Continue to Review'}
                   <ArrowRight size={18} weight="bold" />
                 </button>
                 <p className="text-center text-label-sm text-on-surface-variant px-2">

@@ -47,6 +47,7 @@ import { AdminContent } from './pages/admin/AdminContent'
 import { AdminDestinationForm } from './pages/admin/AdminDestinationForm'
 import { AdminParkForm } from './pages/admin/AdminParkForm'
 import { AdminSafariForm } from './pages/admin/AdminSafariForm'
+import { AdminRegionSafariForm } from './pages/admin/AdminRegionSafariForm'
 import { AdminFinance } from './pages/admin/AdminFinance'
 import { AdminInvoices } from './pages/admin/AdminInvoices'
 import { AdminInvoiceDocument } from './pages/admin/AdminInvoiceDocument'
@@ -122,7 +123,7 @@ function App() {
           <Route path="support" element={<GuideSupport />} />
         </Route>
 
-        <Route element={<RequireRole allow={['sales', 'operations', 'admin']} />}>
+        <Route element={<RequireRole allow={['admin']} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="inquiries" element={<AdminBookingsPipeline />} />
@@ -141,6 +142,8 @@ function App() {
             <Route path="content/destinations/:slug/edit" element={<AdminDestinationForm />} />
             <Route path="content/safaris/new" element={<AdminSafariForm />} />
             <Route path="content/safaris/:slug/edit" element={<AdminSafariForm />} />
+            <Route path="content/region-safaris/new" element={<AdminRegionSafariForm />} />
+            <Route path="content/region-safaris/:slug/edit" element={<AdminRegionSafariForm />} />
             <Route path="content/parks/new" element={<AdminParkForm />} />
             <Route path="content/parks/:slug/edit" element={<AdminParkForm />} />
             <Route path="analytics" element={<AdminAnalytics />} />

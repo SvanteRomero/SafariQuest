@@ -179,7 +179,7 @@ export function DestinationDetail() {
       <section className="relative overflow-hidden bg-surface-container py-24">
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(#6f7a6d 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+          style={{ backgroundImage: 'radial-gradient(#8A7259 1px, transparent 1px)', backgroundSize: '32px 32px' }}
         />
         <Reveal className="max-w-4xl mx-auto text-center px-5 relative z-10">
           <h2 className="font-display-lg text-headline-lg md:text-display-lg text-on-surface mb-6">
@@ -190,7 +190,7 @@ export function DestinationDetail() {
             preferences.
           </p>
           <Link
-            to="/plan"
+            to={`/plan/experiences?region=${destination.id}`}
             className="inline-flex min-h-[44px] items-center justify-center bg-golden-sun text-ivory-base font-label-md text-lg px-10 py-4 rounded-full hover:opacity-90 transition-opacity"
           >
             Start Planning

@@ -9,8 +9,6 @@ type Tab = 'signin' | 'signup'
 const ROLE_HOME: Record<string, string> = {
   tourist: '/account',
   guide: '/guide',
-  sales: '/admin',
-  operations: '/admin',
   admin: '/admin',
 }
 
