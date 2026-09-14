@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Phone,
   Envelope,
+  CreditCard,
+  WhatsappLogo,
 } from '@phosphor-icons/react'
 import { contact } from '../config/contact'
 
@@ -31,8 +33,8 @@ const NEXT_STEPS = [
     icon: ShieldCheck,
     borderColor: 'border-terracotta',
     iconColor: 'text-terracotta',
-    title: '3. Secure Your Spot',
-    body: 'Finalize your booking with a secure deposit and receive your full welcome pack.',
+    title: '3. Welcome Pack',
+    body: "With your deposit already secured, we'll send your full welcome pack and travel document checklist as your trip approaches.",
   },
 ]
 
@@ -45,7 +47,10 @@ const BENTO_SMALL_IMAGE =
 
 export function BookingConfirmed() {
   const location = useLocation()
-  const title = (location.state as { title?: string } | null)?.title
+  const state = location.state as { title?: string; paidAmount?: number; paidToEmail?: string } | null
+  const title = state?.title
+  const paidAmount = state?.paidAmount
+  const paidToEmail = state?.paidToEmail
 
   return (
     <>
@@ -65,6 +70,20 @@ export function BookingConfirmed() {
               master guides and planners have received your reservation and are already mapping out your authentic
               Tanzanian adventure.
             </p>
+            {paidAmount !== undefined && (
+              <div className="flex items-start gap-3 bg-savanna-green/10 border border-savanna-green/20 rounded-xl p-5 mb-10 max-w-lg">
+                <CreditCard size={22} className="text-savanna-green shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-label-md text-label-md text-on-surface mb-1">
+                    Deposit of ${paidAmount.toLocaleString()} received
+                  </p>
+                  <p className="text-on-surface-variant text-sm">
+                    A payment confirmation was sent to {paidToEmail ?? 'your registration email'}. This was a test
+                    payment — real card processing is coming soon.
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/account"
@@ -79,6 +98,15 @@ export function BookingConfirmed() {
               >
                 Browse More Safaris
               </Link>
+              {contact.social.whatsapp && (
+                <a
+                  href={contact.social.whatsapp}
+                  className="min-h-[44px] inline-flex items-center gap-2 border-2 border-savanna-green text-savanna-green px-8 py-3.5 rounded-full font-label-md text-label-md hover:bg-savanna-green/5 transition-colors"
+                >
+                  <WhatsappLogo size={20} weight="fill" />
+                  Chat on WhatsApp
+                </a>
+              )}
             </div>
           </div>
           <div className="relative">

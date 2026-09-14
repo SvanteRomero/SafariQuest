@@ -109,6 +109,13 @@ export async function getInvoicesPage(status: InvoiceStatus | undefined, page: n
   return { ...raw, results: raw.results.map(mapInvoice) }
 }
 
+/** The signed-in tourist's own payment history — a small, bounded set (one person's own
+ * invoices), so unlike getInvoicesPage this isn't paginated. */
+export async function getMyInvoices(): Promise<Invoice[]> {
+  const raw = await apiGet<InvoiceApiShape[]>('/api/invoices/mine/')
+  return raw.map(mapInvoice)
+}
+
 export async function getInvoice(id: number): Promise<InvoiceDetail> {
   const raw = await apiGet<InvoiceDetailApiShape>(`/api/invoices/${id}/`)
   return mapInvoiceDetail(raw)

@@ -1,5 +1,15 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Phone, EnvelopeSimple, PaperPlaneTilt, InstagramLogo, FacebookLogo, WhatsappLogo } from '@phosphor-icons/react'
+import {
+  MapPin,
+  Phone,
+  EnvelopeSimple,
+  PaperPlaneTilt,
+  InstagramLogo,
+  FacebookLogo,
+  WhatsappLogo,
+  LinkedinLogo,
+  TiktokLogo,
+} from '@phosphor-icons/react'
 import { contact } from '../config/contact'
 
 export function Footer() {
@@ -13,7 +23,7 @@ export function Footer() {
           </p>
           {/* `|| '#'` used to render these as dead links whenever the VITE_SOCIAL_*
               vars were unset, which is their state in .env and .env.example alike.
-              About.tsx and InquiryReceived.tsx already gate on the value being
+              About.tsx and BookingConfirmed.tsx already gate on the value being
               present; this matches them. */}
           <div className="flex items-center gap-4 text-on-surface-variant">
             {contact.social.instagram && (
@@ -29,6 +39,16 @@ export function Footer() {
             {contact.social.whatsapp && (
               <a href={contact.social.whatsapp} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
                 <WhatsappLogo size={22} />
+              </a>
+            )}
+            {contact.social.linkedin && (
+              <a href={contact.social.linkedin} aria-label="LinkedIn" className="hover:text-savanna-green transition-colors">
+                <LinkedinLogo size={22} />
+              </a>
+            )}
+            {contact.social.tiktok && (
+              <a href={contact.social.tiktok} aria-label="TikTok" className="hover:text-savanna-green transition-colors">
+                <TiktokLogo size={22} />
               </a>
             )}
           </div>

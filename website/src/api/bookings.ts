@@ -240,6 +240,13 @@ export async function sendQuote(id: number): Promise<BookingDetail> {
   return mapBookingDetail(raw)
 }
 
+/** Records a mock deposit payment at checkout (1.3) — no card gateway is integrated yet, so
+ * this just posts the amount the checkout page already computed and showed the tourist. */
+export async function payForBooking(id: number, amount: number): Promise<BookingDetail> {
+  const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/pay/`, { amount })
+  return mapBookingDetail(raw)
+}
+
 export async function addNote(id: number, text: string): Promise<BookingDetail> {
   const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/notes/`, { text })
   return mapBookingDetail(raw)

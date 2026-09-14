@@ -23,6 +23,7 @@ from .serializers import (
     BookingDetailSerializer,
     BookingListSerializer,
     BookingNoteInputSerializer,
+    BookingPaySerializer,
     BookingUpdateSerializer,
     InvoiceDetailSerializer,
     InvoiceSerializer,
@@ -57,7 +58,7 @@ class BookingViewSet(
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
-        if self.action in ("list", "retrieve", "milestones", "complete_milestone", "review"):
+        if self.action in ("list", "retrieve", "milestones", "complete_milestone", "review", "pay"):
             return [IsAuthenticated()]
         return [IsAdminRole()]
 
@@ -247,16 +248,69 @@ class BookingViewSet(
         booking.refresh_from_db()
         return Response(BookingDetailSerializer(booking).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=["post"], url_path="pay")
+    def pay(self, request, pk=None):
+        """Records a mock deposit payment at checkout time (1.3). There's no payment
+        gateway yet — card details never reach this endpoint, only the amount the
+        checkout page already computed and showed the tourist. Real card processing is
+        PLANNED; this exists so the booking → paid → confirmed flow is real end to end
+        in the meantime, rather than faked with client-only state."""
+        booking = self.get_object()
+        if request.user.role != User.ROLE_TOURIST or booking.customer_id != request.user.id:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        if booking.stage != Booking.STAGE_NEW_INQUIRY:
+            return Response(
+                {"detail": "This booking has already been paid."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = BookingPaySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        amount = serializer.validated_data["amount"]
+
+        # Stage + invoice have to land together, same reasoning as send_quote above —
+        # a crash between them must not leave a "paid" booking with no invoice record.
+        with transaction.atomic():
+            booking.stage = Booking.STAGE_DEPOSIT_PAID
+            booking.save(update_fields=["stage"])
+            invoice = Invoice.objects.create(
+                booking=booking,
+                amount=amount,
+                status=Invoice.STATUS_DEPOSIT_PAID,
+                due_date=timezone.localdate(),
+            )
+        send_notification(
+            subject=f"Payment received — {booking.package_title}",
+            message=(
+                f"Hi {booking.customer.name or booking.customer.email},\n\n"
+                f"We've received your deposit of ${amount:,} for {booking.package_title}. This "
+                "is a mock payment confirmation for testing — no real charge was made; card "
+                "processing is coming soon. Thank you for booking with Pande Wilderness Safari!"
+            ),
+            recipient_list=[booking.customer.email],
+        )
+        log_action(
+            request.user,
+            "booking.payment_recorded",
+            f"Mock deposit of ${amount:,} recorded for booking #{booking.id} (invoice #{invoice.id})",
+        )
+        booking.refresh_from_db()
+        return Response(BookingDetailSerializer(booking).data)
+
 
 class InvoiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    """Invoices are issued automatically when a quote is sent (2.2) — there's no create endpoint
-    here. Status is set manually by Admin; there's no payment gateway (5.1 / 5.2)."""
+    """Invoices are issued automatically when a quote is sent (2.2) or a checkout deposit is
+    paid (1.3) — there's no create endpoint here. Status is otherwise set manually by Admin;
+    there's no real payment gateway yet (5.1 / 5.2), just the mock checkout deposit above."""
 
     pagination_class = StandardPagination
     queryset = Invoice.objects.select_related(
         "booking", "booking__customer", "booking__safari", "booking__region_safari"
     ).prefetch_related("booking__line_items")
     permission_classes = [IsAdminRole]
+
+    def get_permissions(self):
+        if self.action == "mine":
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -272,6 +326,14 @@ class InvoiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             # how to compute the same thing in SQL (see with_effective_status).
             queryset = queryset.with_effective_status().filter(effective_status_db=status_param)
         return queryset
+
+    @action(detail=False, methods=["get"], url_path="mine")
+    def mine(self, request):
+        """The signed-in tourist's own payment history (5.1, tourist-facing). Same shape as
+        SupportTicketViewSet.mine — a small, inherently bounded set (one person's own
+        invoices), so it deliberately skips pagination rather than going through list()."""
+        invoices = self.get_queryset().filter(booking__customer=request.user)
+        return Response(InvoiceSerializer(invoices, many=True).data)
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()

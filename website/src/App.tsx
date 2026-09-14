@@ -5,6 +5,7 @@ import { ScrollManager } from './components/ScrollManager'
 import { Home } from './pages/Home'
 import { Safaris } from './pages/Safaris'
 import { SafariDetail } from './pages/SafariDetail'
+import { RegionSafariDetail } from './pages/RegionSafariDetail'
 import { Experiences } from './pages/Experiences'
 import { Destinations } from './pages/Destinations'
 import { DestinationDetail } from './pages/DestinationDetail'
@@ -14,12 +15,13 @@ import { SetPassword } from './pages/SetPassword'
 import { Faqs } from './pages/Faqs'
 import { Checkout } from './pages/Checkout'
 import { BookingConfirmed } from './pages/BookingConfirmed'
-import { InquiryReceived } from './pages/InquiryReceived'
 import { PlanLayout } from './components/plan/PlanLayout'
 import { PlanDestinations } from './pages/plan/PlanDestinations'
 import { PlanExperiences } from './pages/plan/PlanExperiences'
 import { PlanDetails } from './pages/plan/PlanDetails'
 import { PlanReview } from './pages/plan/PlanReview'
+import { PlanAccount } from './pages/plan/PlanAccount'
+import { PlanPayment } from './pages/plan/PlanPayment'
 import { AccountLayout } from './components/account/AccountLayout'
 import { MyTrips } from './pages/account/MyTrips'
 import { AccountInvoices } from './pages/account/AccountInvoices'
@@ -92,14 +94,17 @@ function App() {
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/set-password" element={<SetPassword />} />
-          <Route path="/safaris/:id/book" element={<Checkout />} />
+          <Route path="/safaris/:id/book" element={<Checkout kind="safari" />} />
+          <Route path="/region-safaris/:id" element={<RegionSafariDetail />} />
+          <Route path="/region-safaris/:id/book" element={<Checkout kind="regionSafari" />} />
           <Route path="/booking-confirmed" element={<BookingConfirmed />} />
-          <Route path="/inquiry-received" element={<InquiryReceived />} />
           <Route element={<PlanLayout />}>
             <Route path="/plan" element={<PlanDestinations />} />
             <Route path="/plan/experiences" element={<PlanExperiences />} />
             <Route path="/plan/details" element={<PlanDetails />} />
             <Route path="/plan/review" element={<PlanReview />} />
+            <Route path="/plan/account" element={<PlanAccount />} />
+            <Route path="/plan/payment" element={<PlanPayment />} />
           </Route>
         </Route>
 

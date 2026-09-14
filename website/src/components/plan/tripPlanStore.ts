@@ -11,6 +11,11 @@ export interface TripPlanState {
   children: number
   accommodationTier: AccommodationTier
   notes: string
+  // Collected on the Review step, carried forward through Account/Payment (separate
+  // routes) rather than local component state, since it has to survive navigation.
+  contactName: string
+  contactEmail: string
+  contactPhone: string
 }
 
 export interface TripPlanContextValue {
@@ -23,6 +28,9 @@ export interface TripPlanContextValue {
   setChildren: (children: number) => void
   setAccommodationTier: (tier: AccommodationTier) => void
   setNotes: (notes: string) => void
+  setContactName: (name: string) => void
+  setContactEmail: (email: string) => void
+  setContactPhone: (phone: string) => void
 }
 
 export const defaultTripPlan: TripPlanState = {
@@ -34,6 +42,9 @@ export const defaultTripPlan: TripPlanState = {
   children: 0,
   accommodationTier: 'Mid-range',
   notes: '',
+  contactName: '',
+  contactEmail: '',
+  contactPhone: '',
 }
 
 export const TripPlanContext = createContext<TripPlanContextValue | null>(null)

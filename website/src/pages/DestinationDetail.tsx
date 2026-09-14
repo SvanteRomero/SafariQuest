@@ -4,6 +4,7 @@ import { Reveal } from '../components/Reveal'
 import { getDestination, type Destination } from '../api/destinations'
 import { getParks, type Park } from '../api/parks'
 import { getSafaris, type SafariPackage } from '../api/safaris'
+import { getRegionSafaris, type RegionSafari } from '../api/regionSafaris'
 import { useFetch } from '../lib/useFetch'
 
 export function DestinationDetail() {
@@ -11,6 +12,7 @@ export function DestinationDetail() {
   const { data: destination, loading, error } = useFetch<Destination>(() => getDestination(id!), [id])
   const { data: safariPackages } = useFetch<SafariPackage[]>(getSafaris, [])
   const { data: parks } = useFetch<Park[]>(getParks, [])
+  const { data: regionSafaris } = useFetch<RegionSafari[]>(getRegionSafaris, [])
 
   if (loading) {
     return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
@@ -36,6 +38,7 @@ export function DestinationDetail() {
   const safarisByPark = new Map<string, SafariPackage[]>(
     regionParks.map((park) => [park.id, (safariPackages ?? []).filter((s) => s.parks.includes(park.id))]),
   )
+  const regionOnlySafaris = (regionSafaris ?? []).filter((s) => s.region === destination.id)
 
   return (
     <>
@@ -174,6 +177,49 @@ export function DestinationDetail() {
           </div>
         )}
       </section>
+
+      {/* Mini Safaris — shorter, region-scoped trips (no cross-region itinerary) */}
+      {regionOnlySafaris.length > 0 && (
+        <section className="pb-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
+          <Reveal className="mb-10 text-center">
+            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">
+              Mini Safaris in {destination.name}
+            </h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+              Shorter, bookable trips that stay within {destination.name} — ideal for a lower-commitment add-on to
+              your itinerary.
+            </p>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {regionOnlySafaris.map((rs, i) => (
+              <Reveal key={rs.id} delay={i * 100}>
+                <Link
+                  to={`/region-safaris/${rs.id}`}
+                  className="group bg-ivory-base rounded-xl overflow-hidden shadow-[0_4px_20px_-2px_rgba(45,45,45,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(45,45,45,0.1)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col border border-sand-stone/50 h-full"
+                >
+                  <div className="h-40 overflow-hidden relative">
+                    <img src={rs.image} alt={rs.imageAlt} className="w-full h-full object-cover" />
+                    {rs.badge && (
+                      <span className="absolute top-3 left-3 bg-golden-sun text-deep-earth text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                        {rs.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-headline-md text-base text-on-surface mb-2">{rs.title}</h4>
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <span className="text-on-surface-variant text-sm">{rs.days} days</span>
+                      <span className="font-headline-md text-savanna-green font-bold">
+                        ${rs.price.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA Banner */}
       <section className="relative overflow-hidden bg-surface-container py-24">

@@ -2,8 +2,6 @@ import { Fragment, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   CreditCard,
-  Bank,
-  DeviceMobile,
   CalendarBlank,
   Users,
   MapPin,
@@ -16,7 +14,9 @@ import {
   Info,
 } from '@phosphor-icons/react'
 import { getSafari, type SafariPackage } from '../api/safaris'
-import { createBooking } from '../api/bookings'
+import { getRegionSafari, type RegionSafari } from '../api/regionSafaris'
+import { getDestinations } from '../api/destinations'
+import { createBooking, payForBooking } from '../api/bookings'
 import { getSeasons } from '../api/pricing'
 import { useFetch } from '../lib/useFetch'
 import { useAuth } from '../auth/AuthContext'
@@ -24,71 +24,138 @@ import { ApiError } from '../lib/api'
 import { addDays } from '../lib/date'
 import { activeSeasonForDate, seasonalPrice } from '../lib/seasonalPrice'
 import { contact } from '../config/contact'
+import { AccountFields, type AccountMode } from '../components/checkout/AccountFields'
+import { MockCardFields } from '../components/checkout/MockCardFields'
 
-type PaymentOption = 'card' | 'transfer' | 'mobile'
-type CheckoutStep = 'details' | 'review' | 'payment'
+type CheckoutStep = 'details' | 'review' | 'account' | 'payment'
 
-const STEPS: { key: CheckoutStep; label: string }[] = [
+const ALL_STEPS: { key: CheckoutStep; label: string }[] = [
   { key: 'details', label: 'Details' },
+  { key: 'account', label: 'Account' },
   { key: 'review', label: 'Review' },
   { key: 'payment', label: 'Payment' },
 ]
 
-export function Checkout() {
+export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const { id } = useParams<{ id: string }>()
-  const { data: safari, loading, error } = useFetch<SafariPackage>(() => getSafari(id!), [id])
+  // Both hooks always run (Rules of Hooks) — only the one matching `kind` actually
+  // fetches; the other resolves immediately to null, same pattern as an edit-vs-create
+  // form fetching "if editing" elsewhere in this codebase.
+  const {
+    data: safari,
+    loading: safariLoading,
+    error: safariError,
+  } = useFetch<SafariPackage | null>(() => (kind === 'safari' ? getSafari(id!) : Promise.resolve(null)), [kind, id])
+  const {
+    data: regionSafari,
+    loading: regionSafariLoading,
+    error: regionSafariError,
+  } = useFetch<RegionSafari | null>(
+    () => (kind === 'regionSafari' ? getRegionSafari(id!) : Promise.resolve(null)),
+    [kind, id],
+  )
+  const { data: destinations } = useFetch(getDestinations, [])
   const { data: seasons } = useFetch(getSeasons, [])
   const navigate = useNavigate()
-  const { refreshUser } = useAuth()
+  const { user, login, register } = useAuth()
+  const isAuthenticated = Boolean(user)
 
   const [step, setStep] = useState<CheckoutStep>('details')
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState(user?.name ?? '')
+  const [email, setEmail] = useState(user?.email ?? '')
   const [preferredDate, setPreferredDate] = useState('')
   const [adults, setAdults] = useState(2)
   const [children, setChildren] = useState(0)
-  const [payment, setPayment] = useState<PaymentOption>('card')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Account step — only reached when nobody is signed in yet.
+  const [accountMode, setAccountMode] = useState<AccountMode>('register')
+  const [signInEmail, setSignInEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  // Mock payment step — no gateway is integrated yet (PLANNED); these fields
+  // never leave the browser, only the deposit amount does.
+  const [cardName, setCardName] = useState('')
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvv, setCardCvv] = useState('')
+
+  const loading = safariLoading || regionSafariLoading
+  const loadError = safariError || regionSafariError
+  const source = kind === 'safari' ? safari : regionSafari
 
   if (loading) {
     return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
   }
 
-  if (error || !safari) {
+  if (loadError || !source) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center px-5 py-32 text-center">
         <div className="max-w-xl">
           <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">Safari Not Found</h1>
           <Link
-            to="/safaris"
+            to={kind === 'safari' ? '/safaris' : '/destinations'}
             className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
           >
-            Back to Safaris
+            {kind === 'safari' ? 'Back to Safaris' : 'Back to Destinations'}
           </Link>
         </div>
       </section>
     )
   }
 
+  // Normalized view over whichever product this checkout is for, so the rest of the
+  // page doesn't need to branch on `kind` again.
+  const item = {
+    id: source.id,
+    title: source.title,
+    image: source.image,
+    imageAlt: source.imageAlt,
+    days: source.days,
+    price: source.price,
+    destination:
+      kind === 'safari'
+        ? (source as SafariPackage).destination
+        : (destinations ?? []).find((d) => d.id === (source as RegionSafari).region)?.name ??
+          (source as RegionSafari).region,
+  }
+
   const activeSeason = activeSeasonForDate(seasons ?? [], preferredDate)
-  const adultPrice = seasonalPrice(safari.price, seasons ?? [], preferredDate)
+  const adultPrice = seasonalPrice(item.price, seasons ?? [], preferredDate)
   const childPrice = Math.round(adultPrice * 0.5)
   const total = adultPrice * adults + childPrice * children
-  const deposit = total * 0.3
-  const activeIndex = STEPS.findIndex((s) => s.key === step)
-  const safariTitle = safari.title
-
-  const PAYMENT_LABEL: Record<PaymentOption, string> = {
-    card: 'Credit Card',
-    transfer: 'Bank Transfer',
-    mobile: 'Mobile Money',
-  }
+  const deposit = Math.round(total * 0.3)
+  const steps = isAuthenticated ? ALL_STEPS.filter((s) => s.key !== 'account') : ALL_STEPS
+  const activeIndex = steps.findIndex((s) => s.key === step)
+  const safariTitle = item.title
+  // Once signed in — whether they arrived that way or just registered/signed in on the
+  // Account step — the account's real name/email is authoritative over whatever was typed
+  // on the Details step (which may be stale, e.g. after signing in with a different email).
+  const displayName = user?.name || fullName
+  const displayEmail = user?.email || email
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (step === 'details') {
-      setStep('review')
+      setStep(isAuthenticated ? 'review' : 'account')
+      return
+    }
+    if (step === 'account') {
+      setSubmitError(null)
+      setSubmitting(true)
+      try {
+        if (accountMode === 'register') {
+          await register(email, fullName, password)
+        } else {
+          await login(signInEmail, password)
+        }
+        setStep('review')
+      } catch (err) {
+        setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      } finally {
+        setSubmitting(false)
+      }
       return
     }
     if (step === 'review') {
@@ -96,22 +163,24 @@ export function Checkout() {
       return
     }
 
-    if (!safari) return
-
+    // step === 'payment'
     setSubmitError(null)
     setSubmitting(true)
     try {
-      await createBooking({
-        name: fullName,
-        email,
-        safari: safari.id,
+      const booking = await createBooking({
+        name: displayName,
+        email: displayEmail,
+        safari: kind === 'safari' ? item.id : undefined,
+        regionSafari: kind === 'regionSafari' ? item.id : undefined,
         startDate: preferredDate,
-        endDate: addDays(preferredDate, safari.days),
+        endDate: addDays(preferredDate, item.days),
         guests: adults + children,
-        message: `${adults} adult${adults !== 1 ? 's' : ''}${children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}. Payment method selected at checkout: ${PAYMENT_LABEL[payment]} (not yet processed — no payment gateway is integrated).`,
+        message: `${adults} adult${adults !== 1 ? 's' : ''}${children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}.`,
       })
-      await refreshUser()
-      navigate('/booking-confirmed', { state: { title: safariTitle } })
+      await payForBooking(booking.id, deposit)
+      navigate('/booking-confirmed', {
+        state: { title: safariTitle, paidAmount: deposit, paidToEmail: booking.customerEmail },
+      })
     } catch (err) {
       setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
     } finally {
@@ -119,11 +188,28 @@ export function Checkout() {
     }
   }
 
+  const ctaLabel =
+    step === 'payment'
+      ? submitting
+        ? 'Processing…'
+        : `Pay $${deposit.toLocaleString()} & Book`
+      : step === 'account'
+        ? submitting
+          ? 'Please wait…'
+          : accountMode === 'register'
+            ? 'Create Account & Continue'
+            : 'Sign In & Continue'
+        : step === 'review'
+          ? 'Continue to Payment'
+          : isAuthenticated
+            ? 'Continue to Review'
+            : 'Continue to Account'
+
   return (
     <section className="min-h-screen bg-surface-container-low py-16 md:py-20 px-5 md:px-margin-desktop">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-center mb-12">
-          {STEPS.map((s, i) => {
+          {steps.map((s, i) => {
             const isDone = i < activeIndex
             const isActive = i === activeIndex
             return (
@@ -140,7 +226,7 @@ export function Checkout() {
                     {s.label}
                   </span>
                 </div>
-                {i < STEPS.length - 1 && (
+                {i < steps.length - 1 && (
                   <div className={`h-px w-12 md:w-24 mx-2 md:mx-4 -mt-6 ${isDone ? 'bg-savanna-green' : 'bg-sand-stone'}`} />
                 )}
               </Fragment>
@@ -162,7 +248,7 @@ export function Checkout() {
                   </h1>
                   <p className="text-on-surface-variant mb-8">
                     Please provide your details exactly as they appear on your passport to ensure a smooth park
-                    entry and lodge check-in for {safari.title}.
+                    entry and lodge check-in for {item.title}.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
@@ -190,7 +276,8 @@ export function Checkout() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="john@example.com"
-                        className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                        disabled={isAuthenticated}
+                        className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
                       />
                     </div>
                   </div>
@@ -262,13 +349,13 @@ export function Checkout() {
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                         Full Name
                       </p>
-                      <p className="font-label-md text-on-surface">{fullName || '—'}</p>
+                      <p className="font-label-md text-on-surface">{displayName || '—'}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                         Email
                       </p>
-                      <p className="font-label-md text-on-surface">{email || '—'}</p>
+                      <p className="font-label-md text-on-surface">{displayEmail || '—'}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
@@ -289,15 +376,48 @@ export function Checkout() {
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                         Package
                       </p>
-                      <p className="font-label-md text-on-surface">{safari.title}</p>
+                      <p className="font-label-md text-on-surface">{item.title}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
                         Duration
                       </p>
-                      <p className="font-label-md text-on-surface">{safari.days} days</p>
+                      <p className="font-label-md text-on-surface">{item.days} days</p>
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setStep('details')}
+                    className="mt-8 inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
+                  >
+                    <ArrowLeft size={18} />
+                    Back
+                  </button>
+                </div>
+              )}
+
+              {step === 'account' && (
+                <div>
+                  <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
+                    {accountMode === 'register' ? 'Create Your Account' : 'Sign In'}
+                  </h1>
+                  <p className="text-on-surface-variant mb-6">
+                    {accountMode === 'register'
+                      ? "We'll use this to send your booking confirmation and let you track your trip afterward."
+                      : 'Sign in to continue — your details will be pulled from your existing account.'}
+                  </p>
+
+                  <AccountFields
+                    accountMode={accountMode}
+                    onAccountModeChange={setAccountMode}
+                    email={email}
+                    password={password}
+                    onPasswordChange={setPassword}
+                    signInEmail={signInEmail}
+                    onSignInEmailChange={setSignInEmail}
+                    onEditDetails={() => setStep('details')}
+                  />
+
                   <button
                     type="button"
                     onClick={() => setStep('details')}
@@ -312,47 +432,28 @@ export function Checkout() {
               {step === 'payment' && (
                 <div>
                   <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
-                    Payment Option
+                    Payment
                   </h1>
-                  <p className="text-on-surface-variant mb-8">Choose how you&apos;d like to pay your deposit.</p>
+                  <p className="text-on-surface-variant mb-6">
+                    Enter your card details to pay the deposit and secure your booking.
+                  </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                    <button
-                      type="button"
-                      onClick={() => setPayment('card')}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
-                        payment === 'card' ? 'border-2 border-savanna-green bg-savanna-green/5' : 'border-2 border-sand-stone hover:border-outline'
-                      }`}
-                    >
-                      <CreditCard size={22} className="text-savanna-green" />
-                      <span className="font-label-md text-label-md text-on-surface">Credit Card</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPayment('transfer')}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
-                        payment === 'transfer' ? 'border-2 border-savanna-green bg-savanna-green/5' : 'border-2 border-sand-stone hover:border-outline'
-                      }`}
-                    >
-                      <Bank size={22} className="text-savanna-green" />
-                      <span className="font-label-md text-label-md text-on-surface">Bank Transfer</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPayment('mobile')}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
-                        payment === 'mobile' ? 'border-2 border-savanna-green bg-savanna-green/5' : 'border-2 border-sand-stone hover:border-outline'
-                      }`}
-                    >
-                      <DeviceMobile size={22} className="text-savanna-green" />
-                      <span className="font-label-md text-label-md text-on-surface">Mobile Money</span>
-                    </button>
-                  </div>
+                  <MockCardFields
+                    namePlaceholder={fullName || 'Johnathan Doe'}
+                    cardName={cardName}
+                    onCardNameChange={setCardName}
+                    cardNumber={cardNumber}
+                    onCardNumberChange={setCardNumber}
+                    cardExpiry={cardExpiry}
+                    onCardExpiryChange={setCardExpiry}
+                    cardCvv={cardCvv}
+                    onCardCvvChange={setCardCvv}
+                  />
 
                   <button
                     type="button"
                     onClick={() => setStep('review')}
-                    className="inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
+                    className="mt-8 inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
                   >
                     <ArrowLeft size={18} />
                     Back
@@ -381,9 +482,9 @@ export function Checkout() {
           <aside className="lg:col-span-5">
             <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-sand-stone sticky top-24">
               <div className="h-44 relative">
-                <img src={safari.image} alt={safari.imageAlt} className="w-full h-full object-cover" />
+                <img src={item.image} alt={item.imageAlt} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-deep-earth/70 to-transparent flex items-end p-5">
-                  <h2 className="font-headline-md text-[20px] text-ivory-base leading-tight">{safari.title}</h2>
+                  <h2 className="font-headline-md text-[20px] text-ivory-base leading-tight">{item.title}</h2>
                 </div>
               </div>
               <div className="p-6 space-y-5">
@@ -392,13 +493,13 @@ export function Checkout() {
                     <span className="text-on-surface-variant flex items-center gap-2">
                       <CalendarBlank size={16} /> Duration
                     </span>
-                    <span className="font-label-md text-on-surface">{safari.days} days</span>
+                    <span className="font-label-md text-on-surface">{item.days} days</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant flex items-center gap-2">
                       <MapPin size={16} /> Location
                     </span>
-                    <span className="font-label-md text-on-surface">{safari.destination}</span>
+                    <span className="font-label-md text-on-surface">{item.destination}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant flex items-center gap-2">
@@ -455,18 +556,12 @@ export function Checkout() {
                   disabled={submitting}
                   className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-lg shadow-savanna-green/20 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {step === 'payment'
-                    ? submitting
-                      ? 'Completing…'
-                      : 'Complete Booking'
-                    : step === 'review'
-                      ? 'Continue to Payment'
-                      : 'Continue to Review'}
-                  <ArrowRight size={18} weight="bold" />
+                  {ctaLabel}
+                  {step === 'payment' && <CreditCard size={18} weight="bold" />}
+                  {step !== 'payment' && <ArrowRight size={18} weight="bold" />}
                 </button>
                 <p className="text-center text-label-sm text-on-surface-variant px-2">
-                  By clicking &apos;{step === 'payment' ? 'Complete Booking' : 'Continue'}&apos;, you agree to our
-                  Terms of Service and Cancellation Policy.
+                  By clicking &apos;{ctaLabel}&apos;, you agree to our Terms of Service and Cancellation Policy.
                 </p>
               </div>
             </div>

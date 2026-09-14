@@ -52,6 +52,9 @@ export function TripPlanProvider({ children }: { children: ReactNode }) {
     setChildren: (children) => setPlan((p) => ({ ...p, children })),
     setAccommodationTier: (accommodationTier) => setPlan((p) => ({ ...p, accommodationTier })),
     setNotes: (notes) => setPlan((p) => ({ ...p, notes })),
+    setContactName: (contactName) => setPlan((p) => ({ ...p, contactName })),
+    setContactEmail: (contactEmail) => setPlan((p) => ({ ...p, contactEmail })),
+    setContactPhone: (contactPhone) => setPlan((p) => ({ ...p, contactPhone })),
   }
 
   return <TripPlanContext.Provider value={value}>{children}</TripPlanContext.Provider>

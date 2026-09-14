@@ -157,6 +157,14 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         return value
 
 
+class BookingPaySerializer(serializers.Serializer):
+    """Validates a mock checkout deposit payment (1.3). No card fields are accepted here —
+    they never leave the browser, since this endpoint doesn't talk to a real payment
+    processor yet (PLANNED)."""
+
+    amount = serializers.IntegerField(min_value=1)
+
+
 class QuoteLineItemInputSerializer(serializers.Serializer):
     label = serializers.CharField(max_length=200)
     quantity = serializers.IntegerField(min_value=1, default=1)

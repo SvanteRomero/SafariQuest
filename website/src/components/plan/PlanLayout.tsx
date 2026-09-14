@@ -1,21 +1,28 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { Check } from '@phosphor-icons/react'
 import { TripPlanProvider } from './TripPlanContext'
+import { useAuth } from '../../auth/AuthContext'
 
-const STEPS = [
+const ALL_STEPS = [
   { path: '/plan', label: 'Regions' },
   { path: '/plan/experiences', label: 'Experiences' },
   { path: '/plan/details', label: 'Details' },
   { path: '/plan/review', label: 'Review' },
+  { path: '/plan/account', label: 'Account' },
+  { path: '/plan/payment', label: 'Payment' },
 ]
 
 function PlanSteps() {
   const location = useLocation()
-  const activeIndex = STEPS.findIndex((s) => s.path === location.pathname)
+  const { user } = useAuth()
+  // Signed-in visitors skip the Account step entirely (PlanReview/PlanAccount both
+  // redirect past it), so it shouldn't occupy a slot in the stepper for them either.
+  const steps = user ? ALL_STEPS.filter((s) => s.path !== '/plan/account') : ALL_STEPS
+  const activeIndex = steps.findIndex((s) => s.path === location.pathname)
 
   return (
     <div className="flex items-center justify-center gap-2 md:gap-4 mb-12 max-w-2xl mx-auto">
-      {STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const isDone = i < activeIndex
         const isActive = i === activeIndex
         return (
@@ -32,7 +39,7 @@ function PlanSteps() {
                 {step.label}
               </span>
             </div>
-            {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 ${isDone ? 'bg-savanna-green' : 'bg-sand-stone'}`} />}
+            {i < steps.length - 1 && <div className={`flex-1 h-0.5 ${isDone ? 'bg-savanna-green' : 'bg-sand-stone'}`} />}
           </div>
         )
       })}
@@ -49,7 +56,7 @@ export function PlanLayout() {
             Plan Your Journey
           </h1>
           <p className="text-on-surface-variant text-center mb-10">
-            Build a custom Tanzania itinerary in four simple steps.
+            Build a custom Tanzania itinerary and secure it with a deposit.
           </p>
           <PlanSteps />
           <Outlet />

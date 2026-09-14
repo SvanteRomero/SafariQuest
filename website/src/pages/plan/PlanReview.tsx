@@ -1,89 +1,32 @@
-import { useState, type FormEvent } from 'react'
+import { type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, CalendarBlank, NotePencil, ShieldCheck, PencilSimple, PaperPlaneRight } from '@phosphor-icons/react'
-import { getDestinations } from '../../api/destinations'
-import { getSafaris, type SafariPackage } from '../../api/safaris'
-import { getRegionSafaris, type RegionSafari } from '../../api/regionSafaris'
-import { createBooking } from '../../api/bookings'
-import { useFetch } from '../../lib/useFetch'
+import { MapPin, CalendarBlank, NotePencil, ShieldCheck, PencilSimple, ArrowRight } from '@phosphor-icons/react'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
+import { usePlanSelections } from '../../components/plan/usePlanSelections'
 import { useAuth } from '../../auth/AuthContext'
-import { ApiError } from '../../lib/api'
-import { addDays } from '../../lib/date'
-import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanReview() {
-  const { plan } = useTripPlan()
+  const { plan, setContactName, setContactEmail, setContactPhone } = useTripPlan()
   const navigate = useNavigate()
-  const { refreshUser } = useAuth()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
-  const { data: destinations } = useFetch(getDestinations, [])
-  const { data: safaris } = useFetch(getSafaris, [])
-  const { data: regionSafaris } = useFetch(getRegionSafaris, [])
+  const { user } = useAuth()
+  const {
+    loading: experiencesLoading,
+    selectedDestinations,
+    selectedExperiences,
+    hasPrimaryProduct,
+  } = usePlanSelections()
 
-  const selectedDestinations = (destinations ?? []).filter((d) => plan.destinationIds.includes(d.id))
-  const selectedSafaris = (safaris ?? []).filter((s) => plan.experienceIds.includes(s.id))
-  const selectedRegionSafaris = (regionSafaris ?? []).filter((s) => plan.experienceIds.includes(s.id))
-  const selectedExperiences: { id: string; title: string }[] = [
-    ...selectedSafaris.map((s) => ({ id: s.id, title: s.title })),
-    ...selectedRegionSafaris.map((s) => ({ id: s.id, title: s.title })),
-  ]
   const travelers = plan.adults + plan.children
 
-  function buildMessage(): string {
-    const lines = [
-      `Destinations: ${selectedDestinations.map((d) => d.name).join(', ') || 'None selected'}`,
-      `Experiences: ${selectedExperiences.map((e) => e.title).join(', ') || 'None selected'}`,
-      `Accommodation style: ${plan.accommodationTier}`,
-    ]
-    if (phone) lines.push(`Phone / WhatsApp: ${phone}`)
-    if (plan.notes) lines.push(`Notes: ${plan.notes}`)
-    return lines.join('\n')
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setFormError(null)
-
-    // Booking has one primary product (safari or region_safari); everything else selected is
-    // folded into the message for the admin to read while quoting.
-    const primarySafari: SafariPackage | undefined = selectedSafaris[0]
-    const primaryRegionSafari: RegionSafari | undefined = selectedRegionSafaris[0]
-
-    if (!primarySafari && !primaryRegionSafari) {
-      setFormError('Select at least one experience before submitting your inquiry.')
-      return
-    }
-    if (!plan.travelDates) {
-      setFormError('Choose an estimated start date before submitting your inquiry.')
-      return
-    }
-
-    setSubmitting(true)
-    try {
-      await createBooking({
-        name,
-        email,
-        safari: primarySafari?.id,
-        regionSafari: !primarySafari ? primaryRegionSafari?.id : undefined,
-        startDate: plan.travelDates,
-        endDate: addDays(plan.travelDates, plan.days),
-        guests: travelers,
-        message: buildMessage(),
-      })
-      await refreshUser()
-      trackFunnelEvent('submitted')
-      navigate('/inquiry-received', { state: { name } })
-    } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
-    } finally {
-      setSubmitting(false)
-    }
+    // The actual booking (with its one primary product — everything else selected folds
+    // into the message) is only created once payment succeeds, on the Payment step —
+    // this step just confirms the trip details and collects contact info for it.
+    navigate(user ? '/plan/payment' : '/plan/account')
   }
+
+  const canContinue = hasPrimaryProduct && Boolean(plan.travelDates)
 
   return (
     <div>
@@ -92,9 +35,16 @@ export function PlanReview() {
           Review your journey
         </h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          Take a moment to check your safari details before submitting your inquiry. Our curators will use this to
-          craft your perfect itinerary.
+          Take a moment to check your safari details, then continue to secure your booking with an account and a
+          deposit.
         </p>
+        {!experiencesLoading && !canContinue && (
+          <p className="text-error text-sm mt-3">
+            {!hasPrimaryProduct
+              ? 'Select at least one experience before continuing.'
+              : 'Choose an estimated start date before continuing.'}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -193,7 +143,7 @@ export function PlanReview() {
           >
             <div>
               <h3 className="font-headline-md text-[20px] text-on-surface mb-1">Your Details</h3>
-              <p className="font-body-md text-sm text-on-surface-variant">Where should we send your personalized quote?</p>
+              <p className="font-body-md text-sm text-on-surface-variant">Where should we send your booking confirmation?</p>
             </div>
             <div>
               <label htmlFor="review-name" className="block font-label-sm text-label-sm text-on-surface mb-2">
@@ -203,8 +153,8 @@ export function PlanReview() {
                 id="review-name"
                 type="text"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={plan.contactName}
+                onChange={(e) => setContactName(e.target.value)}
                 placeholder="e.g. Jane Doe"
                 className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
               />
@@ -217,8 +167,8 @@ export function PlanReview() {
                 id="review-email"
                 type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={plan.contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
                 placeholder="jane@example.com"
                 className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
               />
@@ -241,8 +191,8 @@ export function PlanReview() {
                   id="review-phone"
                   type="tel"
                   required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={plan.contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="(000) 000-0000"
                   className="flex-1 min-w-0 min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
                 />
@@ -252,24 +202,18 @@ export function PlanReview() {
             <div className="flex items-start gap-3 bg-surface-container-low p-4 rounded-lg">
               <ShieldCheck size={20} className="text-golden-sun shrink-0 mt-0.5" />
               <p className="font-body-md text-[13px] text-on-surface-variant">
-                <strong className="text-on-surface">No payment required now.</strong> We&apos;ll send you a detailed,
-                no-obligation quote within 24 hours.
+                <strong className="text-on-surface">A deposit secures your booking.</strong> Next you&apos;ll{' '}
+                {user ? 'pay a deposit' : 'create an account and pay a deposit'} to confirm it.
               </p>
             </div>
 
-            {formError && (
-              <p role="alert" className="text-error font-label-sm text-label-sm">
-                {formError}
-              </p>
-            )}
-
             <button
               type="submit"
-              disabled={submitting}
+              disabled={experiencesLoading || !canContinue}
               className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary py-4 rounded-lg font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? 'Submitting…' : 'Submit Inquiry'}
-              <PaperPlaneRight size={18} weight="bold" />
+              Continue
+              <ArrowRight size={18} weight="bold" />
             </button>
           </form>
         </aside>
