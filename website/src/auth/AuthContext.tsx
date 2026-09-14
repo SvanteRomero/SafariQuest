@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   fetchMe,
   login as apiLogin,
@@ -53,48 +53,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setUnauthorizedHandler(null)
   }, [])
 
-  async function login(email: string, password: string): Promise<Role> {
+  const login = useCallback(async (email: string, password: string): Promise<Role> => {
     const res = await apiLogin(email, password)
     const me = await fetchMe()
     setUser(me)
     return res.role
-  }
+  }, [])
 
-  async function logout(): Promise<void> {
+  const logout = useCallback(async (): Promise<void> => {
     setUser(null)
     try {
       await apiLogout()
     } catch (err) {
       console.error('Logout request failed (session cleared client-side regardless)', err)
     }
-  }
+  }, [])
 
-  async function register(email: string, name: string, password: string): Promise<Role> {
+  const register = useCallback(async (email: string, name: string, password: string): Promise<Role> => {
     const res = await apiRegister({ email, name, password })
     const me = await fetchMe()
     setUser(me)
     return res.role
-  }
+  }, [])
 
-  async function setPassword(uid: string, token: string, password: string): Promise<Role> {
+  const setPassword = useCallback(async (uid: string, token: string, password: string): Promise<Role> => {
     const res = await apiSetPassword(uid, token, password)
     const me = await fetchMe()
     setUser(me)
     return res.role
-  }
+  }, [])
 
-  async function refreshUser(): Promise<void> {
+  const refreshUser = useCallback(async (): Promise<void> => {
     const me = await fetchMe()
     setUser(me)
-  }
+  }, [])
 
-  return (
-    <AuthContext.Provider
-      value={{ role: user?.role ?? null, user, isLoading, login, logout, register, setPassword, refreshUser }}
-    >
-      {children}
-    </AuthContext.Provider>
+  // Without this, every AuthProvider render (any time `user`/`isLoading` changes) handed
+  // every useAuth() consumer a brand-new object, forcing them all to re-render regardless
+  // of whether the values they actually read had changed.
+  const value = useMemo<AuthContextValue>(
+    () => ({ role: user?.role ?? null, user, isLoading, login, logout, register, setPassword, refreshUser }),
+    [user, isLoading, login, logout, register, setPassword, refreshUser],
   )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components -- co-locating the hook with its provider is intentional

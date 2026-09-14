@@ -1,7 +1,15 @@
+function stripTrailingSlashes(value: string): string {
+  let end = value.length
+  while (end > 0 && value[end - 1] === '/') end--
+  return value.slice(0, end)
+}
+
 // vite.config.ts refuses to build without VITE_API_URL, so this fallback only
 // ever applies to `vite dev`. The trailing slash is trimmed because every
-// caller passes a path that already starts with one.
-const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/+$/, '')
+// caller passes a path that already starts with one. Trimmed with a loop
+// rather than a /\/+$/ regex — flagged as super-linear-backtracking-prone by
+// static analysis, so avoided rather than argued with.
+const API_BASE = stripTrailingSlashes(import.meta.env.VITE_API_URL ?? 'http://localhost:8000')
 
 // Without this, a hung backend (or a dropped connection that never resolves)
 // left every caller's loading state true forever, with no error and no way
