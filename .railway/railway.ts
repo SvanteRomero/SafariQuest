@@ -80,6 +80,7 @@ export default defineRailway((ctx) => {
       VITE_CONTACT_PHONE_HREF: preserve(),
       VITE_SOCIAL_FACEBOOK: preserve(),
       VITE_SOCIAL_INSTAGRAM: preserve(),
+      VITE_SOCIAL_TIKTOK: preserve(),
       VITE_SOCIAL_WHATSAPP: preserve(),
       VITE_API_URL: "https://backend-production-ea816.up.railway.app",
     },

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Phone, EnvelopeSimple, PaperPlaneTilt, InstagramLogo, FacebookLogo, WhatsappLogo } from '@phosphor-icons/react'
+import { MapPin, Phone, EnvelopeSimple, PaperPlaneTilt, InstagramLogo, FacebookLogo, TiktokLogo, WhatsappLogo } from '@phosphor-icons/react'
 import { contact } from '../config/contact'
 
 export function Footer() {
@@ -24,6 +24,11 @@ export function Footer() {
             {contact.social.facebook && (
               <a href={contact.social.facebook} aria-label="Facebook" className="hover:text-savanna-green transition-colors">
                 <FacebookLogo size={22} />
+              </a>
+            )}
+            {contact.social.tiktok && (
+              <a href={contact.social.tiktok} aria-label="TikTok" className="hover:text-savanna-green transition-colors">
+                <TiktokLogo size={22} />
               </a>
             )}
             {contact.social.whatsapp && (
