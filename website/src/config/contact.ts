@@ -7,6 +7,7 @@ export const contact = {
     instagram: import.meta.env.VITE_SOCIAL_INSTAGRAM,
     facebook: import.meta.env.VITE_SOCIAL_FACEBOOK,
     tiktok: import.meta.env.VITE_SOCIAL_TIKTOK,
+    linkedin: import.meta.env.VITE_SOCIAL_LINKEDIN,
     whatsapp: import.meta.env.VITE_SOCIAL_WHATSAPP,
   },
 }
