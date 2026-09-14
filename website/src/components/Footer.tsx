@@ -11,16 +11,26 @@ export function Footer() {
           <p className="text-on-surface-variant font-body-md mb-6">
             Crafting authentic Tanzanian memories since 2008. Your window into the wild heart of Africa.
           </p>
+          {/* `|| '#'` used to render these as dead links whenever the VITE_SOCIAL_*
+              vars were unset, which is their state in .env and .env.example alike.
+              About.tsx and InquiryReceived.tsx already gate on the value being
+              present; this matches them. */}
           <div className="flex items-center gap-4 text-on-surface-variant">
-            <a href={contact.social.instagram || '#'} aria-label="Instagram" className="hover:text-savanna-green transition-colors">
-              <InstagramLogo size={22} />
-            </a>
-            <a href={contact.social.facebook || '#'} aria-label="Facebook" className="hover:text-savanna-green transition-colors">
-              <FacebookLogo size={22} />
-            </a>
-            <a href={contact.social.whatsapp || '#'} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
-              <WhatsappLogo size={22} />
-            </a>
+            {contact.social.instagram && (
+              <a href={contact.social.instagram} aria-label="Instagram" className="hover:text-savanna-green transition-colors">
+                <InstagramLogo size={22} />
+              </a>
+            )}
+            {contact.social.facebook && (
+              <a href={contact.social.facebook} aria-label="Facebook" className="hover:text-savanna-green transition-colors">
+                <FacebookLogo size={22} />
+              </a>
+            )}
+            {contact.social.whatsapp && (
+              <a href={contact.social.whatsapp} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
+                <WhatsappLogo size={22} />
+              </a>
+            )}
           </div>
         </div>
 

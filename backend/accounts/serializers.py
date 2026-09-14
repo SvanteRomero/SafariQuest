@@ -22,17 +22,16 @@ User = get_user_model()
 
 
 class UserInviteSerializer(serializers.ModelSerializer):
+    """Invites another Administrator. Tourists self-register (RegisterSerializer) and Guides are
+    created directly with an account via guides.GuideCreateSerializer — this is the only remaining
+    invite path, so the role is always "admin"."""
+
     class Meta:
         model = User
-        fields = ["email", "name", "role"]
-
-    def validate_role(self, value):
-        if value not in ("sales", "operations", "guide"):
-            raise serializers.ValidationError("Invitable roles are 'sales', 'operations', or 'guide'.")
-        return value
+        fields = ["email", "name"]
 
     def create(self, validated_data):
-        user = User(email=validated_data["email"], name=validated_data.get("name", ""), role=validated_data["role"])
+        user = User(email=validated_data["email"], name=validated_data.get("name", ""), role=User.ROLE_ADMIN)
         user.set_unusable_password()
         user.save()
         return user
@@ -41,7 +40,51 @@ class UserInviteSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "name", "email", "role"]
+        fields = ["id", "name", "email", "role", "is_active"]
+
+
+class UserActiveUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["is_active"]
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    trip_count = serializers.SerializerMethodField()
+    total_spend = serializers.SerializerMethodField()
+    booking_ids = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "name", "email", "date_joined", "trip_count", "total_spend", "booking_ids"]
+
+    def get_trip_count(self, obj):
+        return len(obj.bookings.all())
+
+    def get_total_spend(self, obj):
+        return sum(b.subtotal for b in obj.bookings.all())
+
+    def get_booking_ids(self, obj):
+        return [b.id for b in obj.bookings.all()]
+
+
+class CustomerDetailSerializer(CustomerSerializer):
+    bookings = serializers.SerializerMethodField()
+    invoices = serializers.SerializerMethodField()
+
+    class Meta(CustomerSerializer.Meta):
+        fields = CustomerSerializer.Meta.fields + ["bookings", "invoices"]
+
+    def get_bookings(self, obj):
+        from bookings.serializers import BookingListSerializer
+
+        return BookingListSerializer(obj.bookings.all(), many=True).data
+
+    def get_invoices(self, obj):
+        from bookings.serializers import InvoiceSerializer
+
+        invoices = [b.invoice for b in obj.bookings.all() if hasattr(b, "invoice")]
+        return InvoiceSerializer(invoices, many=True).data
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -66,8 +109,29 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             password=validated_data["password"],
             name=validated_data.get("name", ""),
-            role="tourist",
+            role=User.ROLE_TOURIST,
         )
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_current_password(self, value):
+        user = self.context["request"].user
+        if not user.has_usable_password() or not user.check_password(value):
+            raise serializers.ValidationError("Current password is incorrect.")
+        return value
+
+    def validate_new_password(self, value):
+        validate_password(value, user=self.context["request"].user)
+        return value
+
+    def save(self):
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
+        user.save()
+        return user
 
 
 class SetPasswordSerializer(serializers.Serializer):

@@ -69,13 +69,14 @@ export function PlanDetails() {
                 htmlFor="plan-travel-dates"
                 className="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2"
               >
-                Estimated Travel Dates
+                Estimated Start Date
               </label>
               <input
                 id="plan-travel-dates"
+                type="date"
+                required
                 value={plan.travelDates}
                 onChange={(e) => setTravelDates(e.target.value)}
-                placeholder="e.g. Mid July 2026"
                 className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
               />
             </div>
@@ -194,8 +195,9 @@ export function PlanDetails() {
         </button>
         <button
           type="button"
+          disabled={!plan.travelDates}
           onClick={() => navigate('/plan/review')}
-          className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(30,142,62,0.2)]"
+          className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(30,142,62,0.2)] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Next: Review Trip
           <ArrowRight size={18} weight="bold" />

@@ -135,7 +135,11 @@ export function AdminPricing() {
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm" onClick={closeDrawer}>
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm"
+          onClick={closeDrawer}
+          onKeyDown={(e) => e.key === 'Escape' && closeDrawer()}
+        >
           <div className="w-full max-w-md h-full bg-surface-container-lowest shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-sand-stone bg-surface-container-low/40 shrink-0 flex items-center justify-between">
               <h3 className="font-headline-md text-[18px] text-on-surface">{editing ? 'Edit Season' : 'Add Season'}</h3>

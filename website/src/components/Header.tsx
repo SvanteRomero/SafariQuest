@@ -54,7 +54,7 @@ export function Header() {
           >
             Plan Your Journey
           </NavLink>
-          {role && ['admin', 'sales', 'operations'].includes(role) && (
+          {role === 'admin' && (
             <NavLink
               to="/admin"
               title="Admin"
@@ -149,7 +149,7 @@ export function Header() {
               Sign In
             </NavLink>
           )}
-          {role && ['admin', 'sales', 'operations'].includes(role) && (
+          {role === 'admin' && (
             <NavLink
               to="/admin"
               onClick={() => setMenuOpen(false)}

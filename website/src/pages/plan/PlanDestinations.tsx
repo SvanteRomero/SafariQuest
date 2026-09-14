@@ -1,13 +1,19 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, MapPin, ArrowRight } from '@phosphor-icons/react'
 import { getDestinations } from '../../api/destinations'
 import { useFetch } from '../../lib/useFetch'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
+import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanDestinations() {
   const { plan, toggleDestination } = useTripPlan()
   const navigate = useNavigate()
   const { data: destinations, loading, error } = useFetch(getDestinations, [])
+
+  useEffect(() => {
+    trackFunnelEvent('visited')
+  }, [])
 
   return (
     <div>

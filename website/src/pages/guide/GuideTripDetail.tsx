@@ -1,14 +1,29 @@
 import { Link, useParams } from 'react-router-dom'
-import { Car, CalendarBlank, ChatCircle, MapPin, Phone, Ticket, CaretDown, CheckCircle } from '@phosphor-icons/react'
+import { CalendarBlank, EnvelopeSimple, UsersThree, CheckCircle } from '@phosphor-icons/react'
 import { GuideTopBar } from '../../components/guide/GuideTopBar'
 import { GuideBottomNav } from '../../components/guide/GuideBottomNav'
-import { guideTrips } from '../../data/guideTrips'
+import { getBooking, STAGE_LABELS } from '../../api/bookings'
+import { useFetch } from '../../lib/useFetch'
 
 export function GuideTripDetail() {
   const { tripId } = useParams<{ tripId: string }>()
-  const trip = guideTrips.find((t) => t.id === tripId)
+  const { data: trip, loading, error } = useFetch(() => getBooking(Number(tripId)), [tripId])
 
-  if (!trip) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface-bright">
+        <GuideTopBar title="Trip Detail" showBack />
+        <main className="pt-24 pb-28 px-5 max-w-lg mx-auto text-center text-on-surface-variant">Loading…</main>
+        <GuideBottomNav active="schedule" />
+      </div>
+    )
+  }
+
+  // error wasn't checked here before — a failed fetch (network error, or a
+  // trip not assigned to this guide) fell through to the same UI as a
+  // genuinely missing trip. Same convention account/TripProgress.tsx already
+  // uses for the customer-facing equivalent of this page.
+  if (error || !trip) {
     return (
       <div className="min-h-screen bg-surface-bright">
         <GuideTopBar title="Trip Detail" showBack />
@@ -23,8 +38,6 @@ export function GuideTripDetail() {
     )
   }
 
-  const currentIndex = trip.milestones.findIndex((m) => m.status === 'current')
-
   return (
     <div className="min-h-screen bg-surface-bright">
       <GuideTopBar title="Trip Detail" showBack />
@@ -33,13 +46,13 @@ export function GuideTripDetail() {
         <div className="mb-6">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/20 text-secondary border border-secondary-container/30 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-golden-sun animate-pulse" />
-            <span className="font-label-sm text-label-sm">{trip.statusLabel}</span>
+            <span className="font-label-sm text-label-sm">{STAGE_LABELS[trip.stage]}</span>
           </div>
           <h2 className="font-headline-lg text-headline-lg-mobile text-on-surface">{trip.packageTitle}</h2>
           <div className="flex items-center gap-4 mt-2 text-on-surface-variant">
             <span className="flex items-center gap-1 font-label-sm text-label-sm">
               <CalendarBlank size={16} />
-              {trip.dateRange}
+              {trip.startDate} – {trip.endDate}
             </span>
           </div>
         </div>
@@ -48,80 +61,66 @@ export function GuideTripDetail() {
           <h3 className="font-label-md text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Guest Party</h3>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center font-label-md text-on-surface-variant shrink-0">
-              {trip.guest.name.charAt(0)}
+              {trip.customerName.charAt(0)}
             </div>
             <div className="flex-1">
-              <p className="font-label-md text-on-surface">
-                {trip.guest.name} +{trip.guest.partySize - 1} guests
+              <p className="font-label-md text-on-surface">{trip.customerName}</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+                <UsersThree size={14} /> {trip.guests} guest{trip.guests === 1 ? '' : 's'}
               </p>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">{trip.guest.partySize} adults</p>
             </div>
             <a
-              href={`tel:${trip.guest.phone}`}
-              aria-label="Call guest"
+              href={`mailto:${trip.customerEmail}`}
+              aria-label="Email guest"
               className="p-2.5 rounded-full bg-surface-container text-primary hover:bg-surface-container-high transition-colors"
             >
-              <Phone size={20} />
-            </a>
-            <a
-              href={`https://wa.me/${trip.guest.whatsapp}`}
-              aria-label="Message guest on WhatsApp"
-              className="p-2.5 rounded-full bg-[#25D366]/10 text-[#128C7E] hover:bg-[#25D366]/20 transition-colors"
-            >
-              <ChatCircle size={20} weight="fill" />
+              <EnvelopeSimple size={20} />
             </a>
           </div>
-          {trip.guest.specialRequests.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-surface-variant">
-              {trip.guest.specialRequests.map((req) => (
-                <span key={req} className="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-md">
-                  {req}
-                </span>
-              ))}
+          {trip.message && (
+            <div className="mt-4 pt-4 border-t border-surface-variant">
+              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
+                Guest Message
+              </p>
+              <p className="font-body-md text-body-md text-on-surface">{trip.message}</p>
             </div>
           )}
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-surface-variant/50 mb-4">
-          <h3 className="font-label-md text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Logistics</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Car size={20} className="text-primary" />
-              <span className="font-body-md text-body-md text-on-surface">{trip.vehicle}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin size={20} className="text-primary" />
-              <span className="font-body-md text-body-md text-on-surface">Pickup: {trip.pickup}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Ticket size={20} className="text-primary" />
-              <span className="font-body-md text-body-md text-on-surface">
-                Park permits: <span className="text-savanna-green font-bold">{trip.permitsStatus}</span>
-              </span>
+        {trip.milestones.length > 0 && (
+          <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-surface-variant/50 mb-4">
+            <h3 className="font-label-md text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Itinerary</h3>
+            <div className="space-y-2">
+              {trip.milestones.map((m) => (
+                <div key={m.id} className="flex items-center gap-3 text-sm">
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      m.status === 'completed'
+                        ? 'bg-savanna-green'
+                        : m.status === 'current'
+                          ? 'bg-golden-sun'
+                          : 'bg-outline-variant'
+                    }`}
+                  />
+                  <span
+                    className={
+                      m.status === 'upcoming' ? 'text-on-surface-variant' : 'font-label-md text-on-surface'
+                    }
+                  >
+                    Day {m.day}: {m.title}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant/50 overflow-hidden">
-          <h3 className="font-label-md text-label-sm text-on-surface-variant uppercase tracking-wider p-5 pb-2">Itinerary</h3>
-          {trip.milestones.map((milestone, i) => (
-            <details key={milestone.id} className="border-t border-surface-variant" open={i === currentIndex}>
-              <summary className={`flex items-center justify-between p-5 cursor-pointer list-none marker:content-none ${i === currentIndex ? 'bg-surface-container-low' : ''}`}>
-                <div>
-                  {milestone.status === 'current' ? (
-                    <span className="font-label-sm text-label-sm text-golden-sun font-bold">{milestone.day} · You are here</span>
-                  ) : (
-                    <span className="font-label-sm text-label-sm text-on-surface-variant">{milestone.day}</span>
-                  )}
-                  <p className="font-label-md text-on-surface mt-0.5">{milestone.title}</p>
-                </div>
-                <CaretDown size={20} className="text-on-surface-variant shrink-0" />
-              </summary>
-              <div className="px-5 pb-5">
-                <p className="font-body-md text-body-md text-on-surface-variant">{milestone.description}</p>
-              </div>
-            </details>
-          ))}
+        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-surface-variant/50">
+          <h3 className="font-label-md text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Logistics</h3>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Vehicle assignment, pickup point, and permit tracking aren&apos;t set up yet — coordinate those details
+            directly with the operations team.
+          </p>
         </div>
       </main>
 

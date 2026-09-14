@@ -1,6 +1,6 @@
 import { apiGet, apiPost } from '../lib/api'
 
-export type Role = 'tourist' | 'guide' | 'sales' | 'operations' | 'admin'
+export type Role = 'tourist' | 'guide' | 'admin'
 
 interface RoleResponse {
   role: Role
@@ -38,10 +38,15 @@ export function setPassword(uid: string, token: string, password: string): Promi
   return apiPost<RoleResponse>('/api/auth/set-password/', { uid, token, password })
 }
 
+export function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  return apiPost<void>('/api/auth/change-password/', {
+    current_password: currentPassword,
+    new_password: newPassword,
+  })
+}
+
 export const ROLE_HOME: Record<Role, string> = {
   tourist: '/account',
   guide: '/guide',
-  sales: '/admin',
-  operations: '/admin',
   admin: '/admin',
 }

@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
-import { Leaf, Handshake, SealCheck, WhatsappLogo, ChatCircleText } from '@phosphor-icons/react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Leaf, Handshake, SealCheck, WhatsappLogo, ChatCircleText, ArrowRight } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
 import { contact } from '../config/contact'
 
@@ -53,13 +54,13 @@ const TEAM = [
 const INTERESTS = ['The Great Migration', 'Luxury Honeymoon Safari', 'Family Adventure', 'Photographic Safari']
 
 export function About() {
-  const [submitted, setSubmitted] = useState(false)
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    // TODO: wire up to a real backend/CRM once one exists.
-    setSubmitted(true)
-  }
+  // This section used to be a name/email/interest form that showed "Inquiry
+  // sent" and then threw the lead away — it had no endpoint, and its three
+  // fields cannot satisfy POST /api/bookings/, which needs dates, guests and a
+  // safari. Rather than stand up a second lead funnel, it now hands off to the
+  // Trip Curator, which is the one that actually reaches the Admin inquiries
+  // pipeline. The chosen interest rides along and lands in the inquiry's notes.
+  const [interest, setInterest] = useState(INTERESTS[0])
 
   return (
     <>
@@ -199,66 +200,35 @@ export function About() {
                 <p className="font-body-md text-on-surface-variant mb-8">
                   Share a few details, and our safari experts will begin crafting your bespoke Tanzanian adventure.
                 </p>
-                {submitted ? (
-                  <div className="flex flex-col items-center text-center py-10" role="status" aria-live="polite">
-                    <SealCheck size={40} weight="fill" className="text-savanna-green mb-4" />
-                    <p className="font-headline-md text-headline-md mb-2">Inquiry sent</p>
-                    <p className="text-on-surface-variant">
-                      Thank you — a safari specialist will reply to your email within one business day.
-                    </p>
-                  </div>
-                ) : (
-                  <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-                    <div>
-                      <label htmlFor="about-name" className="block font-label-md text-label-md text-on-surface mb-2">
-                        Full Name
-                      </label>
-                      <input
-                        id="about-name"
-                        name="name"
-                        type="text"
-                        required
-                        autoComplete="name"
-                        placeholder="e.g. Jane Doe"
-                        className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="about-email" className="block font-label-md text-label-md text-on-surface mb-2">
-                        Email Address
-                      </label>
-                      <input
-                        id="about-email"
-                        name="email"
-                        type="email"
-                        required
-                        autoComplete="email"
-                        placeholder="jane@example.com"
-                        className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="about-interest" className="block font-label-md text-label-md text-on-surface mb-2">
-                        Primary Interest
-                      </label>
-                      <select
-                        id="about-interest"
-                        name="interest"
-                        className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                      >
-                        {INTERESTS.map((interest) => (
-                          <option key={interest}>{interest}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full min-h-[44px] bg-savanna-green text-on-primary font-label-md text-label-md px-6 py-4 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="about-interest" className="block font-label-md text-label-md text-on-surface mb-2">
+                      Primary Interest
+                    </label>
+                    <select
+                      id="about-interest"
+                      name="interest"
+                      value={interest}
+                      onChange={(e) => setInterest(e.target.value)}
+                      className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
                     >
-                      Submit Inquiry
-                    </button>
-                  </form>
-                )}
+                      {INTERESTS.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Link
+                    to={`/plan?interest=${encodeURIComponent(interest)}`}
+                    className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary font-label-md text-label-md px-6 py-4 rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    Start Planning
+                    <ArrowRight size={18} />
+                  </Link>
+                  <p className="font-body-sm text-on-surface-variant">
+                    Pick your regions and dates and we&apos;ll have a specialist reply with a quote. Prefer to talk
+                    first? Use the WhatsApp or email details alongside.
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-col justify-center lg:border-l border-sand-stone/50 lg:pl-12">

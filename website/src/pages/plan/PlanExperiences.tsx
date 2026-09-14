@@ -1,22 +1,35 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Check, Clock, ArrowLeft, ArrowRight } from '@phosphor-icons/react'
 import { getDestinations } from '../../api/destinations'
 import { getParks } from '../../api/parks'
 import { getSafaris } from '../../api/safaris'
+import { getRegionSafaris } from '../../api/regionSafaris'
 import { useFetch } from '../../lib/useFetch'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
+import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanExperiences() {
   const { plan, toggleExperience } = useTripPlan()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const handoffRegion = searchParams.get('region')
+
+  useEffect(() => {
+    trackFunnelEvent('started')
+  }, [])
   const { data: destinations, loading: destinationsLoading, error: destinationsError } = useFetch(getDestinations, [])
   const { data: parks, loading: parksLoading, error: parksError } = useFetch(getParks, [])
   const { data: safaris, loading: safarisLoading, error: safarisError } = useFetch(getSafaris, [])
+  const {
+    data: regionSafaris,
+    loading: regionSafarisLoading,
+    error: regionSafarisError,
+  } = useFetch(getRegionSafaris, [])
   const [activeTab, setActiveTab] = useState<string | null>(null)
 
-  const loading = destinationsLoading || parksLoading || safarisLoading
-  const error = destinationsError || parksError || safarisError
+  const loading = destinationsLoading || parksLoading || safarisLoading || regionSafarisLoading
+  const error = destinationsError || parksError || safarisError || regionSafarisError
   const selectedDestinations = (destinations ?? []).filter((d) => plan.destinationIds.includes(d.id))
 
   useEffect(() => {
@@ -26,12 +39,36 @@ export function PlanExperiences() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan.destinationIds.length, loading])
 
+  // "Start Planning" on a Destination Detail page hands off with ?region=...
+  // (TripPlanContext pre-selects that region) — the visitor already chose a
+  // region, so every experience it offers is selected for them too, instead
+  // of landing on an empty picker for a region they've already committed to.
+  // Guarded by a ref rather than a plan.experienceIds dependency so this
+  // fires exactly once and never fights a visitor who deselects afterward.
+  const didAutoSelect = useRef(false)
+  useEffect(() => {
+    if (didAutoSelect.current || loading || !handoffRegion) return
+    didAutoSelect.current = true
+    const parksInRegion = (parks ?? []).filter((p) => p.region === handoffRegion)
+    const safariIds = (safaris ?? [])
+      .filter((s) => parksInRegion.some((p) => s.parks.includes(p.id)))
+      .map((s) => s.id)
+    const regionSafariIds = (regionSafaris ?? []).filter((s) => s.region === handoffRegion).map((s) => s.id)
+    for (const id of [...safariIds, ...regionSafariIds]) {
+      if (!plan.experienceIds.includes(id)) toggleExperience(id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, handoffRegion, parks, safaris, regionSafaris])
+
   const activeDestination = selectedDestinations.find((d) => d.id === activeTab) ?? selectedDestinations[0]
   const parksForActive = (parks ?? []).filter((p) => p.region === activeDestination?.id)
   const safarisForActive = (safaris ?? []).filter((s) =>
     parksForActive.some((p) => s.parks.includes(p.id)),
   )
-  const selectedCountForActive = safarisForActive.filter((s) => plan.experienceIds.includes(s.id)).length
+  const regionSafarisForActive = (regionSafaris ?? []).filter((s) => s.region === activeDestination?.id)
+  const selectedCountForActive =
+    safarisForActive.filter((s) => plan.experienceIds.includes(s.id)).length +
+    regionSafarisForActive.filter((s) => plan.experienceIds.includes(s.id)).length
 
   return (
     <div>
@@ -69,6 +106,75 @@ export function PlanExperiences() {
 
           {activeDestination && (
             <div className="flex flex-col gap-12 mb-10">
+              {regionSafarisForActive.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div>
+                      <h3 className="font-headline-md text-[20px] text-on-surface">
+                        {activeDestination.name} region safaris
+                      </h3>
+                      <p className="text-on-surface-variant text-sm">
+                        Safaris that stay within {activeDestination.name}.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {regionSafarisForActive.map((safari) => {
+                      const selected = plan.experienceIds.includes(safari.id)
+                      return (
+                        <div
+                          key={safari.id}
+                          className={`relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all duration-300 ${
+                            selected ? 'ring-2 ring-savanna-green shadow-lg' : 'ring-1 ring-sand-stone hover:shadow-lg'
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
+                              selected ? 'bg-savanna-green' : 'bg-surface/90 border border-outline-variant'
+                            }`}
+                          >
+                            {selected && <Check size={16} weight="bold" className="text-on-primary" />}
+                          </div>
+                          <div className="h-40 relative">
+                            <img
+                              src={safari.image}
+                              alt={safari.imageAlt}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-deep-earth/50 to-transparent" />
+                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                              <span className="inline-flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
+                                <Clock size={13} />
+                                {safari.days} Day{safari.days !== 1 ? 's' : ''}
+                              </span>
+                              <span className="bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
+                                ${safari.price.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <h4 className="font-headline-md text-[20px] text-on-surface mb-2">{safari.title}</h4>
+                            <p className="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">
+                              {safari.overview}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => toggleExperience(safari.id)}
+                              className={`w-full text-center py-3 rounded-lg font-label-md text-label-md transition-colors ${
+                                selected
+                                  ? 'bg-surface-container text-on-surface-variant'
+                                  : 'border border-outline-variant text-on-surface hover:border-savanna-green hover:text-savanna-green'
+                              }`}
+                            >
+                              {selected ? 'Selected' : 'Select Experience'}
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
               {parksForActive.map((park) => {
                 const parkSafaris = (safaris ?? []).filter((s) => s.parks.includes(park.id))
                 return (
@@ -144,9 +250,9 @@ export function PlanExperiences() {
                   </div>
                 )
               })}
-              {parksForActive.length === 0 && (
+              {parksForActive.length === 0 && regionSafarisForActive.length === 0 && (
                 <p className="text-on-surface-variant text-center py-8">
-                  No parks are set up for {activeDestination.name} yet.
+                  No experiences are set up for {activeDestination.name} yet.
                 </p>
               )}
             </div>

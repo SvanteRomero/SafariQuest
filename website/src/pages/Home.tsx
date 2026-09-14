@@ -231,32 +231,39 @@ export function Home() {
         </div>
       </section>
 
-      {/* Signature Safari Packages */}
-      <section className="py-20 md:py-section-gap bg-surface-container">
-        <div className="px-5 md:px-margin-desktop max-w-container-max mx-auto">
-          <Reveal className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div>
-              <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">
-                Curated Experiences
-              </span>
-              <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-                Signature Safari Packages
-              </h2>
+      {/* Signature Safari Packages. Guarded the same way the Destinations
+          section below already is: getSafaris() failing (network error, or a
+          genuinely empty result) used to still render this section's heading
+          and "View All Safaris" link over an empty grid — a dangling,
+          broken-looking header with nothing under it, on the public homepage,
+          with no visitor-facing signal that anything had gone wrong. */}
+      {signaturePackages.length > 0 && (
+        <section className="py-20 md:py-section-gap bg-surface-container">
+          <div className="px-5 md:px-margin-desktop max-w-container-max mx-auto">
+            <Reveal className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+              <div>
+                <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">
+                  Curated Experiences
+                </span>
+                <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
+                  Signature Safari Packages
+                </h2>
+              </div>
+              <Link to="/safaris" className="text-savanna-green font-label-md flex items-center gap-2 group">
+                View All Safaris
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+              {signaturePackages.map((safari, i) => (
+                <Reveal key={safari.id} delay={i * 80}>
+                  <SafariCard safari={safari} />
+                </Reveal>
+              ))}
             </div>
-            <Link to="/safaris" className="text-savanna-green font-label-md flex items-center gap-2 group">
-              View All Safaris
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-            {signaturePackages.map((safari, i) => (
-              <Reveal key={safari.id} delay={i * 80}>
-                <SafariCard safari={safari} />
-              </Reveal>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Explore Tanzania by Region */}
       {featuredDestinations.length > 0 && (

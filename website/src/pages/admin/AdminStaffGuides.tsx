@@ -15,8 +15,10 @@ import {
   SquaresFour,
   Rows,
   SealCheck,
+  Copy,
+  Check,
 } from '@phosphor-icons/react'
-import { createGuide, getGuides, type GuideRole, type GuideStatus } from '../../api/guides'
+import { createGuideWithAccount, getGuides, type GuideRole, type GuideStatus, type GuideWithCredentials } from '../../api/guides'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
 
@@ -43,26 +45,36 @@ export function AdminStaffGuides() {
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [addOpen, setAddOpen] = useState(false)
   const [addName, setAddName] = useState('')
+  const [addEmail, setAddEmail] = useState('')
   const [addRole, setAddRole] = useState<GuideRole>('Senior Guide')
   const [addError, setAddError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [created, setCreated] = useState<GuideWithCredentials | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const { data: guides, loading, error, refetch } = useFetch(getGuides, [])
   const allGuides = guides ?? []
   const filtered = allGuides.filter((s) => (role === 'All' || s.role === role) && (status === 'All' || s.status === status))
   const topRated = [...allGuides].sort((a, b) => b.rating - a.rating).slice(0, 3)
 
+  function closeAddDrawer() {
+    setAddOpen(false)
+    setAddName('')
+    setAddEmail('')
+    setCreated(null)
+    setCopied(false)
+    refetch()
+  }
+
   async function handleAddStaff(event: FormEvent) {
     event.preventDefault()
     setAddError(null)
     setSubmitting(true)
     try {
-      await createGuide({ name: addName, role: addRole, status: 'Available' })
-      setAddOpen(false)
-      setAddName('')
-      refetch()
+      const guide = await createGuideWithAccount({ name: addName, email: addEmail, role: addRole })
+      setCreated(guide)
     } catch (err) {
-      setAddError(err instanceof ApiError ? err.message : 'Failed to add staff member.')
+      setAddError(err instanceof ApiError ? err.message : 'Failed to create guide account.')
     } finally {
       setSubmitting(false)
     }
@@ -83,7 +95,7 @@ export function AdminStaffGuides() {
           className="flex items-center gap-2 bg-savanna-green text-on-primary py-3 px-6 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap shrink-0"
         >
           <UserPlus size={20} />
-          Add New Staff
+          Add New Guide
         </button>
       </div>
 
@@ -302,45 +314,110 @@ export function AdminStaffGuides() {
       )}
 
       {addOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm" onClick={() => setAddOpen(false)}>
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm"
+          onClick={closeAddDrawer}
+          onKeyDown={(e) => e.key === 'Escape' && closeAddDrawer()}
+        >
           <div className="w-full max-w-md h-full bg-surface-container-lowest shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-5 border-b border-sand-stone bg-surface-container-low/40 shrink-0">
-              <h3 className="font-headline-md text-[18px] text-on-surface">Add New Staff</h3>
-            </div>
-            <form id="add-staff-form" className="flex-1 overflow-y-auto p-6 space-y-6" onSubmit={handleAddStaff}>
-              <div>
-                <label htmlFor="staff-name" className="block font-label-md text-sm text-on-surface mb-1.5">Full Name</label>
-                <input
-                  id="staff-name"
-                  required
-                  value={addName}
-                  onChange={(e) => setAddName(e.target.value)}
-                  className="w-full bg-surface border border-sand-stone rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                />
-              </div>
-              <div>
-                <label htmlFor="staff-role" className="block font-label-md text-sm text-on-surface mb-1.5">Role</label>
-                <select
-                  id="staff-role"
-                  value={addRole}
-                  onChange={(e) => setAddRole(e.target.value as GuideRole)}
-                  className="w-full bg-surface border border-sand-stone rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
-                >
-                  {(['Senior Guide', 'Expert Guide', 'Driver-Guide', 'Camp Chef', 'Tour Helper'] as GuideRole[]).map((r) => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-              </div>
-              {addError && <p role="alert" className="text-error font-label-sm text-sm">{addError}</p>}
-            </form>
-            <div className="border-t border-sand-stone px-6 py-4 bg-surface-container-low/40 flex justify-end gap-3 shrink-0">
-              <button type="button" onClick={() => setAddOpen(false)} className="rounded-lg px-4 py-2 font-label-md text-sm text-on-surface-variant hover:bg-surface-container transition-colors border border-sand-stone">
-                Cancel
-              </button>
-              <button type="submit" form="add-staff-form" disabled={submitting} className="rounded-lg bg-savanna-green px-6 py-2 font-label-md text-sm text-on-primary hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60">
-                {submitting ? 'Saving…' : 'Save'}
-              </button>
-            </div>
+            {created ? (
+              <>
+                <div className="px-6 py-5 border-b border-sand-stone bg-surface-container-low/40 shrink-0">
+                  <h3 className="font-headline-md text-[18px] text-on-surface">Guide Account Created</h3>
+                  <p className="text-on-surface-variant text-sm mt-1">
+                    Share these credentials with {created.name} directly (WhatsApp, in person, etc.). This password
+                    is shown only once — it isn&apos;t stored anywhere retrievable.
+                  </p>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  <div className="bg-surface-container-low rounded-lg p-4 border border-sand-stone">
+                    <p className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider mb-1">Email</p>
+                    <p className="font-label-md text-sm text-on-surface">{created.email}</p>
+                  </div>
+                  <div className="bg-surface-container-low rounded-lg p-4 border border-sand-stone">
+                    <p className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider mb-1">Temporary Password</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <code className="font-label-md text-sm text-on-surface break-all">{created.temporaryPassword}</code>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${created.email} / ${created.temporaryPassword}`)
+                          setCopied(true)
+                        }}
+                        className="shrink-0 p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-savanna-green transition-colors"
+                        title="Copy email and password"
+                      >
+                        {copied ? <Check size={18} className="text-savanna-green" /> : <Copy size={18} />}
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-on-surface-variant text-xs">
+                    They can sign in with these at any time and change their password afterward.
+                  </p>
+                </div>
+                <div className="border-t border-sand-stone px-6 py-4 bg-surface-container-low/40 flex justify-end shrink-0">
+                  <button type="button" onClick={closeAddDrawer} className="rounded-lg bg-savanna-green px-6 py-2 font-label-md text-sm text-on-primary hover:opacity-90 transition-opacity shadow-sm">
+                    Done
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="px-6 py-5 border-b border-sand-stone bg-surface-container-low/40 shrink-0">
+                  <h3 className="font-headline-md text-[18px] text-on-surface">Add New Guide</h3>
+                  <p className="text-on-surface-variant text-sm mt-1">
+                    This creates their login and their guide profile together. You&apos;ll get a one-time password to
+                    share with them yourself.
+                  </p>
+                </div>
+                <form id="add-staff-form" className="flex-1 overflow-y-auto p-6 space-y-6" onSubmit={handleAddStaff}>
+                  <div>
+                    <label htmlFor="staff-name" className="block font-label-md text-sm text-on-surface mb-1.5">Full Name</label>
+                    <input
+                      id="staff-name"
+                      required
+                      value={addName}
+                      onChange={(e) => setAddName(e.target.value)}
+                      className="w-full bg-surface border border-sand-stone rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="staff-email" className="block font-label-md text-sm text-on-surface mb-1.5">Email</label>
+                    <input
+                      id="staff-email"
+                      type="email"
+                      required
+                      value={addEmail}
+                      onChange={(e) => setAddEmail(e.target.value)}
+                      placeholder="guide@example.com"
+                      className="w-full bg-surface border border-sand-stone rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="staff-role" className="block font-label-md text-sm text-on-surface mb-1.5">Role</label>
+                    <select
+                      id="staff-role"
+                      value={addRole}
+                      onChange={(e) => setAddRole(e.target.value as GuideRole)}
+                      className="w-full bg-surface border border-sand-stone rounded-lg px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                    >
+                      {(['Senior Guide', 'Expert Guide', 'Driver-Guide', 'Camp Chef', 'Tour Helper'] as GuideRole[]).map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {addError && <p role="alert" className="text-error font-label-sm text-sm">{addError}</p>}
+                </form>
+                <div className="border-t border-sand-stone px-6 py-4 bg-surface-container-low/40 flex justify-end gap-3 shrink-0">
+                  <button type="button" onClick={closeAddDrawer} className="rounded-lg px-4 py-2 font-label-md text-sm text-on-surface-variant hover:bg-surface-container transition-colors border border-sand-stone">
+                    Cancel
+                  </button>
+                  <button type="submit" form="add-staff-form" disabled={submitting} className="rounded-lg bg-savanna-green px-6 py-2 font-label-md text-sm text-on-primary hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60">
+                    {submitting ? 'Creating…' : 'Create Account'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

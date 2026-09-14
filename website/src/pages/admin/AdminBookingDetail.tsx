@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
-  CheckCircle,
   Check,
   EnvelopeSimple,
   Receipt,
-  Money,
-  Star,
+  PencilSimple,
   PaperPlaneTilt,
   ChatCircle,
   CalendarCheck,
@@ -22,21 +20,12 @@ import {
   updateBooking,
   updateQuote,
   STAGE_LABELS,
-  STAGE_ORDER,
   type BookingStage,
   type QuoteLineItemInput,
 } from '../../api/bookings'
 import { getGuides } from '../../api/guides'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
-
-const STAGE_ICON: Record<BookingStage, typeof EnvelopeSimple> = {
-  new_inquiry: EnvelopeSimple,
-  quoted: Receipt,
-  deposit_paid: Money,
-  confirmed: CheckCircle,
-  completed: Star,
-}
 
 const STAGE_DOT: Record<BookingStage, string> = {
   new_inquiry: 'bg-secondary-container',
@@ -53,7 +42,13 @@ const NEXT_STAGE_ACTION: Partial<Record<BookingStage, { label: string; next: Boo
 }
 
 function quotePrice(item: QuoteLineItemInput) {
-  return Math.round(item.cost * (1 + item.markupPercent / 100))
+  return item.quantity * item.unitPrice
+}
+
+function tripDurationDays(startDate: string, endDate: string) {
+  const start = new Date(`${startDate}T00:00:00`)
+  const end = new Date(`${endDate}T00:00:00`)
+  return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1)
 }
 
 export function AdminBookingDetail() {
@@ -71,11 +66,23 @@ export function AdminBookingDetail() {
   const [updatingStage, setUpdatingStage] = useState(false)
   const [assigningGuide, setAssigningGuide] = useState(false)
 
-  useEffect(() => {
+  // lineItems is an editable draft of booking.lineItems that has to resync
+  // whenever a *new* booking arrives — the initial load, and again after
+  // every save-triggered refetch() (line ~119/132), since the server's saved
+  // state is the source of truth once a save lands. A one-time lazy
+  // initializer only handles the first case; this compares against the
+  // previous value in state and resets during render on every subsequent
+  // change too — React's own recommended pattern, and an effect here was
+  // flagged by this repo's stricter react-hooks/set-state-in-effect rule.
+  const [prevBooking, setPrevBooking] = useState(booking)
+  if (booking !== prevBooking) {
+    setPrevBooking(booking)
     if (booking) {
-      setLineItems(booking.lineItems.map(({ label, cost, markupPercent }) => ({ label, cost, markupPercent })))
+      setLineItems(
+        booking.lineItems.map(({ label, quantity, unitPrice }) => ({ label, quantity, unitPrice })),
+      )
     }
-  }, [booking])
+  }
 
   if (loading) {
     return <p className="text-center text-on-surface-variant py-10">Loading booking…</p>
@@ -92,8 +99,8 @@ export function AdminBookingDetail() {
     )
   }
 
-  const stageIndex = STAGE_ORDER.indexOf(booking.stage)
   const subtotal = lineItems.reduce((sum, li) => sum + quotePrice(li), 0)
+  const quoteSent = booking.stage !== 'new_inquiry'
   const nextStageAction = NEXT_STAGE_ACTION[booking.stage]
   const availableGuides = (guides ?? []).filter(
     (g) => g.status === 'Available' || g.id === booking.assignedGuideId,
@@ -104,7 +111,7 @@ export function AdminBookingDetail() {
   }
 
   function addLineItem() {
-    setLineItems((items) => [...items, { label: '', cost: 0, markupPercent: 0 }])
+    setLineItems((items) => [...items, { label: '', quantity: 1, unitPrice: 0 }])
   }
 
   function removeLineItem(index: number) {
@@ -189,42 +196,40 @@ export function AdminBookingDetail() {
       {actionError && <p className="text-error text-sm mb-4">{actionError}</p>}
 
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center font-label-md text-on-surface-variant shrink-0 mt-1">
-            {booking.customerName
-              .split(' ')
-              .map((p) => p[0])
-              .filter(Boolean)
-              .slice(0, 2)
-              .join('')
-              .toUpperCase()}
-          </div>
-          <div>
-            <p className="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-1">Booking #{booking.id}</p>
-            <h2 className="font-headline-lg text-[24px] text-on-surface mb-1">{booking.customerName}</h2>
-            <p className="text-on-surface-variant text-sm flex items-center gap-1.5">
-              <EnvelopeSimple size={14} /> {booking.customerEmail}
-            </p>
-            <p className="text-on-surface-variant text-sm mt-0.5">
-              {booking.packageTitle} · {booking.startDate} – {booking.endDate} · {booking.guests} guests
-            </p>
-          </div>
+        <div>
+          <h2 className="font-headline-lg text-[28px] text-on-surface mb-1">Inquiry #INQ-{booking.id}</h2>
+          <p className="text-on-surface-variant text-sm">Client: {booking.customerName}</p>
         </div>
         <div className="flex flex-col items-end gap-3 shrink-0">
-          <span className="inline-flex items-center gap-1.5 text-xs font-label-sm bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full">
-            <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[booking.stage]}`} />
-            {STAGE_LABELS[booking.stage]}
-          </span>
-          {nextStageAction && (
+          {!quoteSent ? (
             <button
               type="button"
-              onClick={handleAdvanceStage}
-              disabled={updatingStage}
-              className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+              onClick={handleSendQuote}
+              disabled={sendingQuote || lineItems.length === 0}
+              title={lineItems.length === 0 ? 'Add at least one line item first' : undefined}
+              className="min-h-[44px] flex items-center gap-2 bg-savanna-green text-on-primary px-5 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
             >
               <PaperPlaneTilt size={16} />
-              {updatingStage ? 'Updating…' : nextStageAction.label}
+              {sendingQuote ? 'Sending…' : 'Generate & Send Invoice'}
             </button>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1.5 text-xs font-label-sm bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full">
+                <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[booking.stage]}`} />
+                {STAGE_LABELS[booking.stage]}
+              </span>
+              {nextStageAction && (
+                <button
+                  type="button"
+                  onClick={handleAdvanceStage}
+                  disabled={updatingStage}
+                  className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+                >
+                  <PaperPlaneTilt size={16} />
+                  {updatingStage ? 'Updating…' : nextStageAction.label}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -234,29 +239,35 @@ export function AdminBookingDetail() {
           <div className="absolute left-0 top-4 w-full h-0.5 bg-surface-container" />
           <div
             className="absolute left-0 top-4 h-0.5 bg-savanna-green transition-all"
-            style={{ width: `${(stageIndex / (STAGE_ORDER.length - 1)) * 100}%` }}
+            style={{ width: quoteSent ? '100%' : '0%' }}
           />
-          {STAGE_ORDER.map((stage, i) => {
-            const Icon = i < stageIndex ? Check : STAGE_ICON[stage]
-            const done = i <= stageIndex
-            return (
-              <div key={stage} className="relative z-10 flex flex-col items-center gap-2 flex-1">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest ${
-                    done ? 'bg-savanna-green text-on-primary' : 'bg-surface-container text-on-surface-variant'
-                  }`}
-                >
-                  <Icon size={15} />
-                </div>
-                <span className={`font-label-sm text-xs text-center ${i === stageIndex ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>
-                  {STAGE_LABELS[stage]}
-                </span>
-                <span className="text-on-surface-variant text-[11px]">
-                  {i < stageIndex ? 'Done' : i === stageIndex ? 'In Progress' : 'Pending'}
-                </span>
+          {[
+            { label: 'Inquiry Received', icon: EnvelopeSimple, done: true, caption: booking.createdAt },
+            {
+              label: 'Quote Drafting',
+              icon: quoteSent ? Check : PencilSimple,
+              done: quoteSent,
+              caption: quoteSent ? 'Done' : 'In Progress',
+            },
+            {
+              label: 'Invoiced',
+              icon: Receipt,
+              done: quoteSent,
+              caption: quoteSent ? 'Done' : 'Pending',
+            },
+          ].map((step) => (
+            <div key={step.label} className="relative z-10 flex flex-col items-center gap-2 flex-1">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest ${
+                  step.done ? 'bg-savanna-green text-on-primary' : 'bg-surface-container text-on-surface-variant'
+                }`}
+              >
+                <step.icon size={15} />
               </div>
-            )
-          })}
+              <span className="font-label-sm text-xs text-center text-on-surface">{step.label}</span>
+              <span className="text-on-surface-variant text-[11px]">{step.caption}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -271,21 +282,31 @@ export function AdminBookingDetail() {
                   {booking.region}
                 </span>
               </div>
+              <div>
+                <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-1.5">Package</span>
+                <p className="text-sm text-on-surface">{booking.packageTitle}</p>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-1 flex items-center gap-1">
-                    <CalendarCheck size={13} /> Dates
+                    <CalendarCheck size={13} /> Duration
                   </span>
-                  <p className="text-sm text-on-surface">
-                    {booking.startDate} – {booking.endDate}
-                  </p>
+                  <p className="text-sm text-on-surface">{tripDurationDays(booking.startDate, booking.endDate)} Days</p>
                 </div>
                 <div>
                   <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-1 flex items-center gap-1">
-                    <Users size={13} /> Guests
+                    <Users size={13} /> Group Size
                   </span>
                   <p className="text-sm text-on-surface">{booking.guests}</p>
                 </div>
+              </div>
+              <div>
+                <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-1 flex items-center gap-1">
+                  <CalendarCheck size={13} /> Estimated Dates
+                </span>
+                <p className="text-sm text-on-surface">
+                  {booking.startDate} – {booking.endDate}
+                </p>
               </div>
               <div>
                 <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-1 flex items-center gap-1">
@@ -318,8 +339,10 @@ export function AdminBookingDetail() {
                 </div>
               </div>
               <div className="bg-surface-container-low p-4 rounded-lg border-l-4 border-terracotta">
-                <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-2">Guest Message</span>
-                <p className="text-sm text-on-surface italic">&ldquo;{booking.message}&rdquo;</p>
+                <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-2">Special Requests</span>
+                <p className="text-sm text-on-surface italic">
+                  {booking.message ? `“${booking.message}”` : 'None noted.'}
+                </p>
               </div>
             </div>
           </div>
@@ -332,10 +355,10 @@ export function AdminBookingDetail() {
               <table className="w-full text-left mb-4">
                 <thead>
                   <tr className="border-b-2 border-sand-stone text-on-surface-variant text-xs uppercase tracking-wider">
-                    <th className="pb-2 font-medium">Line Item</th>
-                    <th className="pb-2 font-medium text-right">Cost (Net)</th>
-                    <th className="pb-2 font-medium text-right">Markup %</th>
-                    <th className="pb-2 font-medium text-right">Quote Price</th>
+                    <th className="pb-2 font-medium">Description</th>
+                    <th className="pb-2 font-medium text-right">Qty</th>
+                    <th className="pb-2 font-medium text-right">Unit Price</th>
+                    <th className="pb-2 font-medium text-right">Total</th>
                     <th className="pb-2" />
                   </tr>
                 </thead>
@@ -352,19 +375,19 @@ export function AdminBookingDetail() {
                       <td className="py-2 text-right">
                         <input
                           type="number"
-                          min={0}
-                          value={li.cost}
-                          onChange={(e) => updateLineItem(i, { cost: Number(e.target.value) })}
-                          className="w-24 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
+                          min={1}
+                          value={li.quantity}
+                          onChange={(e) => updateLineItem(i, { quantity: Math.max(1, Number(e.target.value)) })}
+                          className="w-14 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
                         />
                       </td>
                       <td className="py-2 text-right">
                         <input
                           type="number"
                           min={0}
-                          value={li.markupPercent}
-                          onChange={(e) => updateLineItem(i, { markupPercent: Number(e.target.value) })}
-                          className="w-20 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
+                          value={li.unitPrice}
+                          onChange={(e) => updateLineItem(i, { unitPrice: Number(e.target.value) })}
+                          className="w-24 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
                         />
                       </td>
                       <td className="py-3 text-right font-label-md text-sm text-on-surface">${quotePrice(li).toLocaleString()}</td>
@@ -399,14 +422,6 @@ export function AdminBookingDetail() {
                 className="min-h-[40px] border border-sand-stone px-5 rounded-lg font-label-md text-sm hover:bg-surface-container-low transition-colors disabled:opacity-60"
               >
                 {savingQuote ? 'Saving…' : 'Save Draft'}
-              </button>
-              <button
-                type="button"
-                onClick={handleSendQuote}
-                disabled={sendingQuote}
-                className="min-h-[40px] bg-savanna-green text-on-primary px-5 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-60"
-              >
-                {sendingQuote ? 'Sending…' : 'Send Final Quote'}
               </button>
             </div>
           </div>

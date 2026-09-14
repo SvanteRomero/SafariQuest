@@ -11,30 +11,30 @@ class UserInviteViewTests(APITestCase):
     def setUp(self):
         self.url = reverse("invite-user")
         self.admin = User.objects.create_user(email="admin@example.com", password="pw12345", role="admin")
-        self.sales = User.objects.create_user(email="sales@example.com", password="pw12345", role="sales")
+        self.tourist = User.objects.create_user(email="tourist@example.com", password="pw12345", role="tourist")
 
     def _login_as(self, user, password="pw12345"):
         self.client.post(reverse("login"), {"email": user.email, "password": password})
 
-    def test_admin_can_invite_sales_agent(self):
+    def test_admin_can_invite_another_admin(self):
         self._login_as(self.admin)
-        response = self.client.post(self.url, {"email": "newsales@example.com", "name": "New Sales", "role": "sales"})
+        response = self.client.post(self.url, {"email": "newadmin@example.com", "name": "New Admin"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(User.objects.filter(email="newsales@example.com", role="sales").exists())
+        self.assertTrue(User.objects.filter(email="newadmin@example.com", role="admin").exists())
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("newsales@example.com", mail.outbox[0].to)
+        self.assertIn("newadmin@example.com", mail.outbox[0].to)
 
     def test_non_admin_cannot_invite(self):
-        self._login_as(self.sales)
-        response = self.client.post(self.url, {"email": "x@example.com", "name": "X", "role": "operations"})
+        self._login_as(self.tourist)
+        response = self.client.post(self.url, {"email": "x@example.com", "name": "X"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anonymous_cannot_invite(self):
-        response = self.client.post(self.url, {"email": "x@example.com", "name": "X", "role": "operations"})
+        response = self.client.post(self.url, {"email": "x@example.com", "name": "X"})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_invited_user_has_unusable_password_until_they_set_one(self):
         self._login_as(self.admin)
-        self.client.post(self.url, {"email": "ops@example.com", "name": "Ops", "role": "operations"})
-        invited = User.objects.get(email="ops@example.com")
+        self.client.post(self.url, {"email": "second-admin@example.com", "name": "Second Admin"})
+        invited = User.objects.get(email="second-admin@example.com")
         self.assertFalse(invited.has_usable_password())

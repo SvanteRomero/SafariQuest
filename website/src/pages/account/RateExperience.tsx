@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CheckCircle, PaperPlaneTilt, SealCheck, Star } from '@phosphor-icons/react'
-import { myTrips } from '../../data/myTrips'
+import { CheckCircle, PaperPlaneTilt, SealCheck, Star, UserCircle } from '@phosphor-icons/react'
+import { getBooking, submitReview } from '../../api/bookings'
+import { useFetch } from '../../lib/useFetch'
+import { ApiError } from '../../lib/api'
 
 function StarPicker({ value, onChange, size = 32 }: { value: number; onChange: (v: number) => void; size?: number }) {
   return (
@@ -21,13 +23,21 @@ function StarPicker({ value, onChange, size = 32 }: { value: number; onChange: (
 
 export function RateExperience() {
   const { tripId } = useParams<{ tripId: string }>()
-  const trip = myTrips.find((t) => t.id === tripId)
+  const { data: trip, loading } = useFetch(() => getBooking(Number(tripId)), [tripId])
   const navigate = useNavigate()
 
   const [guideRating, setGuideRating] = useState(0)
   const [overallRating, setOverallRating] = useState(0)
   const [testimonial, setTestimonial] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const guideName = trip?.assignedGuideName ?? 'your guide'
+
+  if (loading) {
+    return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+  }
 
   if (!trip) {
     return (
@@ -40,14 +50,40 @@ export function RateExperience() {
     )
   }
 
+  if (trip.stage !== 'completed') {
+    return (
+      <div className="text-center py-20">
+        <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">Not Available Yet</h1>
+        <p className="text-on-surface-variant mb-8">Only completed trips can be rated.</p>
+        <Link to="/account" className="text-savanna-green font-label-md">
+          Back to My Trips
+        </Link>
+      </div>
+    )
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    setError(null)
+    setSubmitting(true)
+    try {
+      await submitReview(Number(tripId), { guideRating, tripRating: overallRating, testimonial })
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to submit your review.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <div>
-      {submitted ? (
+      {submitted || trip.review ? (
           <div className="bg-surface-container-lowest rounded-xl p-10 text-center shadow-sm">
             <CheckCircle size={48} weight="fill" className="text-savanna-green mx-auto mb-4" />
             <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-3">Thank you!</h1>
             <p className="text-on-surface-variant mb-8">
-              Your review helps other travelers and means a lot to {trip.guide.name}.
+              Your review helps other travelers and means a lot to {guideName}.
             </p>
             <button
               type="button"
@@ -58,13 +94,7 @@ export function RateExperience() {
             </button>
           </div>
         ) : (
-          <form
-            className="space-y-8"
-            onSubmit={(e) => {
-              e.preventDefault()
-              setSubmitted(true)
-            }}
-          >
+          <form className="space-y-8" onSubmit={handleSubmit}>
             <div className="text-center">
               <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
                 How was your safari?
@@ -77,11 +107,9 @@ export function RateExperience() {
             <div className="bg-surface-container-lowest border border-surface-variant/40 rounded-xl p-6 md:p-8 shadow-sm">
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="relative shrink-0">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVAnstwi92aQfMckYJ4pl7wJiy5yvO_7_N-qEjOKnJ3hCMlsXTyFggdbRekAK2kIx2QUeuv49_t1UlPsXMMm18oHfQMA5JlajyrH4BlBE7XsubpKj2M0TJNv22AArdA7EtWneJr6T4h7QJjCNF8ixKqTUQGR-Y0QbE-yntIUfF83uiAI0k_adPKpKFPJB_-NysQbNR0kQofmDGdCbKHjnN20WvqdnxL8hf4Fly6tSBlz-moDq7PrsE"
-                    alt={`${trip.guide.name} portrait`}
-                    className="w-32 h-32 rounded-full object-cover border-4 border-surface-container-low shadow-sm"
-                  />
+                  <div className="w-32 h-32 rounded-full bg-surface-container flex items-center justify-center border-4 border-surface-container-low shadow-sm text-on-surface-variant/50">
+                    <UserCircle size={64} />
+                  </div>
                   <div className="absolute -bottom-2 -right-2 bg-savanna-green text-on-primary p-2 rounded-full shadow-sm">
                     <SealCheck size={14} weight="fill" />
                   </div>
@@ -90,9 +118,9 @@ export function RateExperience() {
                   <span className="font-label-sm text-label-sm text-terracotta uppercase tracking-wider">
                     Your Lead Guide
                   </span>
-                  <h3 className="font-headline-md text-headline-md text-on-surface">{trip.guide.name}</h3>
+                  <h3 className="font-headline-md text-headline-md text-on-surface">{guideName}</h3>
                   <p className="text-on-surface-variant text-sm mt-1">
-                    How would you rate {trip.guide.name.split(' ')[0]}'s knowledge, hospitality, and overall guidance
+                    How would you rate {guideName.split(' ')[0]}'s knowledge, hospitality, and overall guidance
                     during your trip?
                   </p>
                 </div>
@@ -129,13 +157,15 @@ export function RateExperience() {
               />
             </div>
 
+            {error && <p className="text-error text-sm text-center">{error}</p>}
+
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={guideRating === 0 || overallRating === 0}
+                disabled={guideRating === 0 || overallRating === 0 || submitting}
                 className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-8 py-4 rounded-lg font-label-md hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Submit Review
+                {submitting ? 'Submitting…' : 'Submit Review'}
                 <PaperPlaneTilt size={18} />
               </button>
             </div>

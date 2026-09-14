@@ -10,7 +10,7 @@ class UserListViewTests(APITestCase):
     def setUp(self):
         self.url = reverse("invite-user")
         self.admin = User.objects.create_user(email="admin@example.com", password="pw12345", role="admin", name="Admin One")
-        self.sales = User.objects.create_user(email="sales@example.com", password="pw12345", role="sales", name="Sales One")
+        self.second_admin = User.objects.create_user(email="admin2@example.com", password="pw12345", role="admin", name="Admin Two")
         self.tourist = User.objects.create_user(email="tourist@example.com", password="pw12345", role="tourist", name="Tourist One")
         self.guide = User.objects.create_user(email="guide@example.com", password="pw12345", role="guide", name="Guide One")
 
@@ -22,25 +22,27 @@ class UserListViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_non_admin_cannot_list(self):
-        self._login_as(self.sales)
+        self._login_as(self.tourist)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_admin_sees_only_staff_roles(self):
+    def test_admin_sees_only_admin_roles(self):
         self._login_as(self.admin)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         emails = {row["email"] for row in response.data}
-        self.assertEqual(emails, {"admin@example.com", "sales@example.com", "guide@example.com"})
+        self.assertEqual(emails, {"admin@example.com", "admin2@example.com"})
         self.assertNotIn("tourist@example.com", emails)
+        self.assertNotIn("guide@example.com", emails)
 
     def test_list_response_shape_has_no_password_fields(self):
         self._login_as(self.admin)
         response = self.client.get(self.url)
-        row = next(r for r in response.data if r["email"] == "sales@example.com")
-        self.assertEqual(set(row.keys()), {"id", "name", "email", "role"})
+        row = next(r for r in response.data if r["email"] == "admin2@example.com")
+        self.assertEqual(set(row.keys()), {"id", "name", "email", "role", "is_active"})
 
     def test_post_still_creates_a_user(self):
         self._login_as(self.admin)
-        response = self.client.post(self.url, {"email": "new@example.com", "name": "New", "role": "operations"})
+        response = self.client.post(self.url, {"email": "new@example.com", "name": "New"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(email="new@example.com", role="admin").exists())

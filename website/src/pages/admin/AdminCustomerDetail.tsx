@@ -1,13 +1,15 @@
 import { Link, useParams } from 'react-router-dom'
-import { WhatsappLogo, PencilSimple, EnvelopeSimple, Phone, MapPin, Star, CalendarCheck, Receipt } from '@phosphor-icons/react'
-import { adminCustomers } from '../../data/adminCustomers'
-import { adminInvoices, type InvoiceStatus } from '../../data/adminInvoices'
+import { EnvelopeSimple, CalendarCheck, MapPin, Receipt } from '@phosphor-icons/react'
+import { getCustomer } from '../../api/customers'
+import { STAGE_LABELS } from '../../api/bookings'
+import { INVOICE_STATUS_LABELS, type InvoiceStatus } from '../../api/invoices'
+import { useFetch } from '../../lib/useFetch'
 
-const INVOICE_STYLES: Record<InvoiceStatus, string> = {
-  Paid: 'bg-savanna-green/15 text-savanna-green',
-  'Deposit Paid': 'bg-primary-fixed-dim/20 text-on-primary-fixed-variant',
-  Unpaid: 'bg-surface-container text-on-surface-variant',
-  Overdue: 'bg-error/10 text-error',
+const INVOICE_STATUS_STYLES: Record<InvoiceStatus, string> = {
+  unpaid: 'bg-surface-container text-on-surface-variant',
+  deposit_paid: 'bg-golden-sun/20 text-secondary',
+  paid: 'bg-savanna-green/15 text-savanna-green',
+  overdue: 'bg-error-container text-error',
 }
 
 function initials(name: string) {
@@ -22,9 +24,13 @@ function initials(name: string) {
 
 export function AdminCustomerDetail() {
   const { id } = useParams<{ id: string }>()
-  const customer = adminCustomers.find((c) => c.id === id)
+  const { data: customer, loading, error } = useFetch(() => getCustomer(id!), [id])
 
-  if (!customer) {
+  if (loading) {
+    return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+  }
+
+  if (error || !customer) {
     return (
       <div>
         <p className="text-on-surface-variant mb-4">Customer not found.</p>
@@ -34,8 +40,6 @@ export function AdminCustomerDetail() {
       </div>
     )
   }
-
-  const invoices = adminInvoices.filter((inv) => customer.bookingIds.includes(inv.bookingId))
 
   return (
     <div>
@@ -58,63 +62,55 @@ export function AdminCustomerDetail() {
               <span className="flex items-center gap-1.5">
                 <EnvelopeSimple size={16} /> {customer.email}
               </span>
-              <span className="hidden sm:inline text-sand-stone">•</span>
-              <span className="flex items-center gap-1.5">
-                <Phone size={16} /> {customer.phone}
-              </span>
-              <span className="hidden sm:inline text-sand-stone">•</span>
-              <span className="flex items-center gap-1.5">
-                <MapPin size={16} /> {customer.origin}
-              </span>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-golden-sun/15 text-secondary px-3 py-1 rounded-full text-xs font-label-sm flex items-center gap-1">
-                {customer.status === 'VIP' && <Star size={13} />}
-                {customer.status}
-              </span>
               <span className="bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-xs font-label-sm flex items-center gap-1">
-                <CalendarCheck size={13} /> Since {customer.joinedDate}
+                <CalendarCheck size={13} /> Since {new Date(customer.joinedDate).toLocaleDateString()}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4 w-full lg:w-auto">
-          <div className="flex flex-col bg-surface p-4 rounded-lg border border-sand-stone min-w-[180px]">
-            <span className="font-label-sm text-xs text-on-surface-variant mb-1 uppercase tracking-wider">Lifetime Spend</span>
-            <span className="font-headline-md text-[22px] text-savanna-green font-bold">${customer.totalSpend.toLocaleString()}</span>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-sm px-4 py-2.5 rounded-lg border border-sand-stone transition-colors"
-            >
-              <PencilSimple size={16} />
-              Edit
-            </button>
-            <a
-              href={`https://wa.me/${customer.phone.replace(/[^\d]/g, '')}`}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-savanna-green text-on-primary font-label-md text-sm px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity shadow-sm"
-            >
-              <WhatsappLogo size={18} />
-              WhatsApp
-            </a>
-          </div>
+        <div className="flex flex-col bg-surface p-4 rounded-lg border border-sand-stone min-w-[180px]">
+          <span className="font-label-sm text-xs text-on-surface-variant mb-1 uppercase tracking-wider">Lifetime Spend</span>
+          <span className="font-headline-md text-[22px] text-savanna-green font-bold">${customer.totalSpend.toLocaleString()}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50">
-          <h3 className="font-headline-md text-[18px] text-on-surface mb-4">Bookings</h3>
-          <div className="space-y-3">
+      <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50">
+        <h3 className="font-headline-md text-[18px] text-on-surface mb-4">Bookings</h3>
+        <div className="space-y-3">
+          {customer.bookings.length === 0 ? (
             <p className="text-on-surface-variant text-sm">No bookings yet.</p>
-          </div>
+          ) : (
+            customer.bookings.map((b) => (
+              <Link
+                key={b.id}
+                to={`/admin/inquiries/${b.id}`}
+                className="flex items-center gap-3 bg-surface-container-low rounded-lg p-3 hover:bg-surface-container transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center shrink-0">
+                  <MapPin size={16} className="text-on-surface-variant" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-label-md text-sm text-on-surface">{b.packageTitle}</p>
+                  <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-label-sm bg-surface-container text-on-surface-variant">
+                    {STAGE_LABELS[b.stage]}
+                  </span>
+                </div>
+                <span className="font-label-md text-sm text-on-surface">${b.subtotal.toLocaleString()}</span>
+              </Link>
+            ))
+          )}
         </div>
+      </div>
 
-        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50">
-          <h3 className="font-headline-md text-[18px] text-on-surface mb-4">Invoices</h3>
+      <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50 mt-6">
+        <h3 className="font-headline-md text-[18px] text-on-surface mb-4">Invoice History</h3>
+        {customer.invoices.length === 0 ? (
+          <p className="text-on-surface-variant text-sm">No invoices yet — issued once a quote is sent.</p>
+        ) : (
           <div className="space-y-3">
-            {invoices.length === 0 && <p className="text-on-surface-variant text-sm">No invoices yet.</p>}
-            {invoices.map((inv) => (
+            {customer.invoices.map((inv) => (
               <Link
                 key={inv.id}
                 to={`/admin/invoices/${inv.id}`}
@@ -124,16 +120,17 @@ export function AdminCustomerDetail() {
                   <Receipt size={16} className="text-on-surface-variant" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-label-md text-sm text-on-surface">{inv.id}</p>
-                  <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-label-sm ${INVOICE_STYLES[inv.status]}`}>
-                    {inv.status}
-                  </span>
+                  <p className="font-label-md text-sm text-on-surface">{inv.packageTitle}</p>
+                  <p className="text-xs text-on-surface-variant">Due {inv.dueDate}</p>
                 </div>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-label-sm ${INVOICE_STATUS_STYLES[inv.status]}`}>
+                  {INVOICE_STATUS_LABELS[inv.status]}
+                </span>
                 <span className="font-label-md text-sm text-on-surface">${inv.amount.toLocaleString()}</span>
               </Link>
             ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
