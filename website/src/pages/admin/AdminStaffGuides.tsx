@@ -314,7 +314,11 @@ export function AdminStaffGuides() {
       )}
 
       {addOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm" onClick={closeAddDrawer}>
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm"
+          onClick={closeAddDrawer}
+          onKeyDown={(e) => e.key === 'Escape' && closeAddDrawer()}
+        >
           <div className="w-full max-w-md h-full bg-surface-container-lowest shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
             {created ? (
               <>

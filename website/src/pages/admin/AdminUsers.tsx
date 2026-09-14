@@ -204,7 +204,11 @@ export function AdminUsers() {
       </div>
 
       {creating && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm" onClick={() => setCreating(false)}>
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-deep-earth/30 backdrop-blur-sm"
+          onClick={() => setCreating(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setCreating(false)}
+        >
           <div className="w-full max-w-md h-full bg-surface-container-lowest shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-sand-stone bg-surface-container-low/40 shrink-0">
               <div className="flex items-center justify-between">
