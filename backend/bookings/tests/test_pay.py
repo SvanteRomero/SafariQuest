@@ -12,9 +12,13 @@ from safaris.models import SafariPackage
 User = get_user_model()
 
 
+_safari_counter = [0]
+
+
 def make_booking(customer, stage=Booking.STAGE_NEW_INQUIRY):
+    _safari_counter[0] += 1
     safari = SafariPackage.objects.create(
-        slug="migration-quest",
+        slug=f"migration-quest-{_safari_counter[0]}",
         title="7-Day Great Migration Quest",
         image="https://example.com/image.jpg",
         image_alt="Migration",
@@ -51,9 +55,12 @@ class BookingPayTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_other_tourist_cannot_pay_someone_elses_booking(self):
+        # Matches test_reviews.py's test_other_tourist_cannot_review_someone_elses_booking:
+        # get_queryset() scopes tourists to their own bookings, so a booking that isn't
+        # theirs 404s via get_object() rather than reaching the explicit 403 role check below.
         self._login_as(self.other_tourist)
         response = self.client.post(self.pay_url, {"amount": 5100})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_owner_can_pay_and_stage_advances(self):
         self._login_as(self.customer)
