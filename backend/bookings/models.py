@@ -48,7 +48,7 @@ class Booking(models.Model):
         ordering = ["-created_at"]
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     models.Q(safari__isnull=False, region_safari__isnull=True)
                     | models.Q(safari__isnull=True, region_safari__isnull=False)
                 ),

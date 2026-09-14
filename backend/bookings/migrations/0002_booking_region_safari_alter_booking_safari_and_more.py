@@ -28,6 +28,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='booking',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('region_safari__isnull', True), ('safari__isnull', False)), models.Q(('region_safari__isnull', False), ('safari__isnull', True)), _connector='OR'), name='booking_has_exactly_one_product'),
+            constraint=models.CheckConstraint(condition=models.Q(models.Q(('region_safari__isnull', True), ('safari__isnull', False)), models.Q(('region_safari__isnull', False), ('safari__isnull', True)), _connector='OR'), name='booking_has_exactly_one_product'),
         ),
     ]
