@@ -32,10 +32,13 @@ export function Header() {
       <nav className="flex items-center px-5 md:px-8 lg:px-6 xl:px-margin-desktop py-4 w-full max-w-container-max mx-auto">
         <NavLink
           to="/"
-          className="font-headline-md text-headline-md font-bold text-savanna-green lg:shrink-0 lg:whitespace-nowrap mr-6 xl:mr-10"
+          className="flex items-center gap-2 lg:shrink-0 lg:whitespace-nowrap mr-6 xl:mr-10"
           onClick={() => setMenuOpen(false)}
         >
-          Pande Wilderness Safari
+          <img src="/images/pande-safaris-logo.svg" alt="" className="h-10 w-10 shrink-0" />
+          <span className="font-headline-md text-headline-md font-bold text-savanna-green">
+            Pande Wilderness Safari
+          </span>
         </NavLink>
 
         <div className="hidden lg:flex items-center gap-4 xl:gap-8 shrink-0">
