@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "imageAlt": "A lone acacia tree silhouetted against a Tanzanian savanna sunrise painted in gold and ivory.",
+    "heading": "Our Roots in the Wilderness",
+    "subtitle": "Discover the passion, heritage, and unwavering commitment to conservation that drives Pande Wilderness Safari."
+  },
+  "story": {
+    "heading": "A Legacy of Authentic Exploration",
+    "paragraph1": "For over 15 years, Pande Wilderness Safari has been more than a tour operator; we are custodians of the Tanzanian wilderness. Founded by local experts with a profound love for the land, our mission is to share the untouched beauty of Africa while fiercely protecting it for generations to come.",
+    "paragraph2": "We believe in travel that enriches both the soul of the explorer and the communities that call this wild landscape home. Every journey we craft is a testament to our commitment to sustainable, low-impact, and highly authentic safari experiences.",
+    "imageAlt": "A Tanzanian safari guide standing proudly beside an open-top Land Cruiser in the Serengeti.",
+    "values": {
+      "conservation": {
+        "title": "Conservation First",
+        "description": "We partner with local wildlife funds to ensure our footprint is positive."
+      },
+      "community": {
+        "title": "Community Led",
+        "description": "100% of our guides are locals, reinvesting in our shared heritage."
+      }
+    }
+  },
+  "stats": {
+    "yearsExperience": "Years Experience",
+    "happyTravelers": "Happy Travelers",
+    "localGuides": "Local Guides"
+  },
+  "team": {
+    "heading": "Meet the Experts",
+    "subtitle": "Our seasoned team of naturalists, trackers, and hospitality experts ensure your journey is flawless.",
+    "contactOnWhatsApp": "Contact on WhatsApp",
+    "members": {
+      "juma": {
+        "role": "Senior Field Guide & Tracker",
+        "bio": "With over a decade of tracking experience in the Serengeti, Juma's intimate knowledge of predator behavior ensures you're always in the right place at the right time.",
+        "imageAlt": "A professional portrait of Juma Mdoe, a Tanzanian safari field guide, standing against a blurred acacia woodland."
+      },
+      "amina": {
+        "role": "Guest Experience Director",
+        "bio": "Amina oversees every detail of your stay, from specialized dietary requirements to orchestrating surprise sundowner experiences in the bush.",
+        "imageAlt": "A portrait of a Tanzanian safari lodge manager standing in front of an upscale canvas tent."
+      },
+      "elias": {
+        "role": "Head Itinerary Architect",
+        "bio": "Elias crafts our unique routes, ensuring you bypass the crowds to discover the most authentic and breathtaking corners of the parks.",
+        "imageAlt": "A portrait of a senior Tanzanian conservationist and route planner looking across a savanna landscape."
+      }
+    }
+  },
+  "interests": {
+    "greatMigration": "The Great Migration",
+    "luxuryHoneymoon": "Luxury Honeymoon Safari",
+    "familyAdventure": "Family Adventure",
+    "photographicSafari": "Photographic Safari"
+  },
+  "inquiry": {
+    "heading": "Start Planning Your Journey",
+    "subtitle": "Share a few details, and our safari experts will begin crafting your bespoke Tanzanian adventure.",
+    "primaryInterest": "Primary Interest",
+    "startPlanning": "Start Planning",
+    "helperText": "Pick your regions and dates and we'll have a specialist reply with a quote. Prefer to talk first? Use the WhatsApp or email details alongside.",
+    "preferToChat": "Prefer to Chat?",
+    "chatBody": "Speak directly with our local guides on WhatsApp. We promise a reply within 24 hours to help shape your ideal itinerary.",
+    "messageOnWhatsApp": "Message us on WhatsApp",
+    "certifiedLocalOperator": "Certified Local Operator"
+  }
+}

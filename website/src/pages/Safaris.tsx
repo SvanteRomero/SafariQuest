@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link } from '../i18n/routing'
 import { FunnelSimple, ShieldCheck, Leaf, Medal } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
 import { SafariCard } from '../components/SafariCard'
@@ -7,26 +8,26 @@ import { getSafaris } from '../api/safaris'
 import { useFetch } from '../lib/useFetch'
 
 const DURATION_OPTIONS = [
-  { label: 'Duration (Any)', value: '' },
-  { label: '3 - 5 Days', value: '3-5' },
-  { label: '6 - 10 Days', value: '6-10' },
-  { label: '11+ Days', value: '11+' },
-]
+  { key: 'any', value: '' },
+  { key: '3-5', value: '3-5' },
+  { key: '6-10', value: '6-10' },
+  { key: '11+', value: '11+' },
+] as const
 
 const BUDGET_OPTIONS = [
-  { label: 'Budget (Any)', value: '' },
-  { label: 'Under $3,000', value: 'under-3000' },
-  { label: '$3,000 - $6,000', value: '3000-6000' },
-  { label: '$6,000+', value: '6000+' },
-]
+  { key: 'any', value: '' },
+  { key: 'under-3000', value: 'under-3000' },
+  { key: '3000-6000', value: '3000-6000' },
+  { key: '6000+', value: '6000+' },
+] as const
 
 const DESTINATION_OPTIONS = [
-  { label: 'Destination (All)', value: '' },
-  { label: 'Serengeti National Park', value: 'Serengeti National Park' },
-  { label: 'Ngorongoro Conservation Area', value: 'Ngorongoro Conservation Area' },
-  { label: 'Tarangire & Manyara', value: 'Tarangire & Manyara' },
-  { label: 'Zanzibar Extensions', value: 'Zanzibar Extensions' },
-]
+  { key: 'all', value: '' },
+  { key: 'serengeti', value: 'Serengeti National Park' },
+  { key: 'ngorongoro', value: 'Ngorongoro Conservation Area' },
+  { key: 'tarangireManyara', value: 'Tarangire & Manyara' },
+  { key: 'zanzibar', value: 'Zanzibar Extensions' },
+] as const
 
 function matchesDuration(days: number, filter: string) {
   if (!filter) return true
@@ -45,6 +46,7 @@ function matchesBudget(price: number, filter: string) {
 }
 
 export function Safaris() {
+  const { t } = useTranslation('safaris')
   const [duration, setDuration] = useState('')
   const [budget, setBudget] = useState('')
   const [destination, setDestination] = useState('')
@@ -79,10 +81,9 @@ export function Safaris() {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 px-5 md:px-margin-desktop w-full max-w-container-max mx-auto">
-          <h1 className="font-display-lg text-[36px] md:text-display-lg text-ivory-base mb-4">Our Safari Packages</h1>
+          <h1 className="font-display-lg text-[36px] md:text-display-lg text-ivory-base mb-4">{t('hero.heading')}</h1>
           <p className="font-body-lg text-body-lg text-ivory-base/90 max-w-2xl">
-            Discover the untamed heart of Tanzania with our expertly curated journeys, from the Great Migration to
-            the hidden gems of Ngorongoro.
+            {t('hero.subtitle')}
           </p>
         </div>
       </section>
@@ -92,42 +93,42 @@ export function Safaris() {
         <div className="px-5 md:px-margin-desktop w-full max-w-container-max mx-auto flex flex-col md:flex-row gap-gutter items-center">
           <div className="flex items-center gap-3 text-on-surface-variant font-label-md shrink-0">
             <FunnelSimple size={20} />
-            <span>Filter By:</span>
+            <span>{t('filter.filterBy')}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             <select
-              aria-label="Filter by duration"
+              aria-label={t('filter.filterByDuration')}
               className={selectClass(!!duration)}
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
             >
               {DURATION_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                <option key={opt.key} value={opt.value}>
+                  {t(`filter.duration.${opt.key}`)}
                 </option>
               ))}
             </select>
             <select
-              aria-label="Filter by budget"
+              aria-label={t('filter.filterByBudget')}
               className={selectClass(!!budget)}
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
             >
               {BUDGET_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                <option key={opt.key} value={opt.value}>
+                  {t(`filter.budget.${opt.key}`)}
                 </option>
               ))}
             </select>
             <select
-              aria-label="Filter by destination"
+              aria-label={t('filter.filterByDestination')}
               className={selectClass(!!destination)}
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
             >
               {DESTINATION_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                <option key={opt.key} value={opt.value}>
+                  {t(`filter.destination.${opt.key}`)}
                 </option>
               ))}
             </select>
@@ -137,13 +138,13 @@ export function Safaris() {
 
       {/* Safari Grid */}
       <section className="py-20 md:py-section-gap px-5 md:px-margin-desktop w-full max-w-container-max mx-auto">
-        {loading && <p className="text-center text-on-surface-variant py-20">Loading safaris…</p>}
+        {loading && <p className="text-center text-on-surface-variant py-20">{t('loading')}</p>}
         {!loading && error && <p className="text-center text-error py-20">{error}</p>}
         {!loading && !error && filtered.length === 0 && (
           <p className="text-center text-on-surface-variant py-20">
-            No safaris match those filters yet — try widening your search, or{' '}
+            {t('noResults')}{' '}
             <Link to="/about#contact" className="text-savanna-green underline">
-              talk to our specialists
+              {t('talkToSpecialists')}
             </Link>
             .
           </p>
@@ -165,18 +166,17 @@ export function Safaris() {
           <div className="md:flex items-center justify-between gap-12">
             <div className="max-w-xl">
               <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-ivory-base mb-4">
-                Can't find what you're looking for?
+                {t('customCta.heading')}
               </h2>
               <p className="font-body-lg text-body-lg text-surface-variant">
-                Our safari experts are ready to design a bespoke itinerary tailored perfectly to your dreams,
-                schedule, and budget.
+                {t('customCta.body')}
               </p>
             </div>
             <Link
               to="/about#contact"
               className="mt-8 md:mt-0 inline-flex min-h-[44px] items-center bg-savanna-green text-on-primary px-10 py-5 rounded-full font-label-md text-body-lg transition-transform hover:scale-105 shadow-xl shrink-0"
             >
-              Let us customize your safari
+              {t('customCta.cta')}
             </Link>
           </div>
         </Reveal>
@@ -187,15 +187,15 @@ export function Safaris() {
         <div className="flex flex-wrap justify-center items-center gap-10 md:gap-24">
           <div className="flex items-center gap-3">
             <ShieldCheck size={32} className="text-savanna-green" />
-            <span className="font-label-md uppercase tracking-widest text-on-surface">Park Authorized</span>
+            <span className="font-label-md uppercase tracking-widest text-on-surface">{t('trustBadges.parkAuthorized')}</span>
           </div>
           <div className="flex items-center gap-3">
             <Leaf size={32} className="text-savanna-green" />
-            <span className="font-label-md uppercase tracking-widest text-on-surface">Eco-Friendly Tours</span>
+            <span className="font-label-md uppercase tracking-widest text-on-surface">{t('trustBadges.ecoFriendlyTours')}</span>
           </div>
           <div className="flex items-center gap-3">
             <Medal size={32} className="text-savanna-green" />
-            <span className="font-label-md uppercase tracking-widest text-on-surface">Certified Guides</span>
+            <span className="font-label-md uppercase tracking-widest text-on-surface">{t('trustBadges.certifiedGuides')}</span>
           </div>
         </div>
       </section>

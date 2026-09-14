@@ -1,18 +1,23 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { NavLink as PlainNavLink } from 'react-router-dom'
 import { List, X, UserCircle, ShieldCheck, Binoculars } from '@phosphor-icons/react'
 import { useAuth } from '../auth/AuthContext'
-
-const NAV_LINKS = [
-  { label: 'Destinations', to: '/destinations' },
-  { label: 'Safaris', to: '/safaris' },
-  { label: 'About Us', to: '/about' },
-]
+import { NavLink } from '../i18n/routing'
+import { useLocalizedNavigate as useNavigate } from '../i18n/useLocale'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Header() {
+  const { t } = useTranslation('common')
   const [menuOpen, setMenuOpen] = useState(false)
   const { role, logout } = useAuth()
   const navigate = useNavigate()
+
+  const NAV_LINKS = [
+    { label: t('nav.destinations'), to: '/destinations' },
+    { label: t('nav.safaris'), to: '/safaris' },
+    { label: t('nav.about'), to: '/about' },
+  ]
 
   async function handleSignOut() {
     await logout()
@@ -37,7 +42,7 @@ export function Header() {
         >
           <img src="/images/pande-safaris-logo.svg" alt="" className="h-10 w-10 shrink-0" />
           <span className="font-headline-md text-headline-md font-bold text-savanna-green">
-            Pande Wilderness Safari
+            {t('brandName')}
           </span>
         </NavLink>
 
@@ -55,31 +60,31 @@ export function Header() {
             to="/plan"
             className="hidden lg:flex items-center bg-savanna-green text-on-primary font-label-md text-label-md px-4 xl:px-6 py-3 rounded hover:opacity-90 transition-opacity shrink-0 mr-1 xl:mr-2 whitespace-nowrap"
           >
-            Plan Your Journey
+            {t('planYourJourney')}
           </NavLink>
           {role === 'admin' && (
-            <NavLink
+            <PlainNavLink
               to="/admin"
-              title="Admin"
+              title={t('admin')}
               className="hidden lg:flex items-center justify-center w-9 h-9 border border-sand-stone text-on-surface-variant hover:border-savanna-green hover:text-savanna-green transition-colors rounded-full shrink-0"
             >
               <ShieldCheck size={16} />
-            </NavLink>
+            </PlainNavLink>
           )}
           {role === 'guide' && (
-            <NavLink
+            <PlainNavLink
               to="/guide"
-              title="Guide"
+              title={t('guide')}
               className="hidden lg:flex items-center justify-center w-9 h-9 border border-sand-stone text-on-surface-variant hover:border-savanna-green hover:text-savanna-green transition-colors rounded-full shrink-0"
             >
               <Binoculars size={16} />
-            </NavLink>
+            </PlainNavLink>
           )}
           {role ? (
             <button
               type="button"
               onClick={handleSignOut}
-              title="Sign Out"
+              title={t('signOut')}
               className="hidden lg:flex items-center justify-center w-9 h-9 text-on-surface-variant hover:text-savanna-green transition-colors shrink-0"
             >
               <UserCircle size={20} />
@@ -87,16 +92,19 @@ export function Header() {
           ) : (
             <NavLink
               to="/sign-in"
-              title="Sign In"
+              title={t('signIn')}
               className="hidden lg:flex items-center justify-center w-9 h-9 text-on-surface-variant hover:text-savanna-green transition-colors shrink-0"
             >
               <UserCircle size={20} />
             </NavLink>
           )}
+          <div className="hidden lg:block">
+            <LanguageSwitcher />
+          </div>
           <button
             type="button"
             className="lg:hidden flex items-center justify-center w-11 h-11 text-on-surface cursor-pointer"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((open) => !open)}
@@ -127,7 +135,7 @@ export function Header() {
             onClick={() => setMenuOpen(false)}
             className="bg-savanna-green text-on-primary font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center justify-center mt-1"
           >
-            Plan Your Journey
+            {t('planYourJourney')}
           </NavLink>
           {role ? (
             <button
@@ -136,7 +144,7 @@ export function Header() {
               className="font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 border-t border-surface-variant mt-1 pt-4 text-on-surface-variant hover:bg-surface-container-low"
             >
               <UserCircle size={20} />
-              Sign Out
+              {t('signOut')}
             </button>
           ) : (
             <NavLink
@@ -149,11 +157,11 @@ export function Header() {
               }
             >
               <UserCircle size={20} />
-              Sign In
+              {t('signIn')}
             </NavLink>
           )}
           {role === 'admin' && (
-            <NavLink
+            <PlainNavLink
               to="/admin"
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
@@ -163,11 +171,11 @@ export function Header() {
               }
             >
               <ShieldCheck size={20} />
-              Admin
-            </NavLink>
+              {t('admin')}
+            </PlainNavLink>
           )}
           {role === 'guide' && (
-            <NavLink
+            <PlainNavLink
               to="/guide"
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
@@ -177,9 +185,10 @@ export function Header() {
               }
             >
               <Binoculars size={20} />
-              Guide
-            </NavLink>
+              {t('guide')}
+            </PlainNavLink>
           )}
+          <LanguageSwitcher variant="mobile" />
         </div>
       )}
     </header>

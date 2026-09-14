@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "imageAlt": "Un acacia solitaire se découpant sur un lever de soleil doré et ivoire dans la savane tanzanienne.",
+    "heading": "Nos racines dans la nature sauvage",
+    "subtitle": "Découvrez la passion, l'héritage et l'engagement indéfectible envers la conservation qui animent Pande Wilderness Safari."
+  },
+  "story": {
+    "heading": "Un héritage d'exploration authentique",
+    "paragraph1": "Depuis plus de 15 ans, Pande Wilderness Safari est bien plus qu'un tour-opérateur ; nous sommes les gardiens de la nature sauvage tanzanienne. Fondée par des experts locaux animés d'un profond amour pour cette terre, notre mission est de partager la beauté intacte de l'Afrique tout en la protégeant farouchement pour les générations futures.",
+    "paragraph2": "Nous croyons en un voyage qui enrichit à la fois l'âme du voyageur et les communautés qui habitent ce paysage sauvage. Chaque voyage que nous créons témoigne de notre engagement envers des expériences de safari durables, à faible impact et hautement authentiques.",
+    "imageAlt": "Un guide de safari tanzanien se tenant fièrement à côté d'un Land Cruiser décapotable dans le Serengeti.",
+    "values": {
+      "conservation": {
+        "title": "La conservation avant tout",
+        "description": "Nous collaborons avec des fonds locaux pour la faune afin de garantir que notre empreinte soit positive."
+      },
+      "community": {
+        "title": "Porté par la communauté",
+        "description": "100 % de nos guides sont des habitants locaux, qui réinvestissent dans notre patrimoine commun."
+      }
+    }
+  },
+  "stats": {
+    "yearsExperience": "Années d'expérience",
+    "happyTravelers": "Voyageurs satisfaits",
+    "localGuides": "Guides locaux"
+  },
+  "team": {
+    "heading": "Rencontrez nos experts",
+    "subtitle": "Notre équipe chevronnée de naturalistes, pisteurs et experts en hospitalité garantit un voyage sans faille.",
+    "contactOnWhatsApp": "Contacter sur WhatsApp",
+    "members": {
+      "juma": {
+        "role": "Guide de terrain senior et pisteur",
+        "bio": "Fort de plus d'une décennie d'expérience de pistage dans le Serengeti, la connaissance intime de Juma du comportement des prédateurs vous garantit d'être toujours au bon endroit, au bon moment.",
+        "imageAlt": "Portrait professionnel de Juma Mdoe, guide de safari tanzanien, se tenant devant une forêt d'acacias floue."
+      },
+      "amina": {
+        "role": "Directrice de l'expérience client",
+        "bio": "Amina supervise chaque détail de votre séjour, des besoins alimentaires spécifiques à l'organisation de sundowners surprises dans la brousse.",
+        "imageAlt": "Portrait d'une responsable de lodge de safari tanzanien devant une tente en toile haut de gamme."
+      },
+      "elias": {
+        "role": "Architecte en chef des itinéraires",
+        "bio": "Elias conçoit nos itinéraires uniques, vous permettant d'éviter les foules pour découvrir les coins les plus authentiques et les plus époustouflants des parcs.",
+        "imageAlt": "Portrait d'un conservationniste tanzanien senior et planificateur d'itinéraires regardant la savane."
+      }
+    }
+  },
+  "interests": {
+    "greatMigration": "La Grande Migration",
+    "luxuryHoneymoon": "Safari lune de miel de luxe",
+    "familyAdventure": "Aventure en famille",
+    "photographicSafari": "Safari photographique"
+  },
+  "inquiry": {
+    "heading": "Commencez à planifier votre voyage",
+    "subtitle": "Partagez quelques informations, et nos experts safari commenceront à concevoir votre aventure tanzanienne sur mesure.",
+    "primaryInterest": "Intérêt principal",
+    "startPlanning": "Commencer la planification",
+    "helperText": "Choisissez vos régions et vos dates, et un spécialiste vous répondra avec un devis. Vous préférez en discuter d'abord ? Utilisez le WhatsApp ou l'e-mail ci-contre.",
+    "preferToChat": "Vous préférez discuter ?",
+    "chatBody": "Parlez directement à nos guides locaux sur WhatsApp. Nous vous garantissons une réponse sous 24 heures pour façonner l'itinéraire idéal.",
+    "messageOnWhatsApp": "Écrivez-nous sur WhatsApp",
+    "certifiedLocalOperator": "Opérateur local certifié"
+  }
+}

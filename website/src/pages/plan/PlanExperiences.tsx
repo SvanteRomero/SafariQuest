@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Check, Clock, ArrowLeft, ArrowRight } from '@phosphor-icons/react'
+import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { getDestinations } from '../../api/destinations'
 import { getParks } from '../../api/parks'
 import { getSafaris } from '../../api/safaris'
@@ -10,6 +12,7 @@ import { useTripPlan } from '../../components/plan/tripPlanStore'
 import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanExperiences() {
+  const { t, i18n } = useTranslation('plan')
   const { plan, toggleExperience } = useTripPlan()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -74,15 +77,14 @@ export function PlanExperiences() {
     <div>
       <div className="mb-10 max-w-2xl mx-auto text-center">
         <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">
-          What do you want to experience?
+          {t('experiences.heading')}
         </h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          See the parks and wonders available in each region, and select the safaris that take you where you want
-          to go.
+          {t('experiences.subtitle')}
         </p>
       </div>
 
-      {loading && <p className="text-center text-on-surface-variant py-16">Loading experiences…</p>}
+      {loading && <p className="text-center text-on-surface-variant py-16">{t('experiences.loading')}</p>}
       {error && <p className="text-center text-error py-16">{error}</p>}
 
       {!loading && !error && selectedDestinations.length > 0 && (
@@ -111,10 +113,10 @@ export function PlanExperiences() {
                   <div className="flex items-center gap-3 mb-4">
                     <div>
                       <h3 className="font-headline-md text-[20px] text-on-surface">
-                        {activeDestination.name} region safaris
+                        {t('experiences.regionSafarisHeading', { name: activeDestination.name })}
                       </h3>
                       <p className="text-on-surface-variant text-sm">
-                        Safaris that stay within {activeDestination.name}.
+                        {t('experiences.regionSafarisSubtitle', { name: activeDestination.name })}
                       </p>
                     </div>
                   </div>
@@ -145,10 +147,10 @@ export function PlanExperiences() {
                             <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                               <span className="inline-flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
                                 <Clock size={13} />
-                                {safari.days} Day{safari.days !== 1 ? 's' : ''}
+                                {t('experiences.day', { count: safari.days })}
                               </span>
                               <span className="bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                ${safari.price.toLocaleString()}
+                                ${safari.price.toLocaleString(i18n.language)}
                               </span>
                             </div>
                           </div>
@@ -166,7 +168,7 @@ export function PlanExperiences() {
                                   : 'border border-outline-variant text-on-surface hover:border-savanna-green hover:text-savanna-green'
                               }`}
                             >
-                              {selected ? 'Selected' : 'Select Experience'}
+                              {selected ? t('experiences.selected') : t('experiences.selectExperience')}
                             </button>
                           </div>
                         </div>
@@ -189,7 +191,7 @@ export function PlanExperiences() {
                       </div>
                     </div>
                     {parkSafaris.length === 0 ? (
-                      <p className="text-on-surface-variant text-sm">No safari packages visit this park yet.</p>
+                      <p className="text-on-surface-variant text-sm">{t('experiences.noSafarisYet')}</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {parkSafaris.map((safari) => {
@@ -218,10 +220,10 @@ export function PlanExperiences() {
                                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                                   <span className="inline-flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
                                     <Clock size={13} />
-                                    {safari.days} Day{safari.days !== 1 ? 's' : ''}
+                                    {t('experiences.day', { count: safari.days })}
                                   </span>
                                   <span className="bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                    ${safari.price.toLocaleString()}
+                                    ${safari.price.toLocaleString(i18n.language)}
                                   </span>
                                 </div>
                               </div>
@@ -239,7 +241,7 @@ export function PlanExperiences() {
                                       : 'border border-outline-variant text-on-surface hover:border-savanna-green hover:text-savanna-green'
                                   }`}
                                 >
-                                  {selected ? 'Selected' : 'Select Experience'}
+                                  {selected ? t('experiences.selected') : t('experiences.selectExperience')}
                                 </button>
                               </div>
                             </div>
@@ -252,7 +254,7 @@ export function PlanExperiences() {
               })}
               {parksForActive.length === 0 && regionSafarisForActive.length === 0 && (
                 <p className="text-on-surface-variant text-center py-8">
-                  No experiences are set up for {activeDestination.name} yet.
+                  {t('experiences.noExperiencesYet', { name: activeDestination.name })}
                 </p>
               )}
             </div>
@@ -267,12 +269,11 @@ export function PlanExperiences() {
           className="min-h-[44px] inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
         >
           <ArrowLeft size={18} />
-          Back
+          {t('experiences.back')}
         </button>
         {activeDestination && (
           <span className="text-on-surface-variant text-sm hidden sm:block">
-            {selectedCountForActive} experience{selectedCountForActive !== 1 ? 's' : ''} selected for{' '}
-            {activeDestination.name}
+            {t('experiences.selectedCount', { count: selectedCountForActive, name: activeDestination.name })}
           </span>
         )}
         <button
@@ -281,7 +282,7 @@ export function PlanExperiences() {
           onClick={() => navigate('/plan/details')}
           className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(30,142,62,0.2)]"
         >
-          Next: Add Trip Details
+          {t('experiences.next')}
           <ArrowRight size={18} weight="bold" />
         </button>
       </div>

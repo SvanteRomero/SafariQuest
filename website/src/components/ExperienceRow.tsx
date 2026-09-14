@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link } from '../i18n/routing'
 import { Star } from '@phosphor-icons/react'
 import type { Experience } from '../data/experiences'
 import { Reveal } from './Reveal'
@@ -9,6 +10,7 @@ interface ExperienceRowProps {
 }
 
 export function ExperienceRow({ experience, reverse = false }: ExperienceRowProps) {
+  const { t } = useTranslation('experiences')
   return (
     <section className={`py-16 md:py-20 px-5 md:px-margin-desktop ${reverse ? 'bg-surface-container-low' : 'bg-surface'}`}>
       <Reveal
@@ -69,7 +71,7 @@ export function ExperienceRow({ experience, reverse = false }: ExperienceRowProp
             to="/safaris"
             className="inline-flex items-center min-h-[44px] px-6 py-2.5 rounded-lg border border-savanna-green text-savanna-green font-label-md hover:bg-savanna-green hover:text-on-primary transition-colors"
           >
-            Related Safaris
+            {t('relatedSafaris')}
           </Link>
         </div>
       </Reveal>

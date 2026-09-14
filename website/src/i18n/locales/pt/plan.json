@@ -1,0 +1,139 @@
+{
+  "header": {
+    "heading": "Planeie a sua viagem",
+    "subtitle": "Crie um itinerário personalizado para a Tanzânia e garanta-o com um depósito."
+  },
+  "steps": {
+    "regions": "Regiões",
+    "experiences": "Experiências",
+    "details": "Detalhes",
+    "review": "Revisão",
+    "account": "Conta",
+    "payment": "Pagamento"
+  },
+  "travelers": {
+    "adults_one": "{{count}} adulto",
+    "adults_other": "{{count}} adultos",
+    "children_one": "{{count}} criança",
+    "children_other": "{{count}} crianças"
+  },
+  "primaryInterestPrefix": "Interesse principal: {{interest}}",
+  "destinations": {
+    "heading": "Para onde quer ir?",
+    "subtitle": "Selecione uma ou mais regiões para começar a criar a sua aventura tanzaniana perfeita. Pode sempre ajustar isto mais tarde.",
+    "loading": "A carregar destinos…",
+    "empty": "Ainda não há destinos disponíveis.",
+    "next": "Seguinte: Escolher experiências"
+  },
+  "experiences": {
+    "heading": "O que quer experienciar?",
+    "subtitle": "Veja os parques e maravilhas disponíveis em cada região e selecione os safáris que o levam onde quer ir.",
+    "loading": "A carregar experiências…",
+    "regionSafarisHeading": "Safáris regionais em {{name}}",
+    "regionSafarisSubtitle": "Safáris que permanecem dentro de {{name}}.",
+    "day_one": "{{count}} dia",
+    "day_other": "{{count}} dias",
+    "selected": "Selecionado",
+    "selectExperience": "Selecionar experiência",
+    "noSafarisYet": "Ainda nenhum pacote de safári visita este parque.",
+    "noExperiencesYet": "Ainda não há experiências configuradas para {{name}}.",
+    "back": "Voltar",
+    "selectedCount_one": "{{count}} experiência selecionada para {{name}}",
+    "selectedCount_other": "{{count}} experiências selecionadas para {{name}}",
+    "next": "Seguinte: Adicionar detalhes da viagem"
+  },
+  "details": {
+    "heading": "Fale-nos sobre a sua viagem",
+    "subtitle": "Ajuste a logística para podermos criar o itinerário perfeito para si.",
+    "durationTiming": "Duração e calendário",
+    "numberOfDays": "Número de dias",
+    "decreaseDays": "Diminuir número de dias",
+    "increaseDays": "Aumentar número de dias",
+    "estimatedStartDate": "Data de início estimada",
+    "groupSize": "Tamanho do grupo",
+    "adults": "Adultos",
+    "adultsAge": "16+ anos",
+    "children": "Crianças",
+    "childrenAge": "0-15 anos",
+    "decreaseAdults": "Diminuir número de adultos",
+    "increaseAdults": "Aumentar número de adultos",
+    "decreaseChildren": "Diminuir número de crianças",
+    "increaseChildren": "Aumentar número de crianças",
+    "accommodationStyle": "Estilo de alojamento",
+    "tiers": {
+      "Budget": {
+        "title": "Económico",
+        "blurb": "Simples e autêntico"
+      },
+      "Mid-range": {
+        "title": "Intermédio",
+        "blurb": "Conforto e qualidade"
+      },
+      "Luxury": {
+        "title": "Luxo",
+        "blurb": "A experiência de safári definitiva"
+      }
+    },
+    "personalTouch": "Toque pessoal",
+    "optional": "(opcional)",
+    "notesPlaceholder": "Necessidades alimentares, ocasiões especiais ou vida selvagem específica que espera ver...",
+    "back": "Voltar",
+    "next": "Seguinte: Rever viagem"
+  },
+  "review": {
+    "heading": "Reveja a sua viagem",
+    "subtitle": "Reserve um momento para verificar os detalhes do seu safári e depois continue para garantir a sua reserva com uma conta e um depósito.",
+    "selectAtLeastOne": "Selecione pelo menos uma experiência antes de continuar.",
+    "chooseStartDate": "Escolha uma data de início estimada antes de continuar.",
+    "destinationsExperiences": "Destinos e experiências",
+    "selectedExperiences": "Experiências selecionadas",
+    "noExperiencesSelected": "Nenhuma experiência selecionada.",
+    "tripLogistics": "Logística da viagem",
+    "days": "Dias",
+    "travelDates": "Datas de viagem",
+    "notSet": "Não definida",
+    "travelersLabel": "Viajantes",
+    "style": "Estilo",
+    "yourNotes": "As suas notas",
+    "editSelections": "Editar seleções",
+    "yourDetails": "Os seus dados",
+    "whereToSend": "Para onde devemos enviar a confirmação da sua reserva?",
+    "fullName": "Nome completo",
+    "fullNamePlaceholder": "ex.: Joana Silva",
+    "email": "E-mail",
+    "phoneWhatsApp": "Telefone / WhatsApp",
+    "countryCode": "Indicativo do país",
+    "depositSecures": "Um depósito garante a sua reserva.",
+    "nextPayDeposit": "A seguir, vai pagar um depósito para a confirmar.",
+    "nextCreateAccountPayDeposit": "A seguir, vai criar uma conta e pagar um depósito para a confirmar.",
+    "continue": "Continuar"
+  },
+  "account": {
+    "createHeading": "Crie a sua conta",
+    "signInHeading": "Iniciar sessão",
+    "registerSubtitle": "Vamos usar isto para lhe enviar a confirmação da reserva e permitir que acompanhe a sua viagem posteriormente.",
+    "signInSubtitle": "Inicie sessão para continuar — os seus dados serão obtidos da sua conta existente.",
+    "back": "Voltar",
+    "pleaseWait": "Aguarde…",
+    "createAccountAndContinue": "Criar conta e continuar",
+    "signInAndContinue": "Iniciar sessão e continuar",
+    "somethingWentWrong": "Algo correu mal. Tente novamente."
+  },
+  "payment": {
+    "heading": "Pagamento",
+    "subtitle": "Introduza os dados do seu cartão para pagar o depósito e garantir a sua reserva.",
+    "depositDueNow": "Depósito devido agora (30%)",
+    "back": "Voltar",
+    "processing": "A processar…",
+    "payAndBook": "Pagar {{amount}} $ e reservar",
+    "somethingWentWrong": "Algo correu mal. Tente novamente."
+  },
+  "message": {
+    "destinations": "Destinos: {{list}}",
+    "experiences": "Experiências: {{list}}",
+    "accommodationStyle": "Estilo de alojamento: {{style}}",
+    "phoneWhatsApp": "Telefone / WhatsApp: {{phone}}",
+    "notes": "Notas: {{notes}}",
+    "noneSelected": "Nenhuma seleção"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "heading": "Perguntas frequentes",
+    "subtitle": "A preparação é a chave para uma viagem inesquecível. Encontre aqui respostas de especialistas para todas as suas questões logísticas, de segurança e de viagem.",
+    "searchPlaceholder": "Pesquise um tópico (ex.: \"Vacinas\")"
+  },
+  "categoriesLabel": "Categorias",
+  "noResults": "Nenhuma pergunta corresponde a \"{{query}}\". Tente uma pesquisa diferente.",
+  "categories": {
+    "bookingPayment": {
+      "title": "Reserva e pagamento",
+      "items": {
+        "howDoIBook": {
+          "question": "Como reservo um safári?",
+          "answer": "Explore os nossos pacotes de safári ou use o planeador de viagens para criar um itinerário personalizado e, em seguida, envie um pedido. Um especialista em safáris responderá no prazo de um dia útil com um orçamento à medida."
+        },
+        "paymentMethods": {
+          "question": "Que métodos de pagamento aceitam?",
+          "answer": "Aceitamos transferência bancária e os principais cartões de crédito. Um depósito garante a sua reserva, sendo o saldo devido antes da partida."
+        },
+        "depositRequired": {
+          "question": "É necessário um depósito?",
+          "answer": "Sim, é necessário um depósito de 30% para confirmar a sua reserva, sendo o saldo restante devido 60 dias antes do início do safári."
+        }
+      }
+    },
+    "visasEntry": {
+      "title": "Vistos e entrada",
+      "items": {
+        "visaRequired": {
+          "question": "Preciso de visto para a Tanzânia?",
+          "answer": "A maioria dos visitantes precisa de visto, disponível à chegada ou antecipadamente online através do portal oficial de e-visto da Tanzânia. Recomendamos solicitar com pelo menos duas semanas de antecedência."
+        },
+        "documentsNeeded": {
+          "question": "Que documentos preciso para viajar?",
+          "answer": "Um passaporte válido por pelo menos seis meses após as datas de viagem, o seu visto e comprovativo de vacinação contra a febre amarela caso chegue de um país endémico."
+        }
+      }
+    },
+    "bestTimeToVisit": {
+      "title": "Melhor altura para visitar",
+      "items": {
+        "migrationTiming": {
+          "question": "Qual é a melhor altura para ver a Grande Migração?",
+          "answer": "As travessias do rio Mara atingem normalmente o pico entre julho e setembro, enquanto a época de nascimentos no sul do Serengeti decorre de janeiro a março."
+        },
+        "weather": {
+          "question": "Como é o clima?",
+          "answer": "A Tanzânia tem duas estações chuvosas (março-maio e novembro) e é geralmente seca e soalheira no resto do ano, com noites mais frescas em altitudes elevadas."
+        }
+      }
+    },
+    "packing": {
+      "title": "Preparar a mala",
+      "items": {
+        "whatToPack": {
+          "question": "O que devo levar para um safári?",
+          "answer": "Roupa leve de cores neutras, uma camada quente para os passeios de manhã cedo, calçado fechado e resistente, proteção solar e binóculos. Uma lista de bagagem detalhada é enviada após a reserva."
+        },
+        "luggageRestrictions": {
+          "question": "Há restrições de bagagem em voos domésticos?",
+          "answer": "Sim — os transfers em avionetas normalmente limitam a bagagem a 15 kg numa mala de lona flexível. Confirmaremos os limites exatos para o seu itinerário específico."
+        }
+      }
+    },
+    "healthSafety": {
+      "title": "Saúde e segurança",
+      "items": {
+        "vaccinations": {
+          "question": "Preciso de vacinas?",
+          "answer": "A vacina contra a febre amarela é obrigatória se chegar de um país endémico. Recomendamos também consultar uma clínica de viagem sobre profilaxia da malária e vacinas de rotina."
+        },
+        "safety": {
+          "question": "A Tanzânia é segura para viajantes?",
+          "answer": "Sim — todos os nossos safáris são liderados por guias licenciados e experientes, e os nossos veículos e acampamentos cumprem normas de segurança rigorosas. Mantemos um contacto de emergência 24 horas por dia durante toda a sua viagem."
+        }
+      }
+    },
+    "cancellationPolicy": {
+      "title": "Política de cancelamento",
+      "items": {
+        "cancellationPolicy": {
+          "question": "Qual é a vossa política de cancelamento?",
+          "answer": "Cancelamentos feitos com mais de 90 dias de antecedência recebem reembolso total, menos uma pequena taxa administrativa. Cancelamentos mais próximos da data estão sujeitos a uma escala progressiva — os detalhes completos constam na confirmação da reserva."
+        },
+        "travelInsurance": {
+          "question": "Recomendam um seguro de viagem?",
+          "answer": "Sim, é obrigatório um seguro de viagem completo que cubra cancelamento, evacuação médica e bens pessoais para todos os nossos safáris."
+        }
+      }
+    }
+  },
+  "cta": {
+    "heading": "Ainda tem dúvidas?",
+    "body": "Os nossos especialistas em safári estão disponíveis para o ajudar a planear a sua viagem perfeita pela Tanzânia.",
+    "contactExperts": "Contactar os nossos especialistas"
+  }
+}

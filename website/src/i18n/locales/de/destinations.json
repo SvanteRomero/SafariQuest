@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "heading": "Nach Region entdecken",
+    "subtitle": "Entdecken Sie die vielfältigen Landschaften und die einzigartige Tierwelt der bekanntesten Safari-Reiseziele Tansanias, von den endlosen Ebenen der Serengeti bis zu den türkisfarbenen Gewässern Sansibars.",
+    "startYourJourney": "Reise beginnen"
+  },
+  "loading": "Reiseziele werden geladen…",
+  "empty": "Derzeit sind keine Reiseziele verfügbar.",
+  "experiences_one": "{{count}} Erlebnis",
+  "experiences_other": "{{count}} Erlebnisse",
+  "detail": {
+    "loading": "Wird geladen…",
+    "notFound": "Reiseziel nicht gefunden",
+    "backToDestinations": "Zurück zu den Reisezielen",
+    "wildlife": "Tierwelt",
+    "bestSeason": "Beste Saison",
+    "gettingThere": "Anreise",
+    "parksAndWondersIn": "Parks und Wunder in {{name}}",
+    "parksSubtitle": "Sorgfältig gestaltete Reisen, die Sie mit kompromisslosem Luxus und fachkundiger Begleitung mitten in die Wildnis eintauchen lassen.",
+    "noSafarisYet": "Derzeit besucht kein Safaripaket diesen Park.",
+    "certified": "Zertifiziert",
+    "viewDetails": "Details ansehen",
+    "miniSafarisIn": "Mini-Safaris in {{name}}",
+    "miniSafarisSubtitle": "Kürzere, buchbare Ausflüge innerhalb von {{name}} — ideal als Ergänzung Ihrer Reiseroute mit geringerem Zeitaufwand.",
+    "days_one": "{{count}} Tag",
+    "days_other": "{{count}} Tage",
+    "buildYourOwnTrip": "Gestalten Sie Ihre eigene Reise nach {{name}}",
+    "ctaSubtitle": "Arbeiten Sie mit unseren erfahrenen Safari-Spezialisten zusammen, um eine Reiseroute zu gestalten, die perfekt zu Ihrem Tempo und Ihren Vorlieben passt.",
+    "startPlanning": "Planung starten"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "heading": "Our Safari Packages",
+    "subtitle": "Discover the untamed heart of Tanzania with our expertly curated journeys, from the Great Migration to the hidden gems of Ngorongoro."
+  },
+  "filter": {
+    "filterBy": "Filter By:",
+    "filterByDuration": "Filter by duration",
+    "filterByBudget": "Filter by budget",
+    "filterByDestination": "Filter by destination",
+    "duration": {
+      "any": "Duration (Any)",
+      "3-5": "3 - 5 Days",
+      "6-10": "6 - 10 Days",
+      "11+": "11+ Days"
+    },
+    "budget": {
+      "any": "Budget (Any)",
+      "under-3000": "Under $3,000",
+      "3000-6000": "$3,000 - $6,000",
+      "6000+": "$6,000+"
+    },
+    "destination": {
+      "all": "Destination (All)",
+      "serengeti": "Serengeti National Park",
+      "ngorongoro": "Ngorongoro Conservation Area",
+      "tarangireManyara": "Tarangire & Manyara",
+      "zanzibar": "Zanzibar Extensions"
+    }
+  },
+  "loading": "Loading safaris…",
+  "noResults": "No safaris match those filters yet — try widening your search, or",
+  "talkToSpecialists": "talk to our specialists",
+  "customCta": {
+    "heading": "Can't find what you're looking for?",
+    "body": "Our safari experts are ready to design a bespoke itinerary tailored perfectly to your dreams, schedule, and budget.",
+    "cta": "Let us customize your safari"
+  },
+  "trustBadges": {
+    "parkAuthorized": "Park Authorized",
+    "ecoFriendlyTours": "Eco-Friendly Tours",
+    "certifiedGuides": "Certified Guides"
+  },
+  "card": {
+    "ratedOutOf5": "Rated {{rating}} out of 5",
+    "days_one": "{{count}} Day",
+    "days_other": "{{count}} Days",
+    "startingFrom": "Starting From",
+    "viewItinerary": "View Itinerary"
+  },
+  "detail": {
+    "loading": "Loading…",
+    "notFound": "Safari Not Found",
+    "backToSafaris": "Back to Safaris",
+    "backToDestinations": "Back to Destinations",
+    "daysNights": "{{days}} Days / {{nights}} Nights",
+    "overview": "Overview",
+    "highlights": "Highlights",
+    "itinerary": "Day-by-Day Itinerary",
+    "dayHeading": "Day {{day}}: {{title}}",
+    "included": "Included",
+    "notIncluded": "Not Included",
+    "bookThisSafari": "Book This Safari",
+    "bookSubtitle": "Start planning your dream adventure today.",
+    "fromPrice": "From ${{price}}",
+    "perPerson": "pp",
+    "bookNow": "Book Now",
+    "talkToTourHelper": "Talk to a Tour Helper",
+    "duration": "Duration",
+    "destination": "Destination",
+    "certifiedOperator": "Certified Operator",
+    "secureBooking": "100% Secure Booking"
+  }
+}

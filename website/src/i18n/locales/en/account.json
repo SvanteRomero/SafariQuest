@@ -1,0 +1,132 @@
+{
+  "layout": {
+    "brandName": "Pande Wilderness",
+    "safariPortal": "Safari Portal",
+    "myTrips": "My Trips",
+    "invoicesPayments": "Invoices & Payments",
+    "tripProgress": "Trip Progress",
+    "complaints": "Complaints",
+    "profile": "Profile",
+    "bookNewSafari": "Book New Safari",
+    "signOut": "Sign Out",
+    "customerPortal": "Customer Portal",
+    "notifications": "Notifications"
+  },
+  "stageLabels": {
+    "new_inquiry": "New Inquiry",
+    "quoted": "Quoted",
+    "deposit_paid": "Deposit Paid",
+    "confirmed": "Confirmed",
+    "completed": "Completed"
+  },
+  "invoiceStatusLabels": {
+    "unpaid": "Unpaid",
+    "deposit_paid": "Deposit Paid",
+    "paid": "Paid",
+    "overdue": "Overdue"
+  },
+  "ticketStatusLabels": {
+    "open": "Open",
+    "in_progress": "In Progress",
+    "resolved": "Resolved"
+  },
+  "myTrips": {
+    "heading": "My Trips",
+    "subtitle": "Manage your upcoming adventures, review pending quotes, and revisit past journeys across the vast plains of Africa.",
+    "loading": "Loading your trips…",
+    "empty": "No trips yet.",
+    "guideAssigned": "Guide: {{name}}",
+    "guideNotAssigned": "Guide not yet assigned.",
+    "viewDetails": "View Trip Details"
+  },
+  "invoices": {
+    "heading": "Invoices & Payments",
+    "subtitle": "Review deposit and balance invoices for each of your safaris.",
+    "loading": "Loading…",
+    "emptyHeading": "No payments yet",
+    "emptyBody": "A deposit invoice appears here as soon as you pay one at checkout, or once your safari specialist sends you a quote to pay.",
+    "package": "Package",
+    "amount": "Amount",
+    "issued": "Issued",
+    "due": "Due",
+    "status": "Status"
+  },
+  "complaints": {
+    "heading": "Complaints",
+    "subtitle": "Something not go as planned? Let us know and our team will follow up within one business day.",
+    "loading": "Loading your complaints…",
+    "emptyHeading": "No complaints filed",
+    "emptyBody": "If anything on a trip needs attention, report it directly from that trip's progress page and our team will step in.",
+    "reportAnIssue": "Report an Issue",
+    "reportAnotherIssue": "Report another issue",
+    "filedOn": "Filed {{date}}"
+  },
+  "profile": {
+    "heading": "Profile",
+    "subtitle": "Keep your contact details up to date so we can reach you about your safaris.",
+    "updated": "Profile updated.",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phoneWhatsApp": "Phone / WhatsApp",
+    "phonePlaceholder": "+255 700 000 000",
+    "saveChanges": "Save Changes"
+  },
+  "tripProgress": {
+    "loading": "Loading…",
+    "noActiveTrip": "No Active Trip",
+    "noActiveTripBody": "You don't have a trip in progress right now.",
+    "backToMyTrips": "Back to My Trips",
+    "heading": "Your Safari Journey",
+    "certifiedGuide": "Certified Guide",
+    "guideNotAssigned": "A guide hasn't been assigned to your trip yet.",
+    "itineraryProgress": "Itinerary Progress",
+    "noMilestones": "Day-by-day itinerary tracking isn't available for this trip — your booking's current stage is shown above.",
+    "youAreHere": "You are here",
+    "day": "Day {{day}}",
+    "rateExperience": "Rate Your Experience"
+  },
+  "rateExperience": {
+    "loading": "Loading…",
+    "tripNotFound": "Trip Not Found",
+    "backToMyTrips": "Back to My Trips",
+    "notAvailableYet": "Not Available Yet",
+    "onlyCompletedTrips": "Only completed trips can be rated.",
+    "starRating_one": "{{count}} star",
+    "starRating_other": "{{count}} stars",
+    "thankYou": "Thank you!",
+    "thankYouBody": "Your review helps other travelers and means a lot to {{guideName}}.",
+    "yourGuide": "your guide",
+    "howWasYourSafari": "How was your safari?",
+    "intro": "Thank you for choosing Pande Wilderness Safari. We'd love to hear about your adventure!",
+    "yourLeadGuide": "Your Lead Guide",
+    "guideRatingPrompt": "How would you rate {{firstName}}'s knowledge, hospitality, and overall guidance during your trip?",
+    "tapToRate": "Tap to rate",
+    "overallExperience": "Overall Experience",
+    "overallRatingPrompt": "From booking to departure, how was your journey with Pande Wilderness?",
+    "shareYourMemories": "Share Your Memories",
+    "memoriesPrompt": "Tell us about your favorite moments, any feedback for improvement, or a testimonial we can share.",
+    "testimonialPlaceholder": "The sunrise over the Serengeti was...",
+    "submitting": "Submitting…",
+    "submitReview": "Submit Review",
+    "failedToSubmit": "Failed to submit your review."
+  },
+  "reportIssue": {
+    "loading": "Loading…",
+    "tripNotFound": "Trip Not Found",
+    "backToMyTrips": "Back to My Trips",
+    "reportSubmitted": "Report Submitted",
+    "reportSubmittedBody": "Our guest support team has been notified and will follow up within 24 hours.",
+    "backToTrip": "Back to Trip",
+    "guestSupport": "Guest Support",
+    "intro": "Please provide details regarding your experience. Our dedicated team is here to assist you.",
+    "trip": "Trip",
+    "guide": "Guide",
+    "tellUsWhatWentWrong": "Tell us what went wrong",
+    "descriptionPlaceholder": "Please describe the issue in detail...",
+    "optionalPhotoUrl": "Optional: Photo URL",
+    "reassurance": "We take your feedback seriously and our guest relations team will respond quickly to resolve this matter.",
+    "submitting": "Submitting…",
+    "submitReport": "Submit Report",
+    "failedToSubmit": "Failed to submit your report."
+  }
+}

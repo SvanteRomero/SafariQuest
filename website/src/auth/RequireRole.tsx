@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './AuthContext'
+import { DEFAULT_LOCALE } from '../i18n/locales'
 import type { Role } from '../api/auth'
 
 export function RequireRole({ allow }: { allow: Role[] }) {
@@ -10,7 +11,7 @@ export function RequireRole({ allow }: { allow: Role[] }) {
   }
 
   if (!role || !allow.includes(role)) {
-    return <Navigate to="/sign-in" replace />
+    return <Navigate to={`/${DEFAULT_LOCALE}/sign-in`} replace />
   }
 
   return <Outlet />

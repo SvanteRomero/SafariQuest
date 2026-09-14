@@ -1,24 +1,30 @@
 import { Outlet, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Check } from '@phosphor-icons/react'
 import { TripPlanProvider } from './TripPlanContext'
 import { useAuth } from '../../auth/AuthContext'
 
-const ALL_STEPS = [
-  { path: '/plan', label: 'Regions' },
-  { path: '/plan/experiences', label: 'Experiences' },
-  { path: '/plan/details', label: 'Details' },
-  { path: '/plan/review', label: 'Review' },
-  { path: '/plan/account', label: 'Account' },
-  { path: '/plan/payment', label: 'Payment' },
-]
+const ALL_STEP_KEYS = [
+  { path: '/plan', key: 'regions' },
+  { path: '/plan/experiences', key: 'experiences' },
+  { path: '/plan/details', key: 'details' },
+  { path: '/plan/review', key: 'review' },
+  { path: '/plan/account', key: 'account' },
+  { path: '/plan/payment', key: 'payment' },
+] as const
 
 function PlanSteps() {
+  const { t } = useTranslation('plan')
   const location = useLocation()
   const { user } = useAuth()
+  // location.pathname carries the locale prefix (e.g. /en/plan/details); ALL_STEP_KEYS'
+  // paths don't, so strip it before comparing — same pattern as LanguageSwitcher.
+  const unprefixedPath = location.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '')
   // Signed-in visitors skip the Account step entirely (PlanReview/PlanAccount both
   // redirect past it), so it shouldn't occupy a slot in the stepper for them either.
-  const steps = user ? ALL_STEPS.filter((s) => s.path !== '/plan/account') : ALL_STEPS
-  const activeIndex = steps.findIndex((s) => s.path === location.pathname)
+  const stepKeys = user ? ALL_STEP_KEYS.filter((s) => s.path !== '/plan/account') : ALL_STEP_KEYS
+  const steps = stepKeys.map((s) => ({ path: s.path, label: t(`steps.${s.key}`) }))
+  const activeIndex = steps.findIndex((s) => s.path === unprefixedPath)
 
   return (
     <div className="flex items-center justify-center gap-2 md:gap-4 mb-12 max-w-2xl mx-auto">
@@ -48,15 +54,16 @@ function PlanSteps() {
 }
 
 export function PlanLayout() {
+  const { t } = useTranslation('plan')
   return (
     <TripPlanProvider>
       <section className="min-h-screen bg-surface-container-low py-16 md:py-20 px-5 md:px-margin-desktop">
         <div className="max-w-4xl mx-auto">
           <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface text-center mb-2">
-            Plan Your Journey
+            {t('header.heading')}
           </h1>
           <p className="text-on-surface-variant text-center mb-10">
-            Build a custom Tanzania itinerary and secure it with a deposit.
+            {t('header.subtitle')}
           </p>
           <PlanSteps />
           <Outlet />

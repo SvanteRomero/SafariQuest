@@ -1,0 +1,32 @@
+{
+  "skipToMainContent": "Ir para o conteúdo principal",
+  "brandName": "Pande Wilderness Safari",
+  "nav": {
+    "destinations": "Destinos",
+    "safaris": "Safáris",
+    "about": "Sobre nós",
+    "experiences": "Experiências"
+  },
+  "planYourJourney": "Planeie a sua viagem",
+  "admin": "Admin",
+  "guide": "Guia",
+  "signIn": "Iniciar sessão",
+  "signOut": "Terminar sessão",
+  "openMenu": "Abrir menu",
+  "closeMenu": "Fechar menu",
+  "language": "Idioma",
+  "footer": {
+    "tagline": "A criar memórias tanzanianas autênticas desde 2008. A sua janela para o coração selvagem de África.",
+    "quickLinks": "Ligações rápidas",
+    "legal": "Informação legal",
+    "contact": "Contacto",
+    "privacyPolicy": "Política de privacidade",
+    "termsOfService": "Termos de serviço",
+    "parkRegulations": "Regulamento dos parques",
+    "sitemap": "Mapa do site",
+    "emailAddress": "Endereço de e-mail",
+    "emailPlaceholder": "O seu e-mail",
+    "subscribeToNewsletter": "Subscrever a newsletter",
+    "copyright": "© {{year}} Pande Wilderness Safari. Todos os direitos reservados. Operadores de safári certificados."
+  }
+}

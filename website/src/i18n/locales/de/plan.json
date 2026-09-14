@@ -1,0 +1,139 @@
+{
+  "header": {
+    "heading": "Reise planen",
+    "subtitle": "Stellen Sie eine individuelle Tansania-Reiseroute zusammen und sichern Sie sie mit einer Anzahlung."
+  },
+  "steps": {
+    "regions": "Regionen",
+    "experiences": "Erlebnisse",
+    "details": "Details",
+    "review": "Überprüfung",
+    "account": "Konto",
+    "payment": "Zahlung"
+  },
+  "travelers": {
+    "adults_one": "{{count}} Erwachsener",
+    "adults_other": "{{count}} Erwachsene",
+    "children_one": "{{count}} Kind",
+    "children_other": "{{count}} Kinder"
+  },
+  "primaryInterestPrefix": "Hauptinteresse: {{interest}}",
+  "destinations": {
+    "heading": "Wohin möchten Sie reisen?",
+    "subtitle": "Wählen Sie eine oder mehrere Regionen aus, um mit der Gestaltung Ihres perfekten Tansania-Abenteuers zu beginnen. Sie können dies später jederzeit anpassen.",
+    "loading": "Reiseziele werden geladen…",
+    "empty": "Derzeit sind keine Reiseziele verfügbar.",
+    "next": "Weiter: Erlebnisse wählen"
+  },
+  "experiences": {
+    "heading": "Was möchten Sie erleben?",
+    "subtitle": "Entdecken Sie die Parks und Naturwunder in jeder Region und wählen Sie die Safaris, die Sie dorthin bringen, wo Sie hinwollen.",
+    "loading": "Erlebnisse werden geladen…",
+    "regionSafarisHeading": "Regionale Safaris in {{name}}",
+    "regionSafarisSubtitle": "Safaris, die innerhalb von {{name}} bleiben.",
+    "day_one": "{{count}} Tag",
+    "day_other": "{{count}} Tage",
+    "selected": "Ausgewählt",
+    "selectExperience": "Erlebnis auswählen",
+    "noSafarisYet": "Derzeit besucht kein Safaripaket diesen Park.",
+    "noExperiencesYet": "Für {{name}} sind noch keine Erlebnisse eingerichtet.",
+    "back": "Zurück",
+    "selectedCount_one": "{{count}} Erlebnis für {{name}} ausgewählt",
+    "selectedCount_other": "{{count}} Erlebnisse für {{name}} ausgewählt",
+    "next": "Weiter: Reisedetails hinzufügen"
+  },
+  "details": {
+    "heading": "Erzählen Sie uns von Ihrer Reise",
+    "subtitle": "Feinabstimmung der Logistik, damit wir die perfekte Reiseroute für Sie gestalten können.",
+    "durationTiming": "Dauer & Zeitplan",
+    "numberOfDays": "Anzahl der Tage",
+    "decreaseDays": "Anzahl der Tage verringern",
+    "increaseDays": "Anzahl der Tage erhöhen",
+    "estimatedStartDate": "Voraussichtliches Startdatum",
+    "groupSize": "Gruppengröße",
+    "adults": "Erwachsene",
+    "adultsAge": "Ab 16 Jahren",
+    "children": "Kinder",
+    "childrenAge": "0–15 Jahre",
+    "decreaseAdults": "Anzahl Erwachsener verringern",
+    "increaseAdults": "Anzahl Erwachsener erhöhen",
+    "decreaseChildren": "Anzahl Kinder verringern",
+    "increaseChildren": "Anzahl Kinder erhöhen",
+    "accommodationStyle": "Unterkunftsstil",
+    "tiers": {
+      "Budget": {
+        "title": "Budget",
+        "blurb": "Einfach & authentisch"
+      },
+      "Mid-range": {
+        "title": "Mittelklasse",
+        "blurb": "Komfort & Qualität"
+      },
+      "Luxury": {
+        "title": "Luxus",
+        "blurb": "Das ultimative Safari-Erlebnis"
+      }
+    },
+    "personalTouch": "Persönliche Note",
+    "optional": "(optional)",
+    "notesPlaceholder": "Ernährungsbedürfnisse, besondere Anlässe oder bestimmte Tiere, die Sie gerne sehen möchten...",
+    "back": "Zurück",
+    "next": "Weiter: Reise überprüfen"
+  },
+  "review": {
+    "heading": "Überprüfen Sie Ihre Reise",
+    "subtitle": "Nehmen Sie sich einen Moment Zeit, um Ihre Safaridetails zu prüfen, und fahren Sie dann fort, um Ihre Buchung mit einem Konto und einer Anzahlung zu sichern.",
+    "selectAtLeastOne": "Wählen Sie mindestens ein Erlebnis aus, bevor Sie fortfahren.",
+    "chooseStartDate": "Wählen Sie ein voraussichtliches Startdatum, bevor Sie fortfahren.",
+    "destinationsExperiences": "Reiseziele & Erlebnisse",
+    "selectedExperiences": "Ausgewählte Erlebnisse",
+    "noExperiencesSelected": "Keine Erlebnisse ausgewählt.",
+    "tripLogistics": "Reiselogistik",
+    "days": "Tage",
+    "travelDates": "Reisedaten",
+    "notSet": "Nicht festgelegt",
+    "travelersLabel": "Reisende",
+    "style": "Stil",
+    "yourNotes": "Ihre Notizen",
+    "editSelections": "Auswahl bearbeiten",
+    "yourDetails": "Ihre Angaben",
+    "whereToSend": "Wohin sollen wir Ihre Buchungsbestätigung senden?",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "z. B. Jana Muster",
+    "email": "E-Mail",
+    "phoneWhatsApp": "Telefon / WhatsApp",
+    "countryCode": "Ländervorwahl",
+    "depositSecures": "Eine Anzahlung sichert Ihre Buchung.",
+    "nextPayDeposit": "Als Nächstes zahlen Sie eine Anzahlung, um sie zu bestätigen.",
+    "nextCreateAccountPayDeposit": "Als Nächstes erstellen Sie ein Konto und zahlen eine Anzahlung, um sie zu bestätigen.",
+    "continue": "Weiter"
+  },
+  "account": {
+    "createHeading": "Konto erstellen",
+    "signInHeading": "Anmelden",
+    "registerSubtitle": "Wir verwenden dies, um Ihnen Ihre Buchungsbestätigung zu senden und Ihre Reise anschließend nachverfolgen zu können.",
+    "signInSubtitle": "Melden Sie sich an, um fortzufahren — Ihre Daten werden aus Ihrem bestehenden Konto übernommen.",
+    "back": "Zurück",
+    "pleaseWait": "Bitte warten…",
+    "createAccountAndContinue": "Konto erstellen & fortfahren",
+    "signInAndContinue": "Anmelden & fortfahren",
+    "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "payment": {
+    "heading": "Zahlung",
+    "subtitle": "Geben Sie Ihre Kartendaten ein, um die Anzahlung zu leisten und Ihre Buchung zu sichern.",
+    "depositDueNow": "Anzahlung jetzt fällig (30 %)",
+    "back": "Zurück",
+    "processing": "Wird verarbeitet…",
+    "payAndBook": "{{amount}} $ zahlen & buchen",
+    "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "message": {
+    "destinations": "Reiseziele: {{list}}",
+    "experiences": "Erlebnisse: {{list}}",
+    "accommodationStyle": "Unterkunftsstil: {{style}}",
+    "phoneWhatsApp": "Telefon / WhatsApp: {{phone}}",
+    "notes": "Notizen: {{notes}}",
+    "noneSelected": "Keine Auswahl"
+  }
+}

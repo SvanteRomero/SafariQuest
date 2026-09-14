@@ -1,0 +1,109 @@
+{
+  "hero": {
+    "heading": "Découvrez le cœur sauvage de la Tanzanie",
+    "subtitle": "Des safaris sur mesure, authentiques, taillés pour votre soif d'aventure. Découvrez la beauté indomptée des paysages les plus emblématiques d'Afrique avec des guides locaux experts.",
+    "bookSafari": "Réservez votre safari",
+    "exploreDestinations": "Explorer les destinations"
+  },
+  "trustBar": {
+    "localExperts": "Experts locaux",
+    "localExpertsSub": "Guides nés et élevés sur place",
+    "fiveStarRated": "Noté 5 étoiles",
+    "fiveStarRatedSub": "Par plus de 500 voyageurs",
+    "ecoConscious": "Éco-responsable",
+    "ecoConsciousSub": "Voyage durable"
+  },
+  "pillars": {
+    "eyebrow": "Notre expertise",
+    "heading": "Pourquoi Pande Wilderness Safari ?",
+    "items": {
+      "licensedGuides": {
+        "title": "Guides agréés",
+        "description": "Nos guides certifiés niveau argent et or possèdent des décennies d'expérience de la brousse tanzanienne, garantissant sécurité et connaissances écologiques approfondies."
+      },
+      "customItineraries": {
+        "title": "Itinéraires sur mesure",
+        "description": "Aucun voyage ne ressemble à un autre. Nous concevons des programmes personnalisés parfaitement adaptés à vos intérêts photographiques, votre forme physique et votre rythme."
+      },
+      "localExpertise": {
+        "title": "Expertise locale",
+        "description": "Nés et élevés en Tanzanie, notre équipe offre des liens culturels authentiques et un accès exclusif aux sites naturels les plus secrets."
+      }
+    }
+  },
+  "signature": {
+    "eyebrow": "Expériences sélectionnées",
+    "heading": "Safaris signature",
+    "viewAll": "Voir tous les safaris"
+  },
+  "destinationsSection": {
+    "eyebrow": "Nos destinations",
+    "heading": "Explorez la Tanzanie par région"
+  },
+  "journey": {
+    "heading": "Le voyage vers l'Afrique",
+    "subtitle": "Planifier le safari de vos rêves devrait être aussi agréable que le voyage lui-même. Voici comment nous y parvenons.",
+    "steps": {
+      "curate": {
+        "title": "1. Composez votre voyage",
+        "description": "Parlez-nous de vos centres d'intérêt, de votre style de voyage et des destinations incontournables pour nous aider à comprendre votre vision."
+      },
+      "quote": {
+        "title": "2. Recevez un devis sur mesure",
+        "description": "Nos experts safari conçoivent un itinéraire et un devis personnalisés, sans engagement, taillés spécialement pour vous."
+      },
+      "journeyStep": {
+        "title": "3. Voyagez avec des experts locaux",
+        "description": "Arrivez en Tanzanie et embarquez pour l'aventure d'une vie, guidés par notre équipe locale expérimentée."
+      }
+    }
+  },
+  "whyChoose": {
+    "eyebrow": "La différence Pande",
+    "heading": "Pourquoi choisir Pande Wilderness Safari ?",
+    "body": "Nous croyons qu'un véritable safari va bien au-delà de l'observation de la faune ; il s'agit de se connecter à la terre, aux populations et au rythme de la nature. Nous nous engageons à offrir une expérience authentique, responsable et inoubliable.",
+    "imageAlt": "Un guide de safari montrant la faune à des voyageurs depuis un véhicule 4x4.",
+    "points": {
+      "localGuides": {
+        "title": "100 % de guides locaux",
+        "description": "Nos guides sont nés et ont grandi en Tanzanie, apportant une connaissance locale inégalée et une passion à chaque voyage."
+      },
+      "sustainable": {
+        "title": "Tourisme durable",
+        "description": "Nous privilégions les lodges et pratiques éco-responsables, garantissant que notre présence soutient la conservation et les communautés locales."
+      },
+      "concierge": {
+        "title": "Assistance 24h/24 et 7j/7",
+        "description": "De votre arrivée jusqu'à votre départ, notre équipe est disponible à toute heure pour garantir une expérience sans accroc."
+      }
+    }
+  },
+  "testimonials": {
+    "eyebrow": "Récits de voyageurs",
+    "heading": "La magie de la nature sauvage, vue par nos voyageurs.",
+    "items": {
+      "sarah": {
+        "quote": "Une expérience qui dépasse les mots. Serengeti Quest ne nous a pas seulement montré des animaux ; ils nous ont fait partager l'âme de la Tanzanie. Notre guide, Elias, était une véritable encyclopédie vivante de la brousse."
+      },
+      "markus": {
+        "quote": "L'itinéraire sur mesure était parfait. Nous voulions un voyage axé sur la photographie d'oiseaux et les moments de calme, et c'est exactement ce qu'ils nous ont offert. De véritables experts du safari africain authentique."
+      }
+    }
+  },
+  "gallery": {
+    "alts": {
+      "flamingos": "Des flamants roses pataugeant dans les eaux alcalines peu profondes du lac Manyara au lever du soleil.",
+      "wildebeest": "Un immense troupeau de gnous traversant la rivière Mara pendant la Grande Migration.",
+      "tent": "Une tente de safari de luxe illuminée par une lanterne sous la Voie lactée.",
+      "cheetah": "Un jeune guépard aux grands yeux expressifs assis dans l'herbe couverte de rosée.",
+      "maasai": "Un guerrier maasaï vêtu du traditionnel shuka rouge surplombant la savane au coucher du soleil."
+    }
+  },
+  "newsletter": {
+    "heading": "Rejoignez l'aventure",
+    "body": "Recevez des guides de voyage exclusifs, des conseils safari et un accès anticipé aux offres saisonnières directement dans votre boîte mail.",
+    "emailAddress": "Adresse e-mail",
+    "emailPlaceholder": "Votre adresse e-mail",
+    "subscribe": "S'abonner"
+  }
+}

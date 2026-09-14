@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Info } from '@phosphor-icons/react'
 
 /** Mock card-detail inputs shared by every checkout flow with a payment step. None of
@@ -25,16 +26,17 @@ export function MockCardFields({
   cardCvv: string
   onCardCvvChange: (value: string) => void
 }) {
+  const { t } = useTranslation('booking')
   return (
     <div>
       <p className="text-terracotta text-sm mb-6 flex items-center gap-1.5">
         <Info size={15} />
-        Test mode — card processing isn&apos;t connected yet, so no real charge will be made.
+        {t('payment.testMode')}
       </p>
       <div className="grid grid-cols-1 gap-6">
         <div className="flex flex-col gap-2">
           <label htmlFor="card-name" className="font-label-md text-label-sm text-on-surface-variant">
-            Name on Card
+            {t('payment.nameOnCard')}
           </label>
           <input
             id="card-name"
@@ -47,7 +49,7 @@ export function MockCardFields({
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="card-number" className="font-label-md text-label-sm text-on-surface-variant">
-            Card Number
+            {t('payment.cardNumber')}
           </label>
           <input
             id="card-number"
@@ -63,7 +65,7 @@ export function MockCardFields({
         <div className="grid grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <label htmlFor="card-expiry" className="font-label-md text-label-sm text-on-surface-variant">
-              Expiry (MM/YY)
+              {t('payment.expiry')}
             </label>
             <input
               id="card-expiry"
@@ -78,7 +80,7 @@ export function MockCardFields({
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="card-cvv" className="font-label-md text-label-sm text-on-surface-variant">
-              CVV
+              {t('payment.cvv')}
             </label>
             <input
               id="card-cvv"

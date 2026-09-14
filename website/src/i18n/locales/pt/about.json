@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "imageAlt": "Uma acácia solitária silhuetada contra um nascer do sol dourado e marfim na savana tanzaniana.",
+    "heading": "As nossas raízes na natureza selvagem",
+    "subtitle": "Descubra a paixão, o legado e o compromisso inabalável com a conservação que impulsionam a Pande Wilderness Safari."
+  },
+  "story": {
+    "heading": "Um legado de exploração autêntica",
+    "paragraph1": "Há mais de 15 anos que a Pande Wilderness Safari é muito mais do que um operador turístico; somos guardiões da natureza selvagem tanzaniana. Fundada por especialistas locais com um profundo amor pela terra, a nossa missão é partilhar a beleza intocada de África, protegendo-a ferozmente para as gerações futuras.",
+    "paragraph2": "Acreditamos numa forma de viajar que enriquece tanto a alma do explorador como as comunidades que chamam a esta paisagem selvagem de lar. Cada viagem que criamos é um testemunho do nosso compromisso com experiências de safári sustentáveis, de baixo impacto e altamente autênticas.",
+    "imageAlt": "Um guia de safári tanzaniano de pé com orgulho junto a um Land Cruiser descapotável no Serengeti.",
+    "values": {
+      "conservation": {
+        "title": "Conservação em primeiro lugar",
+        "description": "Colaboramos com fundos locais de vida selvagem para garantir que o nosso impacto seja positivo."
+      },
+      "community": {
+        "title": "Liderado pela comunidade",
+        "description": "100% dos nossos guias são locais, reinvestindo na nossa herança comum."
+      }
+    }
+  },
+  "stats": {
+    "yearsExperience": "Anos de experiência",
+    "happyTravelers": "Viajantes satisfeitos",
+    "localGuides": "Guias locais"
+  },
+  "team": {
+    "heading": "Conheça os especialistas",
+    "subtitle": "A nossa experiente equipa de naturalistas, rastreadores e especialistas em hospitalidade garante que a sua viagem seja impecável.",
+    "contactOnWhatsApp": "Contactar via WhatsApp",
+    "members": {
+      "juma": {
+        "role": "Guia de campo sénior e rastreador",
+        "bio": "Com mais de uma década de experiência em rastreamento no Serengeti, o conhecimento profundo de Juma sobre o comportamento dos predadores garante que está sempre no lugar certo, na hora certa.",
+        "imageAlt": "Retrato profissional de Juma Mdoe, guia de safári tanzaniano, junto a um bosque de acácias desfocado."
+      },
+      "amina": {
+        "role": "Diretora de experiência do hóspede",
+        "bio": "Amina supervisiona cada detalhe da sua estadia, desde requisitos alimentares específicos até à organização de experiências surpresa ao pôr do sol no mato.",
+        "imageAlt": "Retrato de uma gestora de um lodge de safári tanzaniano em frente a uma tenda de lona sofisticada."
+      },
+      "elias": {
+        "role": "Arquiteto-chefe de itinerários",
+        "bio": "Elias cria os nossos percursos únicos, garantindo que evite as multidões para descobrir os cantos mais autênticos e deslumbrantes dos parques.",
+        "imageAlt": "Retrato de um conservacionista tanzaniano sénior e planeador de rotas a olhar para uma paisagem de savana."
+      }
+    }
+  },
+  "interests": {
+    "greatMigration": "A Grande Migração",
+    "luxuryHoneymoon": "Safári de lua de mel de luxo",
+    "familyAdventure": "Aventura em família",
+    "photographicSafari": "Safári fotográfico"
+  },
+  "inquiry": {
+    "heading": "Comece a planear a sua viagem",
+    "subtitle": "Partilhe alguns detalhes e os nossos especialistas em safári começarão a criar a sua aventura tanzaniana personalizada.",
+    "primaryInterest": "Interesse principal",
+    "startPlanning": "Começar a planear",
+    "helperText": "Escolha as suas regiões e datas e um especialista responderá com um orçamento. Prefere falar primeiro? Use o WhatsApp ou o e-mail ao lado.",
+    "preferToChat": "Prefere conversar?",
+    "chatBody": "Fale diretamente com os nossos guias locais pelo WhatsApp. Prometemos uma resposta em 24 horas para ajudar a definir o seu itinerário ideal.",
+    "messageOnWhatsApp": "Fale connosco no WhatsApp",
+    "certifiedLocalOperator": "Operador local certificado"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "steps": {
+    "details": "Detalhes",
+    "account": "Conta",
+    "review": "Revisão",
+    "payment": "Pagamento"
+  },
+  "loading": "A carregar…",
+  "notFound": "Safári não encontrado",
+  "backToSafaris": "Voltar aos safáris",
+  "backToDestinations": "Voltar aos destinos",
+  "travelers": {
+    "adults_one": "{{count}} adulto",
+    "adults_other": "{{count}} adultos",
+    "children_one": "{{count}} criança",
+    "children_other": "{{count}} crianças"
+  },
+  "priceLine": {
+    "adults_one": "{{count}} adulto × {{price}} $",
+    "adults_other": "{{count}} adultos × {{price}} $",
+    "children_one": "{{count}} criança × {{price}} $",
+    "children_other": "{{count}} crianças × {{price}} $"
+  },
+  "days_one": "{{count}} dia",
+  "days_other": "{{count}} dias",
+  "details": {
+    "heading": "Detalhes da reserva",
+    "subtitle": "Indique os seus dados exatamente como aparecem no seu passaporte, para garantir uma entrada tranquila nos parques e check-in no alojamento para {{title}}.",
+    "fullName": "Nome completo",
+    "fullNamePlaceholder": "Johnathan Silva",
+    "emailAddress": "Endereço de e-mail",
+    "emailPlaceholder": "joao@exemplo.com",
+    "adultsLabel": "Adultos (12+ anos)",
+    "childrenLabel": "Crianças (2-11 anos)",
+    "preferredStartDate": "Data de início preferida"
+  },
+  "review": {
+    "heading": "Reveja os seus dados",
+    "edit": "Editar",
+    "fullName": "Nome completo",
+    "email": "E-mail",
+    "travelers": "Viajantes",
+    "preferredStartDate": "Data de início preferida",
+    "package": "Pacote",
+    "duration": "Duração",
+    "back": "Voltar"
+  },
+  "account": {
+    "createHeading": "Crie a sua conta",
+    "signInHeading": "Iniciar sessão",
+    "registerSubtitle": "Vamos usar isto para lhe enviar a confirmação da reserva e permitir que acompanhe a sua viagem posteriormente.",
+    "signInSubtitle": "Inicie sessão para continuar — os seus dados serão obtidos da sua conta existente.",
+    "back": "Voltar",
+    "newCustomer": "Novo cliente",
+    "alreadyHaveAccount": "Já tenho conta",
+    "creatingAccountFor": "A criar uma conta para",
+    "yourEmail": "o seu e-mail",
+    "notYou": "Não é você?",
+    "editYourDetails": "Edite os seus dados",
+    "choosePassword": "Escolha uma palavra-passe",
+    "passwordPlaceholder": "Pelo menos 8 carateres",
+    "emailAddress": "Endereço de e-mail",
+    "emailPlaceholder": "joao@exemplo.com",
+    "password": "Palavra-passe"
+  },
+  "payment": {
+    "heading": "Pagamento",
+    "subtitle": "Introduza os dados do seu cartão para pagar o depósito e garantir a sua reserva.",
+    "back": "Voltar",
+    "testMode": "Modo de teste — o processamento de cartões ainda não está ativo, pelo que não será feita qualquer cobrança real.",
+    "nameOnCard": "Nome no cartão",
+    "cardNumber": "Número do cartão",
+    "expiry": "Validade (MM/AA)",
+    "cvv": "CVV"
+  },
+  "trustBadges": {
+    "certifiedOperator": "Operador certificado",
+    "ecoTourism": "Ecoturismo",
+    "secureCheckout": "Checkout seguro"
+  },
+  "summary": {
+    "duration": "Duração",
+    "location": "Local",
+    "guests": "Hóspedes",
+    "total": "TOTAL",
+    "depositDueNow": "Depósito devido agora (30%)",
+    "seasonPricingApplied": "Aplicado o preço de {{season}} ({{multiplier}}×)"
+  },
+  "cta": {
+    "processing": "A processar…",
+    "payAndBook": "Pagar {{amount}} $ e reservar",
+    "pleaseWait": "Aguarde…",
+    "createAccountAndContinue": "Criar conta e continuar",
+    "signInAndContinue": "Iniciar sessão e continuar",
+    "continueToPayment": "Continuar para pagamento",
+    "continueToReview": "Continuar para revisão",
+    "continueToAccount": "Continuar para conta",
+    "termsAgreement": "Ao clicar em \"{{cta}}\", concorda com os nossos Termos de Serviço e Política de Cancelamento."
+  },
+  "needHelp": {
+    "heading": "Precisa de ajuda?",
+    "body": "Os nossos especialistas em safári estão disponíveis 24/7 para o ajudar com a sua reserva."
+  },
+  "somethingWentWrong": "Algo correu mal. Tente novamente.",
+  "confirmed": {
+    "badge": "Reserva confirmada com sucesso",
+    "headingLine1": "A sua viagem de safári",
+    "headingLine2": "começa hoje.",
+    "thankYouWithTitle": "Obrigado por reservar {{title}}.",
+    "thankYouGeneric": "Obrigado por reservar com a Pande Wilderness Safari.",
+    "subtitle": "Os nossos guias e planeadores especializados receberam a sua reserva e já estão a preparar a sua autêntica aventura tanzaniana.",
+    "depositReceived": "Depósito de {{amount}} $ recebido",
+    "confirmationSentTo": "Foi enviada uma confirmação de pagamento para {{email}}. Este foi um pagamento de teste — o processamento real de cartões estará disponível em breve.",
+    "yourRegistrationEmail": "o seu e-mail de registo",
+    "goToDashboard": "Ir para o meu painel",
+    "browseMoreSafaris": "Ver mais safáris",
+    "chatOnWhatsApp": "Conversar no WhatsApp",
+    "heroImageAlt": "Um elefante a atravessar um poço de água ao pôr do sol dourado",
+    "nextSteps": {
+      "heading": "O que acontece a seguir",
+      "subtitle": "Três passos simples para finalizar a expedição dos seus sonhos.",
+      "itineraryPrep": {
+        "title": "1. Preparação do itinerário",
+        "body": "Os nossos especialistas criam um itinerário personalizado com base nas suas preferências em 24 horas."
+      },
+      "consultationCall": {
+        "title": "2. Chamada de consulta",
+        "body": "Agendaremos uma breve chamada de 15 minutos para responder a perguntas e afinar os detalhes da sua fantástica viagem."
+      },
+      "welcomePack": {
+        "title": "3. Kit de boas-vindas",
+        "body": "Com o seu depósito já garantido, enviaremos o kit de boas-vindas completo e a lista de documentos de viagem à medida que a data se aproxima."
+      }
+    },
+    "resources": {
+      "heading": "Recursos para a sua viagem",
+      "subtitle": "Prepare-se para a natureza selvagem com as nossas dicas de especialistas.",
+      "viewAll": "Ver todos os recursos",
+      "packingGuide": {
+        "imageAlt": "Um acampamento de safári de luxo iluminado à noite sob um céu estrelado",
+        "badge": "Guia especializado",
+        "title": "Preparar a mala para a savana",
+        "body": "De tecidos respiráveis a ótica de alta qualidade: tudo o que precisa."
+      },
+      "photographyTips": {
+        "imageAlt": "Uma rede com vista para águas turquesa num resort de praia",
+        "title": "Dicas de fotografia de safári",
+        "body": "Capture a alma do Serengeti com os conselhos do nosso guia profissional."
+      },
+      "safeSecure": {
+        "title": "Seguro e protegido",
+        "body": "Os nossos protocolos de segurança"
+      },
+      "directHelp": {
+        "title": "Ajuda direta",
+        "body": "Fale connosco agora"
+      }
+    },
+    "urgentQuestion": "Tem uma questão urgente? A nossa equipa está disponível 24/7."
+  }
+}

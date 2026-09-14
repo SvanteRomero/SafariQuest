@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "heading": "Foire aux questions",
+    "subtitle": "La préparation est la clé d'un voyage inoubliable. Trouvez ici des réponses d'experts à toutes vos questions logistiques, de sécurité et de voyage.",
+    "searchPlaceholder": "Recherchez un sujet (ex. « Vaccinations »)"
+  },
+  "categoriesLabel": "Catégories",
+  "noResults": "Aucune question ne correspond à « {{query}} ». Essayez une autre recherche.",
+  "categories": {
+    "bookingPayment": {
+      "title": "Réservation et paiement",
+      "items": {
+        "howDoIBook": {
+          "question": "Comment réserver un safari ?",
+          "answer": "Parcourez nos forfaits safari ou utilisez le planificateur de voyage pour créer un itinéraire personnalisé, puis soumettez une demande. Un spécialiste safari vous recontactera sous un jour ouvré avec un devis sur mesure."
+        },
+        "paymentMethods": {
+          "question": "Quels moyens de paiement acceptez-vous ?",
+          "answer": "Nous acceptons les virements bancaires et les principales cartes de crédit. Un acompte sécurise votre réservation, le solde étant dû avant le départ."
+        },
+        "depositRequired": {
+          "question": "Un acompte est-il requis ?",
+          "answer": "Oui, un acompte de 30 % est requis pour confirmer votre réservation, le solde restant étant dû 60 jours avant le début de votre safari."
+        }
+      }
+    },
+    "visasEntry": {
+      "title": "Visas et entrée sur le territoire",
+      "items": {
+        "visaRequired": {
+          "question": "Ai-je besoin d'un visa pour la Tanzanie ?",
+          "answer": "La plupart des visiteurs ont besoin d'un visa, disponible à l'arrivée ou en ligne à l'avance via le portail officiel de e-visa de Tanzanie. Nous recommandons de faire la demande au moins deux semaines avant le départ."
+        },
+        "documentsNeeded": {
+          "question": "Quels documents dois-je avoir pour voyager ?",
+          "answer": "Un passeport valide au moins six mois après vos dates de voyage, votre visa et une preuve de vaccination contre la fièvre jaune si vous arrivez d'un pays à risque."
+        }
+      }
+    },
+    "bestTimeToVisit": {
+      "title": "Meilleure période pour visiter",
+      "items": {
+        "migrationTiming": {
+          "question": "Quelle est la meilleure période pour voir la Grande Migration ?",
+          "answer": "Les traversées de la rivière Mara atteignent généralement leur apogée entre juillet et septembre, tandis que la saison des mises bas dans le sud du Serengeti se déroule de janvier à mars."
+        },
+        "weather": {
+          "question": "Quel temps fait-il ?",
+          "answer": "La Tanzanie connaît deux saisons des pluies (mars-mai et novembre) et reste globalement sèche et ensoleillée le reste de l'année, avec des soirées plus fraîches en altitude."
+        }
+      }
+    },
+    "packing": {
+      "title": "Préparer sa valise",
+      "items": {
+        "whatToPack": {
+          "question": "Que dois-je emporter pour un safari ?",
+          "answer": "Des vêtements légers de couleurs neutres, une couche chaude pour les sorties matinales, des chaussures fermées robustes, une protection solaire et des jumelles. Une liste détaillée est envoyée après la réservation."
+        },
+        "luggageRestrictions": {
+          "question": "Y a-t-il des restrictions de bagages sur les vols intérieurs ?",
+          "answer": "Oui — les transferts en petit avion limitent généralement les bagages à 15 kg dans un sac souple. Nous confirmerons les limites exactes pour votre itinéraire spécifique."
+        }
+      }
+    },
+    "healthSafety": {
+      "title": "Santé et sécurité",
+      "items": {
+        "vaccinations": {
+          "question": "Ai-je besoin de vaccins ?",
+          "answer": "La vaccination contre la fièvre jaune est obligatoire si vous arrivez d'un pays à risque. Nous recommandons également de consulter un centre de vaccination internationale au sujet de la prophylaxie antipaludique et des vaccins courants."
+        },
+        "safety": {
+          "question": "La Tanzanie est-elle sûre pour les voyageurs ?",
+          "answer": "Oui — tous nos safaris sont menés par des guides agréés et expérimentés, et nos véhicules et campements répondent à des normes de sécurité strictes. Nous assurons un contact d'urgence 24h/24 tout au long de votre voyage."
+        }
+      }
+    },
+    "cancellationPolicy": {
+      "title": "Politique d'annulation",
+      "items": {
+        "cancellationPolicy": {
+          "question": "Quelle est votre politique d'annulation ?",
+          "answer": "Les annulations effectuées plus de 90 jours avant le départ donnent droit à un remboursement intégral, moins de petits frais administratifs. Les annulations plus tardives sont soumises à un barème dégressif — les détails complets figurent dans votre confirmation de réservation."
+        },
+        "travelInsurance": {
+          "question": "Recommandez-vous une assurance voyage ?",
+          "answer": "Oui, une assurance voyage complète couvrant l'annulation, l'évacuation médicale et les effets personnels est requise pour tous nos safaris."
+        }
+      }
+    }
+  },
+  "cta": {
+    "heading": "D'autres questions ?",
+    "body": "Nos spécialistes safari sont à votre disposition pour vous aider à planifier l'aventure tanzanienne idéale.",
+    "contactExperts": "Contacter nos experts"
+  }
+}

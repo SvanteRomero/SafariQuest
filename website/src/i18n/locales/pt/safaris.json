@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "heading": "Os nossos pacotes de safári",
+    "subtitle": "Descubra o coração selvagem da Tanzânia com as nossas viagens cuidadosamente idealizadas, da Grande Migração às joias escondidas do Ngorongoro."
+  },
+  "filter": {
+    "filterBy": "Filtrar por:",
+    "filterByDuration": "Filtrar por duração",
+    "filterByBudget": "Filtrar por orçamento",
+    "filterByDestination": "Filtrar por destino",
+    "duration": {
+      "any": "Duração (Todas)",
+      "3-5": "3 a 5 dias",
+      "6-10": "6 a 10 dias",
+      "11+": "11+ dias"
+    },
+    "budget": {
+      "any": "Orçamento (Todos)",
+      "under-3000": "Menos de 3.000 $",
+      "3000-6000": "3.000 $ - 6.000 $",
+      "6000+": "Mais de 6.000 $"
+    },
+    "destination": {
+      "all": "Destino (Todos)",
+      "serengeti": "Parque Nacional do Serengeti",
+      "ngorongoro": "Área de Conservação do Ngorongoro",
+      "tarangireManyara": "Tarangire e Manyara",
+      "zanzibar": "Extensões a Zanzibar"
+    }
+  },
+  "loading": "A carregar safáris…",
+  "noResults": "Nenhum safári corresponde a estes filtros por enquanto — tente alargar a sua pesquisa, ou",
+  "talkToSpecialists": "fale com os nossos especialistas",
+  "customCta": {
+    "heading": "Não encontra o que procura?",
+    "body": "Os nossos especialistas em safári estão prontos para criar um itinerário à medida, perfeitamente adaptado aos seus sonhos, calendário e orçamento.",
+    "cta": "Personalize o seu safári"
+  },
+  "trustBadges": {
+    "parkAuthorized": "Autorizado pelos parques",
+    "ecoFriendlyTours": "Passeios ecológicos",
+    "certifiedGuides": "Guias certificados"
+  },
+  "card": {
+    "ratedOutOf5": "Avaliação {{rating}} em 5",
+    "days_one": "{{count}} dia",
+    "days_other": "{{count}} dias",
+    "startingFrom": "A partir de",
+    "viewItinerary": "Ver itinerário"
+  },
+  "detail": {
+    "loading": "A carregar…",
+    "notFound": "Safári não encontrado",
+    "backToSafaris": "Voltar aos safáris",
+    "backToDestinations": "Voltar aos destinos",
+    "daysNights": "{{days}} dias / {{nights}} noites",
+    "overview": "Visão geral",
+    "highlights": "Destaques",
+    "itinerary": "Itinerário dia a dia",
+    "dayHeading": "Dia {{day}}: {{title}}",
+    "included": "Incluído",
+    "notIncluded": "Não incluído",
+    "bookThisSafari": "Reservar este safári",
+    "bookSubtitle": "Comece hoje a planear a aventura dos seus sonhos.",
+    "fromPrice": "A partir de {{price}} $",
+    "perPerson": "por pessoa",
+    "bookNow": "Reservar agora",
+    "talkToTourHelper": "Falar com um assistente de viagem",
+    "duration": "Duração",
+    "destination": "Destino",
+    "certifiedOperator": "Operador certificado",
+    "secureBooking": "Reserva 100% segura"
+  }
+}

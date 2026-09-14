@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { UserCircle } from '@phosphor-icons/react'
 
 export type AccountMode = 'register' | 'signin'
@@ -24,6 +25,7 @@ export function AccountFields({
   onSignInEmailChange: (value: string) => void
   onEditDetails: () => void
 }) {
+  const { t } = useTranslation('booking')
   return (
     <div>
       <div className="flex gap-2 mb-6 p-1 bg-surface-container-low rounded-lg w-fit">
@@ -34,7 +36,7 @@ export function AccountFields({
             accountMode === 'register' ? 'bg-surface-container-lowest shadow-sm text-savanna-green' : 'text-on-surface-variant'
           }`}
         >
-          New Customer
+          {t('account.newCustomer')}
         </button>
         <button
           type="button"
@@ -43,7 +45,7 @@ export function AccountFields({
             accountMode === 'signin' ? 'bg-surface-container-lowest shadow-sm text-savanna-green' : 'text-on-surface-variant'
           }`}
         >
-          I Already Have an Account
+          {t('account.alreadyHaveAccount')}
         </button>
       </div>
 
@@ -52,13 +54,13 @@ export function AccountFields({
           <div className="flex items-start gap-3 bg-surface-container-low p-4 rounded-lg">
             <UserCircle size={20} className="text-savanna-green shrink-0 mt-0.5" />
             <p className="font-body-md text-[13px] text-on-surface-variant">
-              Creating an account for <strong className="text-on-surface">{email || 'your email'}</strong>. Not
-              you? <button type="button" onClick={onEditDetails} className="text-savanna-green underline">Edit your details</button>.
+              {t('account.creatingAccountFor')} <strong className="text-on-surface">{email || t('account.yourEmail')}</strong>. {t('account.notYou')}{' '}
+              <button type="button" onClick={onEditDetails} className="text-savanna-green underline">{t('account.editYourDetails')}</button>.
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="account-password" className="font-label-md text-label-sm text-on-surface-variant">
-              Choose a Password
+              {t('account.choosePassword')}
             </label>
             <input
               id="account-password"
@@ -67,7 +69,7 @@ export function AccountFields({
               minLength={8}
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder={t('account.passwordPlaceholder')}
               className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
             />
           </div>
@@ -76,7 +78,7 @@ export function AccountFields({
         <div className="grid grid-cols-1 gap-6">
           <div className="flex flex-col gap-2">
             <label htmlFor="account-signin-email" className="font-label-md text-label-sm text-on-surface-variant">
-              Email Address
+              {t('account.emailAddress')}
             </label>
             <input
               id="account-signin-email"
@@ -84,13 +86,13 @@ export function AccountFields({
               type="email"
               value={signInEmail}
               onChange={(e) => onSignInEmailChange(e.target.value)}
-              placeholder="john@example.com"
+              placeholder={t('account.emailPlaceholder')}
               className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
             />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="account-signin-password" className="font-label-md text-label-sm text-on-surface-variant">
-              Password
+              {t('account.password')}
             </label>
             <input
               id="account-signin-password"

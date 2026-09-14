@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { ComponentType } from 'react'
 import { CalendarBlank, CheckCircle, Clock, ClockCounterClockwise, MapPin } from '@phosphor-icons/react'
-import { getBookings, STAGE_LABELS, type Booking, type BookingStage } from '../../api/bookings'
+import { Link } from '../../i18n/routing'
+import { getBookings, type Booking, type BookingStage } from '../../api/bookings'
 import { useFetch } from '../../lib/useFetch'
 
 const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ size?: number; weight?: 'fill' }> }> = {
@@ -13,26 +14,26 @@ const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ siz
 }
 
 export function MyTrips() {
+  const { t } = useTranslation('account')
   const { data: bookings, loading, error } = useFetch<Booking[]>(() => getBookings(), [])
   const trips = bookings ?? []
 
   return (
     <div>
       <div className="mb-12">
-        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">My Trips</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">{t('myTrips.heading')}</h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">
-          Manage your upcoming adventures, review pending quotes, and revisit past journeys across the vast plains of
-          Africa.
+          {t('myTrips.subtitle')}
         </p>
       </div>
 
-      {loading && <p className="text-on-surface-variant">Loading your trips…</p>}
+      {loading && <p className="text-on-surface-variant">{t('myTrips.loading')}</p>}
       {error && <p className="text-error">{error}</p>}
 
       {!loading && !error && (
         <>
           {trips.length === 0 ? (
-            <p className="text-on-surface-variant">No trips yet.</p>
+            <p className="text-on-surface-variant">{t('myTrips.empty')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
               {trips.map((trip) => {
@@ -52,7 +53,7 @@ export function MyTrips() {
                         className={`absolute top-4 right-4 px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-sm ${badge.className}`}
                       >
                         <BadgeIcon size={14} weight="fill" />
-                        {STAGE_LABELS[trip.stage]}
+                        {t(`stageLabels.${trip.stage}`)}
                       </div>
                     </div>
                     <div className="p-6 flex flex-col flex-1">
@@ -64,13 +65,13 @@ export function MyTrips() {
                         </span>
                       </div>
                       <p className="font-body-md text-on-surface-variant/80 text-sm mb-6 flex-1">
-                        {trip.assignedGuideName ? `Guide: ${trip.assignedGuideName}` : 'Guide not yet assigned.'}
+                        {trip.assignedGuideName ? t('myTrips.guideAssigned', { name: trip.assignedGuideName }) : t('myTrips.guideNotAssigned')}
                       </p>
                       <Link
                         to={`/account/trips/${trip.id}`}
                         className="w-full mt-auto bg-savanna-green text-on-primary py-3 rounded-lg font-label-md hover:bg-primary-container transition-colors text-center"
                       >
-                        View Trip Details
+                        {t('myTrips.viewDetails')}
                       </Link>
                     </div>
                   </div>

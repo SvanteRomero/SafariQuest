@@ -1,0 +1,109 @@
+{
+  "hero": {
+    "heading": "Experience the Wild Heart of Tanzania",
+    "subtitle": "Bespoke, authentic safaris tailored to your sense of adventure. Discover the untamed beauty of Africa's most iconic landscapes with expert local guides.",
+    "bookSafari": "Book Your Safari",
+    "exploreDestinations": "Explore Destinations"
+  },
+  "trustBar": {
+    "localExperts": "Local Experts",
+    "localExpertsSub": "Born & Raised Guides",
+    "fiveStarRated": "5-Star Rated",
+    "fiveStarRatedSub": "By 500+ Guests",
+    "ecoConscious": "Eco-Conscious",
+    "ecoConsciousSub": "Sustainable Travel"
+  },
+  "pillars": {
+    "eyebrow": "Our Expertise",
+    "heading": "Why Pande Wilderness Safari?",
+    "items": {
+      "licensedGuides": {
+        "title": "Licensed Guides",
+        "description": "Our silver and gold-level certified guides possess decades of experience navigating the Tanzanian bush, ensuring safety and deep ecological insights."
+      },
+      "customItineraries": {
+        "title": "Custom Itineraries",
+        "description": "No two journeys are the same. We craft bespoke schedules that align perfectly with your photographic interests, fitness level, and pace."
+      },
+      "localExpertise": {
+        "title": "Local Expertise",
+        "description": "Born and raised in Tanzania, our team provides authentic cultural connections and exclusive access to the most secluded wildlife hotspots."
+      }
+    }
+  },
+  "signature": {
+    "eyebrow": "Curated Experiences",
+    "heading": "Signature Safari Packages",
+    "viewAll": "View All Safaris"
+  },
+  "destinationsSection": {
+    "eyebrow": "Our Destinations",
+    "heading": "Explore Tanzania by Region"
+  },
+  "journey": {
+    "heading": "The Journey to Africa",
+    "subtitle": "Planning your dream safari should be as enjoyable as the trip itself. Here is how we make it happen.",
+    "steps": {
+      "curate": {
+        "title": "1. Curate Your Trip",
+        "description": "Tell us about your interests, travel style, and must-see destinations to help us understand your vision."
+      },
+      "quote": {
+        "title": "2. Get a Bespoke Quote",
+        "description": "Our safari experts will design a customized, no-obligation itinerary and quote tailored specifically for you."
+      },
+      "journeyStep": {
+        "title": "3. Journey with Local Experts",
+        "description": "Arrive in Tanzania and embark on the adventure of a lifetime, guided by our knowledgeable local team."
+      }
+    }
+  },
+  "whyChoose": {
+    "eyebrow": "The Pande Difference",
+    "heading": "Why Choose Pande Wilderness Safari?",
+    "body": "We believe that a true safari is more than just seeing wildlife; it is about connecting with the land, the people, and the rhythm of nature. We are committed to providing an authentic, responsible, and unforgettable experience.",
+    "imageAlt": "A safari guide pointing out wildlife to guests from a 4x4 vehicle.",
+    "points": {
+      "localGuides": {
+        "title": "100% Local Guides",
+        "description": "Our guides are born and raised in Tanzania, bringing unparalleled local knowledge and passion to every journey."
+      },
+      "sustainable": {
+        "title": "Sustainable Tourism",
+        "description": "We prioritize eco-friendly lodges and practices, ensuring our presence supports conservation and local communities."
+      },
+      "concierge": {
+        "title": "24/7 Concierge Support",
+        "description": "From the moment you arrive until your departure, our team is available around the clock to ensure a seamless experience."
+      }
+    }
+  },
+  "testimonials": {
+    "eyebrow": "Traveler Stories",
+    "heading": "Witnessing the magic of the wild through our guests' eyes.",
+    "items": {
+      "sarah": {
+        "quote": "An experience that transcends words. Serengeti Quest didn't just show us animals; they shared the soul of Tanzania with us. Our guide, Elias, was like a walking encyclopedia of the bush."
+      },
+      "markus": {
+        "quote": "The bespoke itinerary was flawless. We wanted a trip focused on bird photography and quiet moments, and they delivered exactly that. Truly the experts of authentic African safaris."
+      }
+    }
+  },
+  "gallery": {
+    "alts": {
+      "flamingos": "Pink flamingos wading in the shallow alkaline waters of Lake Manyara at sunrise.",
+      "wildebeest": "A massive herd of wildebeest crossing the Mara River during the Great Migration.",
+      "tent": "A luxury canvas safari tent glowing with lantern light under the Milky Way.",
+      "cheetah": "A cheetah cub with large expressive eyes sitting in dew-covered grass.",
+      "maasai": "A Maasai warrior in traditional red shuka robes overlooking the savanna at sunset."
+    }
+  },
+  "newsletter": {
+    "heading": "Join the Quest",
+    "body": "Receive exclusive travel guides, safari tips, and early access to seasonal offers directly in your inbox.",
+    "emailAddress": "Email address",
+    "emailPlaceholder": "Your email address",
+    "subscribe": "Subscribe"
+  }
+}

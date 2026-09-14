@@ -1,0 +1,139 @@
+{
+  "header": {
+    "heading": "Organisez votre voyage",
+    "subtitle": "Créez un itinéraire tanzanien sur mesure et sécurisez-le avec un acompte."
+  },
+  "steps": {
+    "regions": "Régions",
+    "experiences": "Expériences",
+    "details": "Détails",
+    "review": "Vérification",
+    "account": "Compte",
+    "payment": "Paiement"
+  },
+  "travelers": {
+    "adults_one": "{{count}} adulte",
+    "adults_other": "{{count}} adultes",
+    "children_one": "{{count}} enfant",
+    "children_other": "{{count}} enfants"
+  },
+  "primaryInterestPrefix": "Intérêt principal : {{interest}}",
+  "destinations": {
+    "heading": "Où voulez-vous aller ?",
+    "subtitle": "Sélectionnez une ou plusieurs régions pour commencer à créer votre aventure tanzanienne idéale. Vous pourrez toujours l'affiner plus tard.",
+    "loading": "Chargement des destinations…",
+    "empty": "Aucune destination n'est disponible pour le moment.",
+    "next": "Suivant : Choisir les expériences"
+  },
+  "experiences": {
+    "heading": "Que souhaitez-vous vivre ?",
+    "subtitle": "Découvrez les parcs et merveilles disponibles dans chaque région, et sélectionnez les safaris qui vous mènent là où vous voulez aller.",
+    "loading": "Chargement des expériences…",
+    "regionSafarisHeading": "Safaris régionaux à {{name}}",
+    "regionSafarisSubtitle": "Des safaris qui restent dans les limites de {{name}}.",
+    "day_one": "{{count}} jour",
+    "day_other": "{{count}} jours",
+    "selected": "Sélectionné",
+    "selectExperience": "Sélectionner cette expérience",
+    "noSafarisYet": "Aucun forfait safari ne visite ce parc pour le moment.",
+    "noExperiencesYet": "Aucune expérience n'est encore proposée à {{name}}.",
+    "back": "Retour",
+    "selectedCount_one": "{{count}} expérience sélectionnée pour {{name}}",
+    "selectedCount_other": "{{count}} expériences sélectionnées pour {{name}}",
+    "next": "Suivant : Ajouter les détails du voyage"
+  },
+  "details": {
+    "heading": "Parlez-nous de votre voyage",
+    "subtitle": "Affinez la logistique afin que nous puissions créer l'itinéraire parfait pour vous.",
+    "durationTiming": "Durée et calendrier",
+    "numberOfDays": "Nombre de jours",
+    "decreaseDays": "Diminuer le nombre de jours",
+    "increaseDays": "Augmenter le nombre de jours",
+    "estimatedStartDate": "Date de départ estimée",
+    "groupSize": "Taille du groupe",
+    "adults": "Adultes",
+    "adultsAge": "16 ans et plus",
+    "children": "Enfants",
+    "childrenAge": "0 à 15 ans",
+    "decreaseAdults": "Diminuer le nombre d'adultes",
+    "increaseAdults": "Augmenter le nombre d'adultes",
+    "decreaseChildren": "Diminuer le nombre d'enfants",
+    "increaseChildren": "Augmenter le nombre d'enfants",
+    "accommodationStyle": "Style d'hébergement",
+    "tiers": {
+      "Budget": {
+        "title": "Économique",
+        "blurb": "Simple et authentique"
+      },
+      "Mid-range": {
+        "title": "Intermédiaire",
+        "blurb": "Confort et qualité"
+      },
+      "Luxury": {
+        "title": "Luxe",
+        "blurb": "L'expérience safari ultime"
+      }
+    },
+    "personalTouch": "Touche personnelle",
+    "optional": "(facultatif)",
+    "notesPlaceholder": "Besoins alimentaires, occasions spéciales ou faune spécifique que vous espérez voir...",
+    "back": "Retour",
+    "next": "Suivant : Vérifier le voyage"
+  },
+  "review": {
+    "heading": "Vérifiez votre voyage",
+    "subtitle": "Prenez un moment pour vérifier les détails de votre safari, puis continuez pour sécuriser votre réservation avec un compte et un acompte.",
+    "selectAtLeastOne": "Sélectionnez au moins une expérience avant de continuer.",
+    "chooseStartDate": "Choisissez une date de départ estimée avant de continuer.",
+    "destinationsExperiences": "Destinations et expériences",
+    "selectedExperiences": "Expériences sélectionnées",
+    "noExperiencesSelected": "Aucune expérience sélectionnée.",
+    "tripLogistics": "Logistique du voyage",
+    "days": "Jours",
+    "travelDates": "Dates de voyage",
+    "notSet": "Non définie",
+    "travelersLabel": "Voyageurs",
+    "style": "Style",
+    "yourNotes": "Vos notes",
+    "editSelections": "Modifier les sélections",
+    "yourDetails": "Vos informations",
+    "whereToSend": "Où devons-nous envoyer votre confirmation de réservation ?",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "ex. Jeanne Dupont",
+    "email": "E-mail",
+    "phoneWhatsApp": "Téléphone / WhatsApp",
+    "countryCode": "Indicatif du pays",
+    "depositSecures": "Un acompte sécurise votre réservation.",
+    "nextPayDeposit": "Vous devrez ensuite payer un acompte pour la confirmer.",
+    "nextCreateAccountPayDeposit": "Vous devrez ensuite créer un compte et payer un acompte pour la confirmer.",
+    "continue": "Continuer"
+  },
+  "account": {
+    "createHeading": "Créez votre compte",
+    "signInHeading": "Connexion",
+    "registerSubtitle": "Nous l'utiliserons pour vous envoyer votre confirmation de réservation et vous permettre de suivre votre voyage par la suite.",
+    "signInSubtitle": "Connectez-vous pour continuer — vos informations seront récupérées depuis votre compte existant.",
+    "back": "Retour",
+    "pleaseWait": "Veuillez patienter…",
+    "createAccountAndContinue": "Créer un compte et continuer",
+    "signInAndContinue": "Se connecter et continuer",
+    "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "payment": {
+    "heading": "Paiement",
+    "subtitle": "Saisissez les informations de votre carte pour payer l'acompte et sécuriser votre réservation.",
+    "depositDueNow": "Acompte dû maintenant (30 %)",
+    "back": "Retour",
+    "processing": "Traitement en cours…",
+    "payAndBook": "Payer {{amount}} $ et réserver",
+    "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "message": {
+    "destinations": "Destinations : {{list}}",
+    "experiences": "Expériences : {{list}}",
+    "accommodationStyle": "Style d'hébergement : {{style}}",
+    "phoneWhatsApp": "Téléphone / WhatsApp : {{phone}}",
+    "notes": "Notes : {{notes}}",
+    "noneSelected": "Aucune sélection"
+  }
+}

@@ -1,12 +1,14 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Check, MapPin, ArrowRight } from '@phosphor-icons/react'
+import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { getDestinations } from '../../api/destinations'
 import { useFetch } from '../../lib/useFetch'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
 import { trackFunnelEvent } from '../../lib/funnelTracking'
 
 export function PlanDestinations() {
+  const { t } = useTranslation('plan')
   const { plan, toggleDestination } = useTripPlan()
   const navigate = useNavigate()
   const { data: destinations, loading, error } = useFetch(getDestinations, [])
@@ -19,18 +21,17 @@ export function PlanDestinations() {
     <div>
       <div className="mb-10 max-w-2xl">
         <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">
-          Where do you want to go?
+          {t('destinations.heading')}
         </h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          Select one or more regions to begin crafting your perfect Tanzanian adventure. You can always refine this
-          later.
+          {t('destinations.subtitle')}
         </p>
       </div>
 
-      {loading && <p className="text-center text-on-surface-variant py-16">Loading destinations…</p>}
+      {loading && <p className="text-center text-on-surface-variant py-16">{t('destinations.loading')}</p>}
       {error && <p className="text-center text-error py-16">{error}</p>}
       {!loading && !error && destinations && destinations.length === 0 && (
-        <p className="text-center text-on-surface-variant py-16">No destinations are available yet.</p>
+        <p className="text-center text-on-surface-variant py-16">{t('destinations.empty')}</p>
       )}
 
       {!loading && !error && destinations && destinations.length > 0 && (
@@ -83,7 +84,7 @@ export function PlanDestinations() {
           onClick={() => navigate('/plan/experiences')}
           className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(30,142,62,0.2)]"
         >
-          Next: Choose Experiences
+          {t('destinations.next')}
           <ArrowRight size={18} weight="bold" />
         </button>
       </div>

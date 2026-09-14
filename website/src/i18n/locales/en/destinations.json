@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "heading": "Explore by Region",
+    "subtitle": "Discover the diverse landscapes and unique wildlife of Tanzania's most iconic safari destinations, from the endless plains of the Serengeti to the turquoise waters of Zanzibar.",
+    "startYourJourney": "Start Your Journey"
+  },
+  "loading": "Loading destinations…",
+  "empty": "No destinations are available yet.",
+  "experiences_one": "{{count}} Experience",
+  "experiences_other": "{{count}} Experiences",
+  "detail": {
+    "loading": "Loading…",
+    "notFound": "Destination Not Found",
+    "backToDestinations": "Back to Destinations",
+    "wildlife": "Wildlife",
+    "bestSeason": "Best Season",
+    "gettingThere": "Getting There",
+    "parksAndWondersIn": "Parks & Wonders in {{name}}",
+    "parksSubtitle": "Curated journeys designed to immerse you in the heart of the wild with uncompromising luxury and expert guidance.",
+    "noSafarisYet": "No safari packages visit this park yet.",
+    "certified": "Certified",
+    "viewDetails": "View Details",
+    "miniSafarisIn": "Mini Safaris in {{name}}",
+    "miniSafarisSubtitle": "Shorter, bookable trips that stay within {{name}} — ideal for a lower-commitment add-on to your itinerary.",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "buildYourOwnTrip": "Build your own {{name}} trip",
+    "ctaSubtitle": "Work with our seasoned safari specialists to craft an itinerary that perfectly matches your pace and preferences.",
+    "startPlanning": "Start Planning"
+  }
+}

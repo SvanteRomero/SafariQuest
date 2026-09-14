@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "heading": "Nos forfaits safari",
+    "subtitle": "Découvrez le cœur indompté de la Tanzanie grâce à nos voyages soigneusement conçus, de la Grande Migration aux joyaux cachés du Ngorongoro."
+  },
+  "filter": {
+    "filterBy": "Filtrer par :",
+    "filterByDuration": "Filtrer par durée",
+    "filterByBudget": "Filtrer par budget",
+    "filterByDestination": "Filtrer par destination",
+    "duration": {
+      "any": "Durée (Toutes)",
+      "3-5": "3 à 5 jours",
+      "6-10": "6 à 10 jours",
+      "11+": "11 jours et plus"
+    },
+    "budget": {
+      "any": "Budget (Tous)",
+      "under-3000": "Moins de 3 000 $",
+      "3000-6000": "3 000 $ - 6 000 $",
+      "6000+": "6 000 $ et plus"
+    },
+    "destination": {
+      "all": "Destination (Toutes)",
+      "serengeti": "Parc national du Serengeti",
+      "ngorongoro": "Zone de conservation du Ngorongoro",
+      "tarangireManyara": "Tarangire et Manyara",
+      "zanzibar": "Extensions Zanzibar"
+    }
+  },
+  "loading": "Chargement des safaris…",
+  "noResults": "Aucun safari ne correspond à ces filtres pour le moment — essayez d'élargir votre recherche, ou",
+  "talkToSpecialists": "parlez à nos spécialistes",
+  "customCta": {
+    "heading": "Vous ne trouvez pas ce que vous cherchez ?",
+    "body": "Nos experts safari sont prêts à concevoir un itinéraire sur mesure, parfaitement adapté à vos envies, votre calendrier et votre budget.",
+    "cta": "Faites personnaliser votre safari"
+  },
+  "trustBadges": {
+    "parkAuthorized": "Agréé par les parcs",
+    "ecoFriendlyTours": "Circuits éco-responsables",
+    "certifiedGuides": "Guides certifiés"
+  },
+  "card": {
+    "ratedOutOf5": "Noté {{rating}} sur 5",
+    "days_one": "{{count}} jour",
+    "days_other": "{{count}} jours",
+    "startingFrom": "À partir de",
+    "viewItinerary": "Voir l'itinéraire"
+  },
+  "detail": {
+    "loading": "Chargement…",
+    "notFound": "Safari introuvable",
+    "backToSafaris": "Retour aux safaris",
+    "backToDestinations": "Retour aux destinations",
+    "daysNights": "{{days}} jours / {{nights}} nuits",
+    "overview": "Aperçu",
+    "highlights": "Points forts",
+    "itinerary": "Itinéraire jour par jour",
+    "dayHeading": "Jour {{day}} : {{title}}",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "bookThisSafari": "Réserver ce safari",
+    "bookSubtitle": "Commencez à planifier l'aventure de vos rêves dès aujourd'hui.",
+    "fromPrice": "À partir de {{price}} $",
+    "perPerson": "par pers.",
+    "bookNow": "Réserver maintenant",
+    "talkToTourHelper": "Parler à un conseiller voyage",
+    "duration": "Durée",
+    "destination": "Destination",
+    "certifiedOperator": "Opérateur certifié",
+    "secureBooking": "Réservation 100 % sécurisée"
+  }
+}

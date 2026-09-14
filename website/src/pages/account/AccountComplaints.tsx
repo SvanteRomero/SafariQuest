@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Warning, ChatCircleText } from '@phosphor-icons/react'
+import { Link } from '../../i18n/routing'
 import { getBookings, type Booking } from '../../api/bookings'
-import { getMyTickets, TICKET_STATUS_LABELS, type MySupportTicket } from '../../api/support'
+import { getMyTickets, type MySupportTicket } from '../../api/support'
 import { useFetch } from '../../lib/useFetch'
 
 const STATUS_STYLES: Record<MySupportTicket['status'], string> = {
@@ -11,6 +12,7 @@ const STATUS_STYLES: Record<MySupportTicket['status'], string> = {
 }
 
 export function AccountComplaints() {
+  const { t, i18n } = useTranslation('account')
   // This page used to render a hardcoded "No complaints filed" — it fetched
   // bookings and never asked about tickets at all, so a customer who had filed
   // a complaint was told indefinitely that they had none.
@@ -24,13 +26,13 @@ export function AccountComplaints() {
   return (
     <div>
       <div className="mb-10">
-        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Complaints</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">{t('complaints.heading')}</h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">
-          Something not go as planned? Let us know and our team will follow up within one business day.
+          {t('complaints.subtitle')}
         </p>
       </div>
 
-      {loading && <p className="text-on-surface-variant py-10">Loading your complaints…</p>}
+      {loading && <p className="text-on-surface-variant py-10">{t('complaints.loading')}</p>}
       {error && <p className="text-error py-10">{error}</p>}
 
       {!loading && !error && filed.length > 0 && (
@@ -52,12 +54,12 @@ export function AccountComplaints() {
                 <span
                   className={`shrink-0 px-3 py-1 rounded-full text-xs font-label-sm uppercase ${STATUS_STYLES[ticket.status]}`}
                 >
-                  {TICKET_STATUS_LABELS[ticket.status]}
+                  {t(`ticketStatusLabels.${ticket.status}`)}
                 </span>
               </div>
               <p className="text-on-surface-variant whitespace-pre-line">{ticket.description}</p>
               <p className="text-xs text-outline-variant mt-3">
-                Filed {new Date(ticket.createdAt).toLocaleDateString()}
+                {t('complaints.filedOn', { date: new Date(ticket.createdAt).toLocaleDateString(i18n.language) })}
               </p>
             </li>
           ))}
@@ -67,10 +69,9 @@ export function AccountComplaints() {
       {!loading && !error && filed.length === 0 && (
         <div className="bg-surface-container-lowest rounded-xl p-10 shadow-[0_4px_20px_rgba(45,45,45,0.06)] border border-surface-variant text-center">
           <Warning size={40} className="text-terracotta mx-auto mb-4" />
-          <p className="font-headline-md text-headline-md text-on-surface mb-2">No complaints filed</p>
+          <p className="font-headline-md text-headline-md text-on-surface mb-2">{t('complaints.emptyHeading')}</p>
           <p className="text-on-surface-variant max-w-md mx-auto mb-8">
-            If anything on a trip needs attention, report it directly from that trip&apos;s progress page and our team
-            will step in.
+            {t('complaints.emptyBody')}
           </p>
           {activeTrip && (
             <Link
@@ -78,7 +79,7 @@ export function AccountComplaints() {
               className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-6 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity"
             >
               <ChatCircleText size={18} />
-              Report an Issue
+              {t('complaints.reportAnIssue')}
             </Link>
           )}
         </div>
@@ -90,7 +91,7 @@ export function AccountComplaints() {
           className="min-h-[44px] inline-flex items-center gap-2 bg-savanna-green text-on-primary px-6 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity"
         >
           <ChatCircleText size={18} />
-          Report another issue
+          {t('complaints.reportAnotherIssue')}
         </Link>
       )}
     </div>

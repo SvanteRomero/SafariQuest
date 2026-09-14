@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, CreditCard } from '@phosphor-icons/react'
+import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { getSeasons } from '../../api/pricing'
 import { createBooking, payForBooking } from '../../api/bookings'
 import { useFetch } from '../../lib/useFetch'
@@ -14,6 +15,7 @@ import { trackFunnelEvent } from '../../lib/funnelTracking'
 import { MockCardFields } from '../../components/checkout/MockCardFields'
 
 export function PlanPayment() {
+  const { t, i18n } = useTranslation('plan')
   const { plan } = useTripPlan()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -64,12 +66,12 @@ export function PlanPayment() {
 
   function buildMessage(): string {
     const lines = [
-      `Destinations: ${selectedDestinations.map((d) => d.name).join(', ') || 'None selected'}`,
-      `Experiences: ${selectedExperiences.map((e) => e.title).join(', ') || 'None selected'}`,
-      `Accommodation style: ${plan.accommodationTier}`,
+      t('message.destinations', { list: selectedDestinations.map((d) => d.name).join(', ') || t('message.noneSelected') }),
+      t('message.experiences', { list: selectedExperiences.map((e) => e.title).join(', ') || t('message.noneSelected') }),
+      t('message.accommodationStyle', { style: t(`details.tiers.${plan.accommodationTier}.title`) }),
     ]
-    if (plan.contactPhone) lines.push(`Phone / WhatsApp: ${plan.contactPhone}`)
-    if (plan.notes) lines.push(`Notes: ${plan.notes}`)
+    if (plan.contactPhone) lines.push(t('message.phoneWhatsApp', { phone: plan.contactPhone }))
+    if (plan.notes) lines.push(t('message.notes', { notes: plan.notes }))
     return lines.join('\n')
   }
 
@@ -98,7 +100,7 @@ export function PlanPayment() {
         },
       })
     } catch (err) {
-      setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setSubmitError(err instanceof ApiError ? err.message : t('payment.somethingWentWrong'))
     } finally {
       setSubmitting(false)
     }
@@ -107,9 +109,9 @@ export function PlanPayment() {
   return (
     <div className="max-w-lg mx-auto">
       <div className="mb-8">
-        <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">Payment</h2>
+        <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">{t('payment.heading')}</h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          Enter your card details to pay the deposit and secure your booking.
+          {t('payment.subtitle')}
         </p>
       </div>
 
@@ -118,8 +120,8 @@ export function PlanPayment() {
         className="bg-surface-container-lowest rounded-xl p-6 md:p-8 shadow-sm border border-sand-stone space-y-6"
       >
         <div className="flex justify-between items-baseline pb-4 border-b border-sand-stone">
-          <span className="font-label-md text-label-md text-on-surface-variant">Deposit due now (30%)</span>
-          <span className="font-headline-md text-[24px] text-savanna-green">${deposit.toLocaleString()}</span>
+          <span className="font-label-md text-label-md text-on-surface-variant">{t('payment.depositDueNow')}</span>
+          <span className="font-headline-md text-[24px] text-savanna-green">${deposit.toLocaleString(i18n.language)}</span>
         </div>
 
         <MockCardFields
@@ -147,14 +149,14 @@ export function PlanPayment() {
             className="inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
           >
             <ArrowLeft size={18} />
-            Back
+            {t('payment.back')}
           </button>
           <button
             type="submit"
             disabled={submitting}
             className="min-h-[44px] inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary px-8 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Processing…' : `Pay $${deposit.toLocaleString()} & Book`}
+            {submitting ? t('payment.processing') : t('payment.payAndBook', { amount: deposit.toLocaleString(i18n.language) })}
             <CreditCard size={18} weight="bold" />
           </button>
         </div>

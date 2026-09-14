@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "heading": "Explorar por região",
+    "subtitle": "Descubra as paisagens diversas e a vida selvagem única dos destinos de safári mais icónicos da Tanzânia, desde as planícies infinitas do Serengeti até às águas turquesa de Zanzibar.",
+    "startYourJourney": "Comece a sua viagem"
+  },
+  "loading": "A carregar destinos…",
+  "empty": "Ainda não há destinos disponíveis.",
+  "experiences_one": "{{count}} experiência",
+  "experiences_other": "{{count}} experiências",
+  "detail": {
+    "loading": "A carregar…",
+    "notFound": "Destino não encontrado",
+    "backToDestinations": "Voltar aos destinos",
+    "wildlife": "Vida selvagem",
+    "bestSeason": "Melhor época",
+    "gettingThere": "Como chegar",
+    "parksAndWondersIn": "Parques e maravilhas em {{name}}",
+    "parksSubtitle": "Viagens cuidadosamente idealizadas para o mergulhar no coração da natureza selvagem, com luxo incomparável e orientação especializada.",
+    "noSafarisYet": "Ainda nenhum pacote de safári visita este parque.",
+    "certified": "Certificado",
+    "viewDetails": "Ver detalhes",
+    "miniSafarisIn": "Mini-safáris em {{name}}",
+    "miniSafarisSubtitle": "Viagens mais curtas e reserváveis que permanecem dentro de {{name}} — ideais como complemento de baixo compromisso ao seu itinerário.",
+    "days_one": "{{count}} dia",
+    "days_other": "{{count}} dias",
+    "buildYourOwnTrip": "Crie a sua própria viagem a {{name}}",
+    "ctaSubtitle": "Trabalhe com os nossos experientes especialistas em safári para criar um itinerário que corresponda perfeitamente ao seu ritmo e preferências.",
+    "startPlanning": "Começar a planear"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "steps": {
+    "details": "Details",
+    "account": "Account",
+    "review": "Review",
+    "payment": "Payment"
+  },
+  "loading": "Loading…",
+  "notFound": "Safari Not Found",
+  "backToSafaris": "Back to Safaris",
+  "backToDestinations": "Back to Destinations",
+  "travelers": {
+    "adults_one": "{{count}} adult",
+    "adults_other": "{{count}} adults",
+    "children_one": "{{count}} child",
+    "children_other": "{{count}} children"
+  },
+  "priceLine": {
+    "adults_one": "{{count}} adult × ${{price}}",
+    "adults_other": "{{count}} adults × ${{price}}",
+    "children_one": "{{count}} child × ${{price}}",
+    "children_other": "{{count}} children × ${{price}}"
+  },
+  "days_one": "{{count}} day",
+  "days_other": "{{count}} days",
+  "details": {
+    "heading": "Reservation Details",
+    "subtitle": "Please provide your details exactly as they appear on your passport to ensure a smooth park entry and lodge check-in for {{title}}.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Johnathan Doe",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "john@example.com",
+    "adultsLabel": "Adults (12+ yrs)",
+    "childrenLabel": "Children (2-11 yrs)",
+    "preferredStartDate": "Preferred Start Date"
+  },
+  "review": {
+    "heading": "Review Your Details",
+    "edit": "Edit",
+    "fullName": "Full Name",
+    "email": "Email",
+    "travelers": "Travelers",
+    "preferredStartDate": "Preferred Start Date",
+    "package": "Package",
+    "duration": "Duration",
+    "back": "Back"
+  },
+  "account": {
+    "createHeading": "Create Your Account",
+    "signInHeading": "Sign In",
+    "registerSubtitle": "We'll use this to send your booking confirmation and let you track your trip afterward.",
+    "signInSubtitle": "Sign in to continue — your details will be pulled from your existing account.",
+    "back": "Back",
+    "newCustomer": "New Customer",
+    "alreadyHaveAccount": "I Already Have an Account",
+    "creatingAccountFor": "Creating an account for",
+    "yourEmail": "your email",
+    "notYou": "Not you?",
+    "editYourDetails": "Edit your details",
+    "choosePassword": "Choose a Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "john@example.com",
+    "password": "Password"
+  },
+  "payment": {
+    "heading": "Payment",
+    "subtitle": "Enter your card details to pay the deposit and secure your booking.",
+    "back": "Back",
+    "testMode": "Test mode — card processing isn't connected yet, so no real charge will be made.",
+    "nameOnCard": "Name on Card",
+    "cardNumber": "Card Number",
+    "expiry": "Expiry (MM/YY)",
+    "cvv": "CVV"
+  },
+  "trustBadges": {
+    "certifiedOperator": "Certified Operator",
+    "ecoTourism": "Eco-Tourism",
+    "secureCheckout": "Secure Checkout"
+  },
+  "summary": {
+    "duration": "Duration",
+    "location": "Location",
+    "guests": "Guests",
+    "total": "TOTAL",
+    "depositDueNow": "Deposit due now (30%)",
+    "seasonPricingApplied": "{{season}} pricing applied ({{multiplier}}×)"
+  },
+  "cta": {
+    "processing": "Processing…",
+    "payAndBook": "Pay ${{amount}} & Book",
+    "pleaseWait": "Please wait…",
+    "createAccountAndContinue": "Create Account & Continue",
+    "signInAndContinue": "Sign In & Continue",
+    "continueToPayment": "Continue to Payment",
+    "continueToReview": "Continue to Review",
+    "continueToAccount": "Continue to Account",
+    "termsAgreement": "By clicking '{{cta}}', you agree to our Terms of Service and Cancellation Policy."
+  },
+  "needHelp": {
+    "heading": "Need Help?",
+    "body": "Our safari experts are available 24/7 to assist with your booking."
+  },
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "confirmed": {
+    "badge": "Booking Successfully Confirmed",
+    "headingLine1": "Your Safari Journey",
+    "headingLine2": "Begins Today.",
+    "thankYouWithTitle": "Thank you for booking {{title}}.",
+    "thankYouGeneric": "Thank you for booking with Pande Wilderness Safari.",
+    "subtitle": "Our master guides and planners have received your reservation and are already mapping out your authentic Tanzanian adventure.",
+    "depositReceived": "Deposit of ${{amount}} received",
+    "confirmationSentTo": "A payment confirmation was sent to {{email}}. This was a test payment — real card processing is coming soon.",
+    "yourRegistrationEmail": "your registration email",
+    "goToDashboard": "Go to My Dashboard",
+    "browseMoreSafaris": "Browse More Safaris",
+    "chatOnWhatsApp": "Chat on WhatsApp",
+    "heroImageAlt": "Elephant crossing a watering hole at golden sunset",
+    "nextSteps": {
+      "heading": "What Happens Next",
+      "subtitle": "Three simple steps to finalizing your dream expedition.",
+      "itineraryPrep": {
+        "title": "1. Itinerary Prep",
+        "body": "Our experts curate a personalized itinerary based on your preferences within 24 hours."
+      },
+      "consultationCall": {
+        "title": "2. Consultation Call",
+        "body": "We'll schedule a brief 15-minute call to answer questions and fine-tune your breathtaking journey details."
+      },
+      "welcomePack": {
+        "title": "3. Welcome Pack",
+        "body": "With your deposit already secured, we'll send your full welcome pack and travel document checklist as your trip approaches."
+      }
+    },
+    "resources": {
+      "heading": "Resources for your journey",
+      "subtitle": "Get ready for the wild with our expert tips.",
+      "viewAll": "View all resources",
+      "packingGuide": {
+        "imageAlt": "Luxury safari camp glowing at night under a star-filled sky",
+        "badge": "Expert Guide",
+        "title": "Packing for the Savanna",
+        "body": "From breathable fabrics to high-end optics: everything you need."
+      },
+      "photographyTips": {
+        "imageAlt": "A hammock overlooking turquoise water at a beach resort",
+        "title": "Safari Photography Tips",
+        "body": "Capture the soul of the Serengeti with our pro guide's advice."
+      },
+      "safeSecure": {
+        "title": "Safe & Secure",
+        "body": "Our safety protocols"
+      },
+      "directHelp": {
+        "title": "Direct Help",
+        "body": "Talk to us now"
+      }
+    },
+    "urgentQuestion": "Have an urgent question? Our team is available 24/7."
+  }
+}

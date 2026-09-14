@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { ScrollManager } from './components/ScrollManager'
@@ -58,6 +59,15 @@ import { AdminAnalytics } from './pages/admin/AdminAnalytics'
 import { AdminUsers } from './pages/admin/AdminUsers'
 import { AuthProvider } from './auth/AuthContext'
 import { RequireRole } from './auth/RequireRole'
+import { LocaleRoot } from './i18n/LocaleRoot'
+import { SUPPORTED_LOCALES } from './i18n/locales'
+import { detectPreferredLocale } from './i18n/detectLocale'
+
+function LocaleRedirect() {
+  const { pathname, search, hash } = useLocation()
+  const target = `/${detectPreferredLocale()}${pathname === '/' ? '' : pathname}${search}${hash}`
+  return <Navigate to={target} replace />
+}
 
 function MarketingLayout() {
   return (
@@ -71,53 +81,64 @@ function MarketingLayout() {
   )
 }
 
+function SkipLink() {
+  const { t } = useTranslation('common')
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-savanna-green focus:text-on-primary focus:px-4 focus:py-2 focus:rounded-lg"
+    >
+      {t('skipToMainContent')}
+    </a>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
       <ScrollManager />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-savanna-green focus:text-on-primary focus:px-4 focus:py-2 focus:rounded-lg"
-      >
-        Skip to main content
-      </a>
+      <SkipLink />
       <Routes>
-        <Route element={<MarketingLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/safaris" element={<Safaris />} />
-          <Route path="/safaris/:id" element={<SafariDetail />} />
-          <Route path="/experiences" element={<Experiences />} />
-          <Route path="/destinations" element={<Destinations />} />
-          <Route path="/destinations/:id" element={<DestinationDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/faqs" element={<Faqs />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/set-password" element={<SetPassword />} />
-          <Route path="/safaris/:id/book" element={<Checkout kind="safari" />} />
-          <Route path="/region-safaris/:id" element={<RegionSafariDetail />} />
-          <Route path="/region-safaris/:id/book" element={<Checkout kind="regionSafari" />} />
-          <Route path="/booking-confirmed" element={<BookingConfirmed />} />
-          <Route element={<PlanLayout />}>
-            <Route path="/plan" element={<PlanDestinations />} />
-            <Route path="/plan/experiences" element={<PlanExperiences />} />
-            <Route path="/plan/details" element={<PlanDetails />} />
-            <Route path="/plan/review" element={<PlanReview />} />
-            <Route path="/plan/account" element={<PlanAccount />} />
-            <Route path="/plan/payment" element={<PlanPayment />} />
-          </Route>
-        </Route>
+        {SUPPORTED_LOCALES.map((lang) => (
+          <Route key={lang} path={lang} element={<LocaleRoot />}>
+            <Route element={<MarketingLayout />}>
+              <Route index element={<Home />} />
+              <Route path="safaris" element={<Safaris />} />
+              <Route path="safaris/:id" element={<SafariDetail />} />
+              <Route path="experiences" element={<Experiences />} />
+              <Route path="destinations" element={<Destinations />} />
+              <Route path="destinations/:id" element={<DestinationDetail />} />
+              <Route path="about" element={<About />} />
+              <Route path="faqs" element={<Faqs />} />
+              <Route path="sign-in" element={<SignIn />} />
+              <Route path="set-password" element={<SetPassword />} />
+              <Route path="safaris/:id/book" element={<Checkout kind="safari" />} />
+              <Route path="region-safaris/:id" element={<RegionSafariDetail />} />
+              <Route path="region-safaris/:id/book" element={<Checkout kind="regionSafari" />} />
+              <Route path="booking-confirmed" element={<BookingConfirmed />} />
+              <Route element={<PlanLayout />}>
+                <Route path="plan" element={<PlanDestinations />} />
+                <Route path="plan/experiences" element={<PlanExperiences />} />
+                <Route path="plan/details" element={<PlanDetails />} />
+                <Route path="plan/review" element={<PlanReview />} />
+                <Route path="plan/account" element={<PlanAccount />} />
+                <Route path="plan/payment" element={<PlanPayment />} />
+              </Route>
+            </Route>
 
-        <Route element={<AccountLayout />}>
-          <Route path="/account" element={<MyTrips />} />
-          <Route path="/account/invoices" element={<AccountInvoices />} />
-          <Route path="/account/complaints" element={<AccountComplaints />} />
-          <Route path="/account/profile" element={<AccountProfile />} />
-          <Route path="/account/trips" element={<TripProgress />} />
-          <Route path="/account/trips/:tripId" element={<TripProgress />} />
-          <Route path="/account/trips/:tripId/rate" element={<RateExperience />} />
-          <Route path="/account/trips/:tripId/report-issue" element={<ReportIssue />} />
-        </Route>
+            <Route element={<AccountLayout />}>
+              <Route path="account" element={<MyTrips />} />
+              <Route path="account/invoices" element={<AccountInvoices />} />
+              <Route path="account/complaints" element={<AccountComplaints />} />
+              <Route path="account/profile" element={<AccountProfile />} />
+              <Route path="account/trips" element={<TripProgress />} />
+              <Route path="account/trips/:tripId" element={<TripProgress />} />
+              <Route path="account/trips/:tripId/rate" element={<RateExperience />} />
+              <Route path="account/trips/:tripId/report-issue" element={<ReportIssue />} />
+            </Route>
+          </Route>
+        ))}
 
         <Route path="/guide" element={<RequireRole allow={['guide']} />}>
           <Route index element={<GuideSchedule />} />
@@ -155,6 +176,8 @@ function App() {
             <Route path="users" element={<AdminUsers />} />
           </Route>
         </Route>
+
+        <Route path="*" element={<LocaleRedirect />} />
       </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -1,0 +1,32 @@
+{
+  "skipToMainContent": "Zum Hauptinhalt springen",
+  "brandName": "Pande Wilderness Safari",
+  "nav": {
+    "destinations": "Reiseziele",
+    "safaris": "Safaris",
+    "about": "Über uns",
+    "experiences": "Erlebnisse"
+  },
+  "planYourJourney": "Reise planen",
+  "admin": "Admin",
+  "guide": "Guide",
+  "signIn": "Anmelden",
+  "signOut": "Abmelden",
+  "openMenu": "Menü öffnen",
+  "closeMenu": "Menü schließen",
+  "language": "Sprache",
+  "footer": {
+    "tagline": "Seit 2008 gestalten wir authentische tansanische Erinnerungen. Ihr Fenster zum wilden Herzen Afrikas.",
+    "quickLinks": "Schnellzugriff",
+    "legal": "Rechtliches",
+    "contact": "Kontakt",
+    "privacyPolicy": "Datenschutzerklärung",
+    "termsOfService": "Nutzungsbedingungen",
+    "parkRegulations": "Parkvorschriften",
+    "sitemap": "Sitemap",
+    "emailAddress": "E-Mail-Adresse",
+    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "subscribeToNewsletter": "Newsletter abonnieren",
+    "copyright": "© {{year}} Pande Wilderness Safari. Alle Rechte vorbehalten. Zertifizierte Safari-Veranstalter."
+  }
+}

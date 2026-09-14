@@ -1,0 +1,132 @@
+{
+  "layout": {
+    "brandName": "Pande Wilderness",
+    "safariPortal": "Portal de Safári",
+    "myTrips": "As minhas viagens",
+    "invoicesPayments": "Faturas e pagamentos",
+    "tripProgress": "Progresso da viagem",
+    "complaints": "Reclamações",
+    "profile": "Perfil",
+    "bookNewSafari": "Reservar novo safári",
+    "signOut": "Terminar sessão",
+    "customerPortal": "Portal do cliente",
+    "notifications": "Notificações"
+  },
+  "stageLabels": {
+    "new_inquiry": "Novo pedido",
+    "quoted": "Orçamento enviado",
+    "deposit_paid": "Depósito pago",
+    "confirmed": "Confirmado",
+    "completed": "Concluído"
+  },
+  "invoiceStatusLabels": {
+    "unpaid": "Por pagar",
+    "deposit_paid": "Depósito pago",
+    "paid": "Pago",
+    "overdue": "Em atraso"
+  },
+  "ticketStatusLabels": {
+    "open": "Aberta",
+    "in_progress": "Em curso",
+    "resolved": "Resolvida"
+  },
+  "myTrips": {
+    "heading": "As minhas viagens",
+    "subtitle": "Faça a gestão das suas próximas aventuras, reveja orçamentos pendentes e reviva viagens passadas pelas vastas planícies de África.",
+    "loading": "A carregar as suas viagens…",
+    "empty": "Ainda não há viagens.",
+    "guideAssigned": "Guia: {{name}}",
+    "guideNotAssigned": "Guia ainda não atribuído.",
+    "viewDetails": "Ver detalhes da viagem"
+  },
+  "invoices": {
+    "heading": "Faturas e pagamentos",
+    "subtitle": "Reveja as faturas de depósito e saldo de cada um dos seus safáris.",
+    "loading": "A carregar…",
+    "emptyHeading": "Ainda sem pagamentos",
+    "emptyBody": "Uma fatura de depósito aparece aqui assim que pagar uma no checkout, ou quando o seu especialista em safári lhe enviar um orçamento a pagar.",
+    "package": "Pacote",
+    "amount": "Valor",
+    "issued": "Emitida",
+    "due": "Vencimento",
+    "status": "Estado"
+  },
+  "complaints": {
+    "heading": "Reclamações",
+    "subtitle": "Algo não correu como planeado? Informe-nos e a nossa equipa dará seguimento no prazo de um dia útil.",
+    "loading": "A carregar as suas reclamações…",
+    "emptyHeading": "Nenhuma reclamação apresentada",
+    "emptyBody": "Se algo numa viagem precisar de atenção, comunique-o diretamente a partir da página de progresso dessa viagem e a nossa equipa intervirá.",
+    "reportAnIssue": "Reportar um problema",
+    "reportAnotherIssue": "Reportar outro problema",
+    "filedOn": "Apresentada em {{date}}"
+  },
+  "profile": {
+    "heading": "Perfil",
+    "subtitle": "Mantenha os seus dados de contacto atualizados para que possamos contactá-lo sobre os seus safáris.",
+    "updated": "Perfil atualizado.",
+    "fullName": "Nome completo",
+    "email": "E-mail",
+    "phoneWhatsApp": "Telefone / WhatsApp",
+    "phonePlaceholder": "+255 700 000 000",
+    "saveChanges": "Guardar alterações"
+  },
+  "tripProgress": {
+    "loading": "A carregar…",
+    "noActiveTrip": "Sem viagem ativa",
+    "noActiveTripBody": "Não tem nenhuma viagem em curso neste momento.",
+    "backToMyTrips": "Voltar às minhas viagens",
+    "heading": "A sua viagem de safári",
+    "certifiedGuide": "Guia certificado",
+    "guideNotAssigned": "Ainda não foi atribuído um guia à sua viagem.",
+    "itineraryProgress": "Progresso do itinerário",
+    "noMilestones": "O acompanhamento diário do itinerário não está disponível para esta viagem — a fase atual da sua reserva é apresentada acima.",
+    "youAreHere": "Está aqui",
+    "day": "Dia {{day}}",
+    "rateExperience": "Avalie a sua experiência"
+  },
+  "rateExperience": {
+    "loading": "A carregar…",
+    "tripNotFound": "Viagem não encontrada",
+    "backToMyTrips": "Voltar às minhas viagens",
+    "notAvailableYet": "Ainda não disponível",
+    "onlyCompletedTrips": "Apenas viagens concluídas podem ser avaliadas.",
+    "starRating_one": "{{count}} estrela",
+    "starRating_other": "{{count}} estrelas",
+    "thankYou": "Obrigado!",
+    "thankYouBody": "A sua avaliação ajuda outros viajantes e significa muito para {{guideName}}.",
+    "yourGuide": "o seu guia",
+    "howWasYourSafari": "Como foi o seu safári?",
+    "intro": "Obrigado por escolher a Pande Wilderness Safari. Gostaríamos muito de saber mais sobre a sua aventura!",
+    "yourLeadGuide": "O seu guia principal",
+    "guideRatingPrompt": "Como avaliaria o conhecimento, a hospitalidade e a orientação geral de {{firstName}} durante a sua viagem?",
+    "tapToRate": "Toque para avaliar",
+    "overallExperience": "Experiência geral",
+    "overallRatingPrompt": "Da reserva à partida, como foi a sua viagem com a Pande Wilderness?",
+    "shareYourMemories": "Partilhe as suas memórias",
+    "memoriesPrompt": "Conte-nos os seus momentos favoritos, sugestões de melhoria ou um testemunho que possamos partilhar.",
+    "testimonialPlaceholder": "O nascer do sol sobre o Serengeti foi...",
+    "submitting": "A enviar…",
+    "submitReview": "Enviar avaliação",
+    "failedToSubmit": "Falha ao enviar a sua avaliação."
+  },
+  "reportIssue": {
+    "loading": "A carregar…",
+    "tripNotFound": "Viagem não encontrada",
+    "backToMyTrips": "Voltar às minhas viagens",
+    "reportSubmitted": "Relato enviado",
+    "reportSubmittedBody": "A nossa equipa de apoio ao cliente foi notificada e entrará em contacto no prazo de 24 horas.",
+    "backToTrip": "Voltar à viagem",
+    "guestSupport": "Apoio ao hóspede",
+    "intro": "Indique detalhes sobre a sua experiência. A nossa equipa dedicada está aqui para o ajudar.",
+    "trip": "Viagem",
+    "guide": "Guia",
+    "tellUsWhatWentWrong": "Diga-nos o que correu mal",
+    "descriptionPlaceholder": "Descreva o problema em detalhe...",
+    "optionalPhotoUrl": "Opcional: URL da fotografia",
+    "reassurance": "Levamos o seu feedback a sério e a nossa equipa de relações com hóspedes responderá rapidamente para resolver esta questão.",
+    "submitting": "A enviar…",
+    "submitReport": "Enviar relato",
+    "failedToSubmit": "Falha ao enviar o seu relato."
+  }
+}

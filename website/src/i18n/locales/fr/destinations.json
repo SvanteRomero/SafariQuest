@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "heading": "Explorer par région",
+    "subtitle": "Découvrez les paysages variés et la faune unique des destinations safari les plus emblématiques de Tanzanie, des plaines infinies du Serengeti aux eaux turquoise de Zanzibar.",
+    "startYourJourney": "Commencer votre voyage"
+  },
+  "loading": "Chargement des destinations…",
+  "empty": "Aucune destination n'est disponible pour le moment.",
+  "experiences_one": "{{count}} expérience",
+  "experiences_other": "{{count}} expériences",
+  "detail": {
+    "loading": "Chargement…",
+    "notFound": "Destination introuvable",
+    "backToDestinations": "Retour aux destinations",
+    "wildlife": "Faune",
+    "bestSeason": "Meilleure saison",
+    "gettingThere": "Comment s'y rendre",
+    "parksAndWondersIn": "Parcs et merveilles à {{name}}",
+    "parksSubtitle": "Des voyages soigneusement conçus pour vous plonger au cœur de la nature sauvage, avec un luxe sans compromis et des conseils d'experts.",
+    "noSafarisYet": "Aucun forfait safari ne visite ce parc pour le moment.",
+    "certified": "Certifié",
+    "viewDetails": "Voir les détails",
+    "miniSafarisIn": "Mini-safaris à {{name}}",
+    "miniSafarisSubtitle": "Des voyages plus courts et réservables qui restent dans les limites de {{name}} — idéal pour compléter votre itinéraire avec un engagement réduit.",
+    "days_one": "{{count}} jour",
+    "days_other": "{{count}} jours",
+    "buildYourOwnTrip": "Composez votre propre voyage à {{name}}",
+    "ctaSubtitle": "Travaillez avec nos spécialistes safari expérimentés pour créer un itinéraire parfaitement adapté à votre rythme et à vos préférences.",
+    "startPlanning": "Commencer la planification"
+  }
+}

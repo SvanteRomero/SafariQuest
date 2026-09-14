@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link } from '../i18n/routing'
 import {
   ShieldCheck,
   MapTrifold,
@@ -21,111 +22,65 @@ import { getDestinations } from '../api/destinations'
 import { useFetch } from '../lib/useFetch'
 
 const JOURNEY_STEPS = [
-  {
-    icon: Compass,
-    title: '1. Curate Your Trip',
-    description:
-      'Tell us about your interests, travel style, and must-see destinations to help us understand your vision.',
-  },
-  {
-    icon: NotePencil,
-    title: '2. Get a Bespoke Quote',
-    description:
-      'Our safari experts will design a customized, no-obligation itinerary and quote tailored specifically for you.',
-  },
-  {
-    icon: Airplane,
-    title: '3. Journey with Local Experts',
-    description:
-      'Arrive in Tanzania and embark on the adventure of a lifetime, guided by our knowledgeable local team.',
-  },
-]
+  { icon: Compass, key: 'curate' },
+  { icon: NotePencil, key: 'quote' },
+  { icon: Airplane, key: 'journeyStep' },
+] as const
 
 const PILLARS = [
-  {
-    icon: ShieldCheck,
-    title: 'Licensed Guides',
-    description:
-      'Our silver and gold-level certified guides possess decades of experience navigating the Tanzanian bush, ensuring safety and deep ecological insights.',
-  },
-  {
-    icon: MapTrifold,
-    title: 'Custom Itineraries',
-    description:
-      'No two journeys are the same. We craft bespoke schedules that align perfectly with your photographic interests, fitness level, and pace.',
-  },
-  {
-    icon: Leaf,
-    title: 'Local Expertise',
-    description:
-      'Born and raised in Tanzania, our team provides authentic cultural connections and exclusive access to the most secluded wildlife hotspots.',
-  },
-]
+  { icon: ShieldCheck, key: 'licensedGuides' },
+  { icon: MapTrifold, key: 'customItineraries' },
+  { icon: Leaf, key: 'localExpertise' },
+] as const
 
 const WHY_CHOOSE_POINTS = [
-  {
-    icon: Medal,
-    title: '100% Local Guides',
-    description:
-      'Our guides are born and raised in Tanzania, bringing unparalleled local knowledge and passion to every journey.',
-  },
-  {
-    icon: Leaf,
-    title: 'Sustainable Tourism',
-    description:
-      'We prioritize eco-friendly lodges and practices, ensuring our presence supports conservation and local communities.',
-  },
-  {
-    icon: Headset,
-    title: '24/7 Concierge Support',
-    description:
-      'From the moment you arrive until your departure, our team is available around the clock to ensure a seamless experience.',
-  },
-]
+  { icon: Medal, key: 'localGuides' },
+  { icon: Leaf, key: 'sustainable' },
+  { icon: Headset, key: 'concierge' },
+] as const
 
 const TESTIMONIALS = [
   {
-    quote:
-      "An experience that transcends words. Serengeti Quest didn't just show us animals; they shared the soul of Tanzania with us. Our guide, Elias, was like a walking encyclopedia of the bush.",
+    key: 'sarah',
     name: 'Sarah Jenkins',
     location: 'London, United Kingdom',
     avatar:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBFIMzrREe_jcC3X0qovnWDaglzRGvVy0TWU8RkvZ8FJFjt-G5ui8oQjFLRe3CjGQe2MWNdqNmotnl0vlV60AzI9bMFWwk2Q2eK5OjTg-v-gmsruDqc-NYDmoFI8Z5vwRsPWq1OlFUbnLj_zrLqx3krWRcM6QldqT6dEiHrROyL29Ks4Bdym0GDriAjvrOfWr3vdON_EefgGk_D94U9rguoRtCUh5hZdfcgEE7999SG7KSS1R32gbmq',
   },
   {
-    quote:
-      'The bespoke itinerary was flawless. We wanted a trip focused on bird photography and quiet moments, and they delivered exactly that. Truly the experts of authentic African safaris.',
+    key: 'markus',
     name: 'Markus Weber',
     location: 'Munich, Germany',
     avatar:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCDRcYLtsIkom74XG5p6jZlqurQPzqTawzyhwQ6VXrrML45M24gF6_2XWFN9-a94dapRlzTqElUJ7UjxxyQuKE6SnAbUzrCjiczFOjpgbOZusViypZ-6K0Dl10Ox4FWyVTMexcAn2w_0U7rOHLYR3auBrDSGUthdHkhP48mSb2CswDWp9H7Dv5ckSe4T5Y2tLLzjuHSCKkT3ed6U1caTHsIIeNswwZpmrf8GSvDrf3zz5FL90q6PW_Z',
   },
-]
+] as const
 
 const GALLERY = [
   {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDsIQ0laWmQuJ5AQGU-MZ2072mfZEQdaQkkaUsq6_PkZkYtTfEY95tkb3PZ0BKDnIRu9l8YS6HRCPPCiwVBk9g1NlUeazkm_csfHTeaoFhcTWB__xcH4ynGYcPq8xYCfhT4tLUmLcu78V_2ezyAdb1WRRfGHQIx2olP-2eIcQ6q20ZEMoyahkAK9YlASM-bRXwgspPT4PgcaZJlpfz027neyCw1iCq2a7fhmM3S3LRoWY1G8skxGXQ3',
-    alt: 'Pink flamingos wading in the shallow alkaline waters of Lake Manyara at sunrise.',
+    key: 'flamingos',
   },
   {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCuH0tePT8qXq_sHGAE4U3Wpha89bXX6gx6ymIKtzx6ySqYp405qvn7vRhJ6rtisiulxyHtycuBJapgtHaAnHfJvpqWCJDYXHShwbcvIdtnfC4IUwzUNXFLjsMLyPLGFNfplUR2nTi0Eduedi6wzDHL1o4hk9nGkuPGdPC8lACGsD6Jn0qNLmtJrXqWp-QWsiyglOScAe-CdT2X9NCU-Qw1lX9rJVKr9siAAV72jk3p8Ii-RlCwBl3T',
-    alt: 'A massive herd of wildebeest crossing the Mara River during the Great Migration.',
+    key: 'wildebeest',
   },
   {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBpGD1x2a6nBVYSpCjkjQDx3K3ZZD2PlILrve174tC3eyqNGnv9ODFvhlkC6K4kiBjd7VaJXRlrMhPLIGQVfCASltN5NrgcMsk_QuIhZ7BNj50Cs2Z3ACAxBFhtDncWsywDgS54SqpzhRYEGNPTxLCjvWTW82gCTzfdZxhd5fMpRLKles2hCVupN0WSG2PYgnniyzAZQyuBl21E24Am7eGeQkoHB4SjaTriJxjuD05MXIji1PQpVNWL',
-    alt: 'A luxury canvas safari tent glowing with lantern light under the Milky Way.',
+    key: 'tent',
   },
   {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDCtN0NgbmLUwPgXkv2bz7m5k4NdWFw6BqiXNYnVLiVRIZEYGk29NwE-yM_9XpdsdfAX3t09Vl-BgSfeCic1dLLcFfnRwXtGWWxQd-WcQ8-7nt_LgOtrJUBrTsofGxzfKwbpVFLLPIy6krV2Z4TtCtKLDxz0x3PJ6F1kl5TNc5HiMPQTRDxqRk1CgFFSJ6bJsYsIkCyLr5elPs5nAMO18mxUxO8CgiVDSOevWPfdBM337-7dygXpJNl',
-    alt: 'A cheetah cub with large expressive eyes sitting in dew-covered grass.',
+    key: 'cheetah',
   },
   {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDnT1UDxNruXxK2N_ZyiXvfqpFmDOChCGzdi_ALZSSxsdOMkNCpeqYkKywimRGndbUhdEmd2PEbtrwUB0SpE0GkwQCxkwAu5eeXztZRLJW4o0vDrU5C0azHpA2e-q4p0nHZMDSZMsYF7xfLezL8n9tjjgXUiqZws_ZwzwvEGwa0_mHNhBg9nMUUw7fHXT1kPt8LG-76w92Jc47wnLEmivr3d4jJNKGlTdKYWnCs6ZcEs9w2u9g5dXC5',
-    alt: 'A Maasai warrior in traditional red shuka robes overlooking the savanna at sunset.',
+    key: 'maasai',
   },
-]
+] as const
 
 export function Home() {
+  const { t } = useTranslation('home')
   const { data: safaris } = useFetch(getSafaris, [])
   const signaturePackages = (safaris ?? []).filter((s) => s.signature)
   const { data: destinations } = useFetch(getDestinations, [])
@@ -163,24 +118,23 @@ export function Home() {
 
         <div className="relative z-10 text-center px-5 max-w-4xl">
           <h1 className="font-display-lg text-[40px] md:text-display-lg text-white mb-6">
-            Experience the Wild Heart of Tanzania
+            {t('hero.heading')}
           </h1>
           <p className="font-body-lg text-body-lg text-white/90 mb-10 max-w-2xl mx-auto">
-            Bespoke, authentic safaris tailored to your sense of adventure. Discover the untamed beauty of Africa's
-            most iconic landscapes with expert local guides.
+            {t('hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/plan"
               className="bg-savanna-green text-white px-10 py-4 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px] flex items-center justify-center"
             >
-              Book Your Safari
+              {t('hero.bookSafari')}
             </Link>
             <Link
               to="/destinations"
               className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-10 py-4 rounded-lg font-label-md text-label-md hover:bg-white/20 transition-colors min-h-[44px] flex items-center justify-center"
             >
-              Explore Destinations
+              {t('hero.exploreDestinations')}
             </Link>
           </div>
         </div>
@@ -198,8 +152,8 @@ export function Home() {
           <div className="flex items-center gap-4">
             <ShieldCheck size={36} weight="fill" className="text-savanna-green" />
             <div>
-              <p className="font-label-md text-label-md text-deep-earth">Local Experts</p>
-              <p className="text-on-surface-variant">Born &amp; Raised Guides</p>
+              <p className="font-label-md text-label-md text-deep-earth">{t('trustBar.localExperts')}</p>
+              <p className="text-on-surface-variant">{t('trustBar.localExpertsSub')}</p>
             </div>
           </div>
           <div className="hidden md:block w-px h-12 bg-sand-stone" />
@@ -210,16 +164,16 @@ export function Home() {
               ))}
             </div>
             <div>
-              <p className="font-label-md text-label-md text-deep-earth">5-Star Rated</p>
-              <p className="text-on-surface-variant">By 500+ Guests</p>
+              <p className="font-label-md text-label-md text-deep-earth">{t('trustBar.fiveStarRated')}</p>
+              <p className="text-on-surface-variant">{t('trustBar.fiveStarRatedSub')}</p>
             </div>
           </div>
           <div className="hidden md:block w-px h-12 bg-sand-stone" />
           <div className="flex items-center gap-4">
             <Leaf size={36} weight="fill" className="text-terracotta" />
             <div>
-              <p className="font-label-md text-label-md text-deep-earth">Eco-Conscious</p>
-              <p className="text-on-surface-variant">Sustainable Travel</p>
+              <p className="font-label-md text-label-md text-deep-earth">{t('trustBar.ecoConscious')}</p>
+              <p className="text-on-surface-variant">{t('trustBar.ecoConsciousSub')}</p>
             </div>
           </div>
         </div>
@@ -228,23 +182,23 @@ export function Home() {
       {/* Why Pande Wilderness Safari */}
       <section className="py-20 md:py-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
         <Reveal className="text-center mb-16">
-          <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">Our Expertise</span>
+          <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">{t('pillars.eyebrow')}</span>
           <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-            Why Pande Wilderness Safari?
+            {t('pillars.heading')}
           </h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
           {PILLARS.map((pillar, i) => (
             <Reveal
-              key={pillar.title}
+              key={pillar.key}
               delay={i * 100}
               className="bg-surface-container-low p-10 rounded-xl shadow-[0_10px_30px_-10px_rgba(45,45,45,0.08)] hover:-translate-y-2 transition-transform duration-300"
             >
               <div className="bg-savanna-green/10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
                 <pillar.icon size={30} className="text-savanna-green" />
               </div>
-              <h3 className="font-headline-md text-headline-md mb-4">{pillar.title}</h3>
-              <p className="text-on-surface-variant leading-relaxed">{pillar.description}</p>
+              <h3 className="font-headline-md text-headline-md mb-4">{t(`pillars.items.${pillar.key}.title`)}</h3>
+              <p className="text-on-surface-variant leading-relaxed">{t(`pillars.items.${pillar.key}.description`)}</p>
             </Reveal>
           ))}
         </div>
@@ -262,14 +216,14 @@ export function Home() {
             <Reveal className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
               <div>
                 <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">
-                  Curated Experiences
+                  {t('signature.eyebrow')}
                 </span>
                 <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-                  Signature Safari Packages
+                  {t('signature.heading')}
                 </h2>
               </div>
               <Link to="/safaris" className="text-savanna-green font-label-md flex items-center gap-2 group">
-                View All Safaris
+                {t('signature.viewAll')}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </Reveal>
@@ -290,10 +244,10 @@ export function Home() {
           <div className="px-5 md:px-margin-desktop max-w-container-max mx-auto">
             <Reveal className="text-center mb-16">
               <span className="text-terracotta font-label-md tracking-widest uppercase mb-2 block">
-                Our Destinations
+                {t('destinationsSection.eyebrow')}
               </span>
               <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-                Explore Tanzania by Region
+                {t('destinationsSection.heading')}
               </h2>
             </Reveal>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-gutter">
@@ -326,25 +280,25 @@ export function Home() {
       <section className="py-20 md:py-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
         <Reveal className="text-center mb-16">
           <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-            The Journey to Africa
+            {t('journey.heading')}
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mt-4">
-            Planning your dream safari should be as enjoyable as the trip itself. Here is how we make it happen.
+            {t('journey.subtitle')}
           </p>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
           <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-sand-stone z-0" />
           {JOURNEY_STEPS.map((step, i) => (
             <Reveal
-              key={step.title}
+              key={step.key}
               delay={i * 100}
               className="relative z-10 flex flex-col items-center text-center"
             >
               <div className="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center mb-6 shadow-[0_10px_30px_-10px_rgba(45,45,45,0.08)] text-savanna-green border-4 border-ivory-base">
                 <step.icon size={40} />
               </div>
-              <h3 className="font-headline-md text-[24px] text-deep-earth mb-3">{step.title}</h3>
-              <p className="text-on-surface-variant">{step.description}</p>
+              <h3 className="font-headline-md text-[24px] text-deep-earth mb-3">{t(`journey.steps.${step.key}.title`)}</h3>
+              <p className="text-on-surface-variant">{t(`journey.steps.${step.key}.description`)}</p>
             </Reveal>
           ))}
         </div>
@@ -355,27 +309,25 @@ export function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <Reveal>
             <span className="text-savanna-green font-label-md tracking-widest uppercase mb-2 block">
-              The Pande Difference
+              {t('whyChoose.eyebrow')}
             </span>
             <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-8">
-              Why Choose Pande Wilderness Safari?
+              {t('whyChoose.heading')}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant mb-10">
-              We believe that a true safari is more than just seeing wildlife; it is about connecting with the
-              land, the people, and the rhythm of nature. We are committed to providing an authentic, responsible,
-              and unforgettable experience.
+              {t('whyChoose.body')}
             </p>
             <ul className="space-y-8">
               {WHY_CHOOSE_POINTS.map((point) => (
-                <li key={point.title} className="flex gap-4">
+                <li key={point.key} className="flex gap-4">
                   <div className="shrink-0 mt-1">
                     <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-golden-sun">
                       <point.icon size={24} weight="fill" />
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-headline-md text-[20px] text-on-surface mb-2">{point.title}</h4>
-                    <p className="text-on-surface-variant">{point.description}</p>
+                    <h4 className="font-headline-md text-[20px] text-on-surface mb-2">{t(`whyChoose.points.${point.key}.title`)}</h4>
+                    <p className="text-on-surface-variant">{t(`whyChoose.points.${point.key}.description`)}</p>
                   </div>
                 </li>
               ))}
@@ -384,7 +336,7 @@ export function Home() {
           <Reveal delay={200} className="relative h-[600px] rounded-2xl overflow-hidden">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq7Lsu0HDL-2KGvgsD6LvFmTWdIgoRYe-AbUqxiwAMN_cGEM7-I3AB8qoVKHprpteo07PH2DRQVyb4OUTsHBwiNzWADYgfWXjAyMENaOpgVWASL1KTaJjJVIKGwto0mVMnM8ylw70q1IwdL93jMzsSX0yMLOwssyAFiumjbS2qdweYQ3AM07V9LP-WrBG40dWEthdYFnka2n0armknnE1Qa2qeoZaeN_VBnujcXbnbJYwzGUyKBVUR"
-              alt="A safari guide pointing out wildlife to guests from a 4x4 vehicle."
+              alt={t('whyChoose.imageAlt')}
               loading="lazy"
               className="w-full h-full object-cover"
             />
@@ -399,20 +351,20 @@ export function Home() {
         <div className="px-5 md:px-margin-desktop max-w-container-max mx-auto relative z-10">
           <Reveal className="max-w-3xl">
             <span className="text-savanna-green font-label-md tracking-widest uppercase mb-4 block">
-              Traveler Stories
+              {t('testimonials.eyebrow')}
             </span>
             <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-16">
-              Witnessing the magic of the wild through our guests' eyes.
+              {t('testimonials.heading')}
             </h2>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {TESTIMONIALS.map((testimonial, i) => (
-              <Reveal key={testimonial.name} delay={i * 100} className="space-y-6">
+              <Reveal key={testimonial.key} delay={i * 100} className="space-y-6">
                 <div className="flex text-golden-sun" aria-hidden>
                   {'★★★★★'}
                 </div>
                 <blockquote className="font-headline-md text-2xl md:text-3xl italic font-normal leading-relaxed">
-                  “{testimonial.quote}”
+                  “{t(`testimonials.items.${testimonial.key}.quote`)}”
                 </blockquote>
                 <div className="flex items-center gap-4">
                   <img
@@ -437,7 +389,7 @@ export function Home() {
         <div className="flex gap-4 px-5">
           {GALLERY.map((photo) => (
             <div key={photo.src} className="w-64 md:w-80 h-48 md:h-60 shrink-0 rounded-lg overflow-hidden">
-              <img src={photo.src} alt={photo.alt} loading="lazy" className="w-full h-full object-cover" />
+              <img src={photo.src} alt={t(`gallery.alts.${photo.key}`)} loading="lazy" className="w-full h-full object-cover" />
             </div>
           ))}
         </div>
@@ -448,11 +400,10 @@ export function Home() {
         <Reveal className="bg-surface-container-low rounded-3xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
             <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">
-              Join the Quest
+              {t('newsletter.heading')}
             </h2>
             <p className="text-on-surface-variant max-w-md">
-              Receive exclusive travel guides, safari tips, and early access to seasonal offers directly in your
-              inbox.
+              {t('newsletter.body')}
             </p>
           </div>
           <form
@@ -460,20 +411,20 @@ export function Home() {
             onSubmit={(e) => e.preventDefault()}
           >
             <label htmlFor="home-newsletter-email" className="sr-only">
-              Email address
+              {t('newsletter.emailAddress')}
             </label>
             <input
               id="home-newsletter-email"
               type="email"
               required
-              placeholder="Your email address"
+              placeholder={t('newsletter.emailPlaceholder')}
               className="min-h-[44px] flex-1 bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
             />
             <button
               type="submit"
               className="min-h-[44px] bg-savanna-green text-on-primary px-6 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity cursor-pointer"
             >
-              Subscribe
+              {t('newsletter.subscribe')}
             </button>
           </form>
         </Reveal>

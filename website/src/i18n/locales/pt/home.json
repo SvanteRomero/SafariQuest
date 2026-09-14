@@ -1,0 +1,109 @@
+{
+  "hero": {
+    "heading": "Viva o coração selvagem da Tanzânia",
+    "subtitle": "Safáris personalizados e autênticos, feitos à medida do seu espírito de aventura. Descubra a beleza indomável das paisagens mais icónicas de África com guias locais especializados.",
+    "bookSafari": "Reserve o seu safári",
+    "exploreDestinations": "Explorar destinos"
+  },
+  "trustBar": {
+    "localExperts": "Especialistas locais",
+    "localExpertsSub": "Guias nascidos e criados na região",
+    "fiveStarRated": "Avaliação 5 estrelas",
+    "fiveStarRatedSub": "Por mais de 500 viajantes",
+    "ecoConscious": "Consciência ecológica",
+    "ecoConsciousSub": "Turismo sustentável"
+  },
+  "pillars": {
+    "eyebrow": "A nossa experiência",
+    "heading": "Porquê a Pande Wilderness Safari?",
+    "items": {
+      "licensedGuides": {
+        "title": "Guias licenciados",
+        "description": "Os nossos guias certificados de nível prata e ouro possuem décadas de experiência a percorrer o mato tanzaniano, garantindo segurança e conhecimentos ecológicos aprofundados."
+      },
+      "customItineraries": {
+        "title": "Itinerários personalizados",
+        "description": "Nenhuma viagem é igual à outra. Criamos programas à medida que se ajustam perfeitamente aos seus interesses fotográficos, condição física e ritmo."
+      },
+      "localExpertise": {
+        "title": "Conhecimento local",
+        "description": "Nascida e criada na Tanzânia, a nossa equipa proporciona ligações culturais autênticas e acesso exclusivo aos pontos selvagens mais recônditos."
+      }
+    }
+  },
+  "signature": {
+    "eyebrow": "Experiências selecionadas",
+    "heading": "Pacotes de safári de assinatura",
+    "viewAll": "Ver todos os safáris"
+  },
+  "destinationsSection": {
+    "eyebrow": "Os nossos destinos",
+    "heading": "Explore a Tanzânia por região"
+  },
+  "journey": {
+    "heading": "A viagem até África",
+    "subtitle": "Planear o safári dos seus sonhos deve ser tão agradável quanto a própria viagem. É assim que tornamos isso possível.",
+    "steps": {
+      "curate": {
+        "title": "1. Componha a sua viagem",
+        "description": "Conte-nos os seus interesses, o seu estilo de viagem e os destinos imperdíveis para nos ajudar a compreender a sua visão."
+      },
+      "quote": {
+        "title": "2. Receba um orçamento personalizado",
+        "description": "Os nossos especialistas em safári vão conceber um itinerário e orçamento personalizados, sem compromisso, feitos especialmente para si."
+      },
+      "journeyStep": {
+        "title": "3. Viaje com especialistas locais",
+        "description": "Chegue à Tanzânia e embarque na aventura de uma vida, guiado pela nossa experiente equipa local."
+      }
+    }
+  },
+  "whyChoose": {
+    "eyebrow": "A diferença Pande",
+    "heading": "Porquê escolher a Pande Wilderness Safari?",
+    "body": "Acreditamos que um verdadeiro safári vai muito além de observar a vida selvagem; trata-se de se conectar com a terra, as pessoas e o ritmo da natureza. Estamos empenhados em proporcionar uma experiência autêntica, responsável e inesquecível.",
+    "imageAlt": "Um guia de safári a mostrar a vida selvagem aos hóspedes a partir de um veículo 4x4.",
+    "points": {
+      "localGuides": {
+        "title": "100% guias locais",
+        "description": "Os nossos guias nasceram e cresceram na Tanzânia, trazendo um conhecimento local incomparável e paixão a cada viagem."
+      },
+      "sustainable": {
+        "title": "Turismo sustentável",
+        "description": "Damos prioridade a alojamentos e práticas ecológicas, garantindo que a nossa presença apoia a conservação e as comunidades locais."
+      },
+      "concierge": {
+        "title": "Apoio permanente 24/7",
+        "description": "Desde o momento em que chega até à sua partida, a nossa equipa está disponível a qualquer hora para garantir uma experiência sem contratempos."
+      }
+    }
+  },
+  "testimonials": {
+    "eyebrow": "Histórias de viajantes",
+    "heading": "A magia da natureza selvagem, vista pelos olhos dos nossos hóspedes.",
+    "items": {
+      "sarah": {
+        "quote": "Uma experiência que transcende as palavras. A Serengeti Quest não se limitou a mostrar-nos animais; partilhou connosco a alma da Tanzânia. O nosso guia, Elias, era como uma enciclopédia viva do mato."
+      },
+      "markus": {
+        "quote": "O itinerário personalizado foi impecável. Queríamos uma viagem centrada na fotografia de aves e em momentos tranquilos, e foi exatamente isso que nos proporcionaram. Verdadeiros especialistas em safáris africanos autênticos."
+      }
+    }
+  },
+  "gallery": {
+    "alts": {
+      "flamingos": "Flamingos cor-de-rosa a vadear nas águas alcalinas pouco profundas do lago Manyara ao nascer do sol.",
+      "wildebeest": "Uma enorme manada de gnus a atravessar o rio Mara durante a Grande Migração.",
+      "tent": "Uma tenda de safári de luxo iluminada por um lampião sob a Via Láctea.",
+      "cheetah": "Uma cria de chita com olhos grandes e expressivos sentada na erva coberta de orvalho.",
+      "maasai": "Um guerreiro maasai com a tradicional shuka vermelha a olhar para a savana ao pôr do sol."
+    }
+  },
+  "newsletter": {
+    "heading": "Junte-se à aventura",
+    "body": "Receba guias de viagem exclusivos, dicas de safári e acesso antecipado a ofertas sazonais diretamente na sua caixa de entrada.",
+    "emailAddress": "Endereço de e-mail",
+    "emailPlaceholder": "O seu endereço de e-mail",
+    "subscribe": "Subscrever"
+  }
+}

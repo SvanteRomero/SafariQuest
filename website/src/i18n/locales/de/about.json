@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "imageAlt": "Eine einsame Akazie zeichnet sich vor einem goldenen und elfenbeinfarbenen Sonnenaufgang in der tansanischen Savanne ab.",
+    "heading": "Unsere Wurzeln in der Wildnis",
+    "subtitle": "Entdecken Sie die Leidenschaft, das Erbe und das unerschütterliche Engagement für Naturschutz, die Pande Wilderness Safari antreiben."
+  },
+  "story": {
+    "heading": "Ein Vermächtnis authentischer Entdeckung",
+    "paragraph1": "Seit über 15 Jahren ist Pande Wilderness Safari mehr als nur ein Reiseveranstalter; wir sind Hüter der tansanischen Wildnis. Gegründet von lokalen Experten mit tiefer Liebe zu diesem Land, ist es unsere Mission, die unberührte Schönheit Afrikas zu teilen und sie zugleich entschlossen für kommende Generationen zu schützen.",
+    "paragraph2": "Wir glauben an Reisen, die sowohl die Seele des Entdeckers als auch die Gemeinschaften bereichern, die diese wilde Landschaft ihr Zuhause nennen. Jede Reise, die wir gestalten, ist ein Zeugnis unseres Engagements für nachhaltige, schonende und höchst authentische Safari-Erlebnisse.",
+    "imageAlt": "Ein tansanischer Safari-Guide steht stolz neben einem offenen Land Cruiser in der Serengeti.",
+    "values": {
+      "conservation": {
+        "title": "Naturschutz zuerst",
+        "description": "Wir arbeiten mit lokalen Wildtierfonds zusammen, um sicherzustellen, dass unser Fußabdruck positiv ist."
+      },
+      "community": {
+        "title": "Von der Gemeinschaft getragen",
+        "description": "100 % unserer Guides sind Einheimische, die in unser gemeinsames Erbe reinvestieren."
+      }
+    }
+  },
+  "stats": {
+    "yearsExperience": "Jahre Erfahrung",
+    "happyTravelers": "Zufriedene Reisende",
+    "localGuides": "Lokale Guides"
+  },
+  "team": {
+    "heading": "Lernen Sie unsere Experten kennen",
+    "subtitle": "Unser erfahrenes Team aus Naturkundlern, Fährtenlesern und Gastgewerbeexperten sorgt für eine makellose Reise.",
+    "contactOnWhatsApp": "Über WhatsApp kontaktieren",
+    "members": {
+      "juma": {
+        "role": "Leitender Feldguide & Fährtenleser",
+        "bio": "Mit über einem Jahrzehnt Tracking-Erfahrung in der Serengeti sorgt Jumas intime Kenntnis des Raubtierverhaltens dafür, dass Sie immer zur richtigen Zeit am richtigen Ort sind.",
+        "imageAlt": "Professionelles Porträt von Juma Mdoe, einem tansanischen Safari-Feldguide, vor einem unscharfen Akazienwald."
+      },
+      "amina": {
+        "role": "Direktorin für Gästeerlebnis",
+        "bio": "Amina überwacht jedes Detail Ihres Aufenthalts, von speziellen Ernährungsanforderungen bis zur Organisation überraschender Sundowner-Erlebnisse im Busch.",
+        "imageAlt": "Porträt einer tansanischen Safari-Lodge-Managerin vor einem gehobenen Zeltbau."
+      },
+      "elias": {
+        "role": "Leitender Reiserouten-Architekt",
+        "bio": "Elias entwirft unsere einzigartigen Routen, damit Sie den Menschenmassen ausweichen und die authentischsten und atemberaubendsten Ecken der Parks entdecken.",
+        "imageAlt": "Porträt eines erfahrenen tansanischen Naturschützers und Routenplaners, der über eine Savannenlandschaft blickt."
+      }
+    }
+  },
+  "interests": {
+    "greatMigration": "Die Große Migration",
+    "luxuryHoneymoon": "Luxuriöse Flitterwochen-Safari",
+    "familyAdventure": "Familienabenteuer",
+    "photographicSafari": "Fotografie-Safari"
+  },
+  "inquiry": {
+    "heading": "Beginnen Sie mit der Planung Ihrer Reise",
+    "subtitle": "Teilen Sie uns ein paar Details mit, und unsere Safari-Experten beginnen mit der Gestaltung Ihres maßgeschneiderten tansanischen Abenteuers.",
+    "primaryInterest": "Hauptinteresse",
+    "startPlanning": "Planung starten",
+    "helperText": "Wählen Sie Ihre Regionen und Termine, und ein Spezialist antwortet Ihnen mit einem Angebot. Möchten Sie lieber vorher sprechen? Nutzen Sie WhatsApp oder die nebenstehenden E-Mail-Angaben.",
+    "preferToChat": "Lieber chatten?",
+    "chatBody": "Sprechen Sie direkt mit unseren lokalen Guides über WhatsApp. Wir garantieren eine Antwort innerhalb von 24 Stunden, um Ihre ideale Reiseroute zu gestalten.",
+    "messageOnWhatsApp": "Schreiben Sie uns auf WhatsApp",
+    "certifiedLocalOperator": "Zertifizierter lokaler Veranstalter"
+  }
+}

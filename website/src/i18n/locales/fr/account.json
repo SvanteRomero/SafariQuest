@@ -1,0 +1,132 @@
+{
+  "layout": {
+    "brandName": "Pande Wilderness",
+    "safariPortal": "Portail Safari",
+    "myTrips": "Mes voyages",
+    "invoicesPayments": "Factures et paiements",
+    "tripProgress": "Suivi du voyage",
+    "complaints": "Réclamations",
+    "profile": "Profil",
+    "bookNewSafari": "Réserver un nouveau safari",
+    "signOut": "Déconnexion",
+    "customerPortal": "Portail client",
+    "notifications": "Notifications"
+  },
+  "stageLabels": {
+    "new_inquiry": "Nouvelle demande",
+    "quoted": "Devis envoyé",
+    "deposit_paid": "Acompte payé",
+    "confirmed": "Confirmé",
+    "completed": "Terminé"
+  },
+  "invoiceStatusLabels": {
+    "unpaid": "Impayée",
+    "deposit_paid": "Acompte payé",
+    "paid": "Payée",
+    "overdue": "En retard"
+  },
+  "ticketStatusLabels": {
+    "open": "Ouverte",
+    "in_progress": "En cours",
+    "resolved": "Résolue"
+  },
+  "myTrips": {
+    "heading": "Mes voyages",
+    "subtitle": "Gérez vos prochaines aventures, consultez les devis en attente et revivez vos voyages passés à travers les vastes plaines d'Afrique.",
+    "loading": "Chargement de vos voyages…",
+    "empty": "Aucun voyage pour le moment.",
+    "guideAssigned": "Guide : {{name}}",
+    "guideNotAssigned": "Guide pas encore assigné.",
+    "viewDetails": "Voir les détails du voyage"
+  },
+  "invoices": {
+    "heading": "Factures et paiements",
+    "subtitle": "Consultez les factures d'acompte et de solde pour chacun de vos safaris.",
+    "loading": "Chargement…",
+    "emptyHeading": "Aucun paiement pour le moment",
+    "emptyBody": "Une facture d'acompte apparaîtra ici dès que vous en aurez payé une lors de la réservation, ou dès que votre spécialiste safari vous enverra un devis à régler.",
+    "package": "Forfait",
+    "amount": "Montant",
+    "issued": "Émise",
+    "due": "Échéance",
+    "status": "Statut"
+  },
+  "complaints": {
+    "heading": "Réclamations",
+    "subtitle": "Quelque chose ne s'est pas passé comme prévu ? Faites-le-nous savoir et notre équipe vous recontactera sous un jour ouvré.",
+    "loading": "Chargement de vos réclamations…",
+    "emptyHeading": "Aucune réclamation déposée",
+    "emptyBody": "Si un aspect de votre voyage nécessite notre attention, signalez-le directement depuis la page de suivi de ce voyage et notre équipe interviendra.",
+    "reportAnIssue": "Signaler un problème",
+    "reportAnotherIssue": "Signaler un autre problème",
+    "filedOn": "Déposée le {{date}}"
+  },
+  "profile": {
+    "heading": "Profil",
+    "subtitle": "Maintenez vos coordonnées à jour afin que nous puissions vous contacter au sujet de vos safaris.",
+    "updated": "Profil mis à jour.",
+    "fullName": "Nom complet",
+    "email": "E-mail",
+    "phoneWhatsApp": "Téléphone / WhatsApp",
+    "phonePlaceholder": "+255 700 000 000",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "tripProgress": {
+    "loading": "Chargement…",
+    "noActiveTrip": "Aucun voyage actif",
+    "noActiveTripBody": "Vous n'avez actuellement aucun voyage en cours.",
+    "backToMyTrips": "Retour à mes voyages",
+    "heading": "Votre voyage safari",
+    "certifiedGuide": "Guide certifié",
+    "guideNotAssigned": "Aucun guide n'a encore été assigné à votre voyage.",
+    "itineraryProgress": "Progression de l'itinéraire",
+    "noMilestones": "Le suivi jour par jour de l'itinéraire n'est pas disponible pour ce voyage — l'étape actuelle de votre réservation est indiquée ci-dessus.",
+    "youAreHere": "Vous êtes ici",
+    "day": "Jour {{day}}",
+    "rateExperience": "Évaluez votre expérience"
+  },
+  "rateExperience": {
+    "loading": "Chargement…",
+    "tripNotFound": "Voyage introuvable",
+    "backToMyTrips": "Retour à mes voyages",
+    "notAvailableYet": "Pas encore disponible",
+    "onlyCompletedTrips": "Seuls les voyages terminés peuvent être évalués.",
+    "starRating_one": "{{count}} étoile",
+    "starRating_other": "{{count}} étoiles",
+    "thankYou": "Merci !",
+    "thankYouBody": "Votre avis aide d'autres voyageurs et compte beaucoup pour {{guideName}}.",
+    "yourGuide": "votre guide",
+    "howWasYourSafari": "Comment s'est passé votre safari ?",
+    "intro": "Merci d'avoir choisi Pande Wilderness Safari. Nous serions ravis d'entendre parler de votre aventure !",
+    "yourLeadGuide": "Votre guide principal",
+    "guideRatingPrompt": "Comment évalueriez-vous les connaissances, l'hospitalité et l'accompagnement global de {{firstName}} pendant votre voyage ?",
+    "tapToRate": "Touchez pour évaluer",
+    "overallExperience": "Expérience globale",
+    "overallRatingPrompt": "De la réservation au départ, comment s'est passé votre voyage avec Pande Wilderness ?",
+    "shareYourMemories": "Partagez vos souvenirs",
+    "memoriesPrompt": "Parlez-nous de vos moments préférés, de vos suggestions d'amélioration ou d'un témoignage que nous pourrions partager.",
+    "testimonialPlaceholder": "Le lever de soleil sur le Serengeti était...",
+    "submitting": "Envoi en cours…",
+    "submitReview": "Soumettre l'avis",
+    "failedToSubmit": "Échec de l'envoi de votre avis."
+  },
+  "reportIssue": {
+    "loading": "Chargement…",
+    "tripNotFound": "Voyage introuvable",
+    "backToMyTrips": "Retour à mes voyages",
+    "reportSubmitted": "Signalement envoyé",
+    "reportSubmittedBody": "Notre équipe d'assistance a été informée et vous recontactera sous 24 heures.",
+    "backToTrip": "Retour au voyage",
+    "guestSupport": "Assistance clients",
+    "intro": "Veuillez fournir des détails concernant votre expérience. Notre équipe dédiée est là pour vous aider.",
+    "trip": "Voyage",
+    "guide": "Guide",
+    "tellUsWhatWentWrong": "Dites-nous ce qui s'est mal passé",
+    "descriptionPlaceholder": "Veuillez décrire le problème en détail...",
+    "optionalPhotoUrl": "Facultatif : URL de la photo",
+    "reassurance": "Nous prenons vos retours au sérieux et notre équipe des relations clients répondra rapidement pour résoudre ce problème.",
+    "submitting": "Envoi en cours…",
+    "submitReport": "Envoyer le signalement",
+    "failedToSubmit": "Échec de l'envoi de votre signalement."
+  }
+}

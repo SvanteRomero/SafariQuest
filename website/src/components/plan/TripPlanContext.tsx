@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { TripPlanContext, defaultTripPlan, type TripPlanState, type TripPlanContextValue } from './tripPlanStore'
 
 export function TripPlanProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation('plan')
   const [searchParams] = useSearchParams()
 
   // The About page hands off here with ?interest=..., so whatever the visitor
@@ -20,7 +22,7 @@ export function TripPlanProvider({ children }: { children: ReactNode }) {
     return {
       ...defaultTripPlan,
       ...(region ? { destinationIds: [region] } : {}),
-      ...(interest ? { notes: `Primary interest: ${interest}` } : {}),
+      ...(interest ? { notes: t('primaryInterestPrefix', { interest }) } : {}),
     }
   })
 

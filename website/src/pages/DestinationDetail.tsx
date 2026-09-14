@@ -1,4 +1,6 @@
-import { Link, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
+import { Link } from '../i18n/routing'
 import { Airplane, CalendarBlank, PawPrint, SealCheck } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
 import { getDestination, type Destination } from '../api/destinations'
@@ -8,6 +10,7 @@ import { getRegionSafaris, type RegionSafari } from '../api/regionSafaris'
 import { useFetch } from '../lib/useFetch'
 
 export function DestinationDetail() {
+  const { t, i18n } = useTranslation('destinations')
   const { id } = useParams<{ id: string }>()
   const { data: destination, loading, error } = useFetch<Destination>(() => getDestination(id!), [id])
   const { data: safariPackages } = useFetch<SafariPackage[]>(getSafaris, [])
@@ -15,19 +18,19 @@ export function DestinationDetail() {
   const { data: regionSafaris } = useFetch<RegionSafari[]>(getRegionSafaris, [])
 
   if (loading) {
-    return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+    return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">{t('detail.loading')}</div>
   }
 
   if (error || !destination) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center px-5 py-32 text-center">
         <div className="max-w-xl">
-          <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">Destination Not Found</h1>
+          <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">{t('detail.notFound')}</h1>
           <Link
             to="/destinations"
             className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
           >
-            Back to Destinations
+            {t('detail.backToDestinations')}
           </Link>
         </div>
       </section>
@@ -67,17 +70,17 @@ export function DestinationDetail() {
           <div className="max-w-container-max mx-auto px-6 md:px-12 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-sand-stone">
             <div className="flex flex-col items-center pt-6 md:pt-0">
               <PawPrint size={36} weight="fill" className="text-savanna-green mb-4" />
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">Wildlife</h3>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">{t('detail.wildlife')}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{destination.wildlife}</p>
             </div>
             <div className="flex flex-col items-center pt-6 md:pt-0">
               <CalendarBlank size={36} weight="fill" className="text-golden-sun mb-4" />
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">Best Season</h3>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">{t('detail.bestSeason')}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{destination.bestTimeToVisit}</p>
             </div>
             <div className="flex flex-col items-center pt-6 md:pt-0">
               <Airplane size={36} weight="fill" className="text-terracotta mb-4" />
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">Getting There</h3>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-2xl">{t('detail.gettingThere')}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{destination.gettingThere}</p>
             </div>
           </div>
@@ -88,11 +91,10 @@ export function DestinationDetail() {
       <section className="py-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
         <Reveal className="mb-16 text-center">
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">
-            Parks &amp; Wonders in {destination.name}
+            {t('detail.parksAndWondersIn', { name: destination.name })}
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Curated journeys designed to immerse you in the heart of the wild with uncompromising luxury and expert
-            guidance.
+            {t('detail.parksSubtitle')}
           </p>
         </Reveal>
         {regionParks.length > 0 ? (
@@ -134,10 +136,10 @@ export function DestinationDetail() {
                                 <div className="mt-auto flex items-center justify-between pt-2">
                                   <span className="flex items-center gap-1.5 text-savanna-green">
                                     <SealCheck size={14} weight="fill" />
-                                    <span className="font-label-sm text-[11px]">Certified</span>
+                                    <span className="font-label-sm text-[11px]">{t('detail.certified')}</span>
                                   </span>
                                   <span className="font-label-md text-label-sm text-terracotta group-hover:text-secondary transition-colors font-bold uppercase tracking-wider text-xs">
-                                    View Details
+                                    {t('detail.viewDetails')}
                                   </span>
                                 </div>
                               </div>
@@ -145,7 +147,7 @@ export function DestinationDetail() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-on-surface-variant text-sm">No safari packages visit this park yet.</p>
+                        <p className="text-on-surface-variant text-sm">{t('detail.noSafarisYet')}</p>
                       )}
                     </div>
                   </div>
@@ -183,11 +185,10 @@ export function DestinationDetail() {
         <section className="pb-section-gap px-5 md:px-margin-desktop max-w-container-max mx-auto">
           <Reveal className="mb-10 text-center">
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">
-              Mini Safaris in {destination.name}
+              {t('detail.miniSafarisIn', { name: destination.name })}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-              Shorter, bookable trips that stay within {destination.name} — ideal for a lower-commitment add-on to
-              your itinerary.
+              {t('detail.miniSafarisSubtitle', { name: destination.name })}
             </p>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -208,9 +209,9 @@ export function DestinationDetail() {
                   <div className="p-5 flex-1 flex flex-col">
                     <h4 className="font-headline-md text-base text-on-surface mb-2">{rs.title}</h4>
                     <div className="mt-auto flex items-center justify-between pt-2">
-                      <span className="text-on-surface-variant text-sm">{rs.days} days</span>
+                      <span className="text-on-surface-variant text-sm">{t('detail.days', { count: rs.days })}</span>
                       <span className="font-headline-md text-savanna-green font-bold">
-                        ${rs.price.toLocaleString()}
+                        ${rs.price.toLocaleString(i18n.language)}
                       </span>
                     </div>
                   </div>
@@ -229,17 +230,16 @@ export function DestinationDetail() {
         />
         <Reveal className="max-w-4xl mx-auto text-center px-5 relative z-10">
           <h2 className="font-display-lg text-headline-lg md:text-display-lg text-on-surface mb-6">
-            Build your own {destination.name} trip
+            {t('detail.buildYourOwnTrip', { name: destination.name })}
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-xl mx-auto">
-            Work with our seasoned safari specialists to craft an itinerary that perfectly matches your pace and
-            preferences.
+            {t('detail.ctaSubtitle')}
           </p>
           <Link
             to={`/plan/experiences?region=${destination.id}`}
             className="inline-flex min-h-[44px] items-center justify-center bg-golden-sun text-ivory-base font-label-md text-lg px-10 py-4 rounded-full hover:opacity-90 transition-opacity"
           >
-            Start Planning
+            {t('detail.startPlanning')}
           </Link>
         </Reveal>
       </section>

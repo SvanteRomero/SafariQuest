@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link } from '../i18n/routing'
 import { Reveal } from '../components/Reveal'
 import { DestinationSlideshow } from '../components/DestinationSlideshow'
 import { getDestinations } from '../api/destinations'
@@ -14,6 +15,7 @@ const BENTO_PATTERN = [
 ]
 
 export function Destinations() {
+  const { t } = useTranslation('destinations')
   const { data: destinations, loading, error } = useFetch(getDestinations, [])
 
   return (
@@ -21,26 +23,25 @@ export function Destinations() {
       {/* Page Header */}
       <Reveal className="mb-16 md:mb-24 text-center md:text-left max-w-3xl">
         <h1 className="font-display-lg text-[40px] md:text-display-lg text-savanna-green mb-6 leading-tight">
-          Explore by Region
+          {t('hero.heading')}
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant">
-          Discover the diverse landscapes and unique wildlife of Tanzania's most iconic safari destinations, from
-          the endless plains of the Serengeti to the turquoise waters of Zanzibar.
+          {t('hero.subtitle')}
         </p>
         <div className="mt-8">
           <Link
             to="/plan"
             className="inline-flex min-h-[44px] items-center bg-golden-sun hover:bg-secondary-container text-on-secondary px-8 py-4 rounded-full font-label-md text-label-md transition-all shadow-sm hover:scale-105"
           >
-            Start Your Journey
+            {t('hero.startYourJourney')}
           </Link>
         </div>
       </Reveal>
 
-      {loading && <p className="text-center text-on-surface-variant py-20">Loading destinations…</p>}
+      {loading && <p className="text-center text-on-surface-variant py-20">{t('loading')}</p>}
       {error && <p className="text-center text-error py-20">{error}</p>}
       {!loading && !error && destinations && destinations.length === 0 && (
-        <p className="text-center text-on-surface-variant py-20">No destinations are available yet.</p>
+        <p className="text-center text-on-surface-variant py-20">{t('empty')}</p>
       )}
 
       {/* Bento Grid Layout for Regions */}
@@ -62,7 +63,7 @@ export function Destinations() {
                   </div>
                   <div className="relative z-10 p-6 md:p-8">
                     <span className="inline-block bg-savanna-green/20 text-primary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm backdrop-blur-md border border-savanna-green/30 mb-3">
-                      {destination.experiences.length} Experience{destination.experiences.length !== 1 ? 's' : ''}
+                      {t('experiences', { count: destination.experiences.length })}
                     </span>
                     <h2
                       className={`${tile.headline === 'lg' ? 'font-headline-lg text-headline-lg-mobile md:text-headline-lg' : 'font-headline-md text-headline-md'} text-surface-container-lowest mb-2`}

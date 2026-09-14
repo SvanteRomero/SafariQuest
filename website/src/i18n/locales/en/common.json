@@ -1,0 +1,32 @@
+{
+  "skipToMainContent": "Skip to main content",
+  "brandName": "Pande Wilderness Safari",
+  "nav": {
+    "destinations": "Destinations",
+    "safaris": "Safaris",
+    "about": "About Us",
+    "experiences": "Experiences"
+  },
+  "planYourJourney": "Plan Your Journey",
+  "admin": "Admin",
+  "guide": "Guide",
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "language": "Language",
+  "footer": {
+    "tagline": "Crafting authentic Tanzanian memories since 2008. Your window into the wild heart of Africa.",
+    "quickLinks": "Quick Links",
+    "legal": "Legal",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "parkRegulations": "Park Regulations",
+    "sitemap": "Sitemap",
+    "emailAddress": "Email address",
+    "emailPlaceholder": "Your email",
+    "subscribeToNewsletter": "Subscribe to newsletter",
+    "copyright": "© {{year}} Pande Wilderness Safari. All Rights Reserved. Certified Safari Operators."
+  }
+}

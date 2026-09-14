@@ -1,0 +1,161 @@
+{
+  "steps": {
+    "details": "Détails",
+    "account": "Compte",
+    "review": "Vérification",
+    "payment": "Paiement"
+  },
+  "loading": "Chargement…",
+  "notFound": "Safari introuvable",
+  "backToSafaris": "Retour aux safaris",
+  "backToDestinations": "Retour aux destinations",
+  "travelers": {
+    "adults_one": "{{count}} adulte",
+    "adults_other": "{{count}} adultes",
+    "children_one": "{{count}} enfant",
+    "children_other": "{{count}} enfants"
+  },
+  "priceLine": {
+    "adults_one": "{{count}} adulte × {{price}} $",
+    "adults_other": "{{count}} adultes × {{price}} $",
+    "children_one": "{{count}} enfant × {{price}} $",
+    "children_other": "{{count}} enfants × {{price}} $"
+  },
+  "days_one": "{{count}} jour",
+  "days_other": "{{count}} jours",
+  "details": {
+    "heading": "Détails de la réservation",
+    "subtitle": "Merci de saisir vos informations exactement telles qu'elles figurent sur votre passeport, afin de garantir une entrée fluide dans les parcs et l'enregistrement au lodge pour {{title}}.",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Johnathan Dupont",
+    "emailAddress": "Adresse e-mail",
+    "emailPlaceholder": "jean@exemple.com",
+    "adultsLabel": "Adultes (12 ans et +)",
+    "childrenLabel": "Enfants (2-11 ans)",
+    "preferredStartDate": "Date de départ souhaitée"
+  },
+  "review": {
+    "heading": "Vérifiez vos informations",
+    "edit": "Modifier",
+    "fullName": "Nom complet",
+    "email": "E-mail",
+    "travelers": "Voyageurs",
+    "preferredStartDate": "Date de départ souhaitée",
+    "package": "Forfait",
+    "duration": "Durée",
+    "back": "Retour"
+  },
+  "account": {
+    "createHeading": "Créez votre compte",
+    "signInHeading": "Connexion",
+    "registerSubtitle": "Nous l'utiliserons pour vous envoyer votre confirmation de réservation et vous permettre de suivre votre voyage par la suite.",
+    "signInSubtitle": "Connectez-vous pour continuer — vos informations seront récupérées depuis votre compte existant.",
+    "back": "Retour",
+    "newCustomer": "Nouveau client",
+    "alreadyHaveAccount": "J'ai déjà un compte",
+    "creatingAccountFor": "Création d'un compte pour",
+    "yourEmail": "votre e-mail",
+    "notYou": "Pas vous ?",
+    "editYourDetails": "Modifiez vos informations",
+    "choosePassword": "Choisissez un mot de passe",
+    "passwordPlaceholder": "Au moins 8 caractères",
+    "emailAddress": "Adresse e-mail",
+    "emailPlaceholder": "jean@exemple.com",
+    "password": "Mot de passe"
+  },
+  "payment": {
+    "heading": "Paiement",
+    "subtitle": "Saisissez les informations de votre carte pour payer l'acompte et sécuriser votre réservation.",
+    "back": "Retour",
+    "testMode": "Mode test — le traitement des cartes n'est pas encore connecté, aucun débit réel ne sera effectué.",
+    "nameOnCard": "Nom sur la carte",
+    "cardNumber": "Numéro de carte",
+    "expiry": "Expiration (MM/AA)",
+    "cvv": "CVV"
+  },
+  "trustBadges": {
+    "certifiedOperator": "Opérateur certifié",
+    "ecoTourism": "Écotourisme",
+    "secureCheckout": "Paiement sécurisé"
+  },
+  "summary": {
+    "duration": "Durée",
+    "location": "Lieu",
+    "guests": "Voyageurs",
+    "total": "TOTAL",
+    "depositDueNow": "Acompte dû maintenant (30 %)",
+    "seasonPricingApplied": "Tarif {{season}} appliqué ({{multiplier}}×)"
+  },
+  "cta": {
+    "processing": "Traitement en cours…",
+    "payAndBook": "Payer {{amount}} $ et réserver",
+    "pleaseWait": "Veuillez patienter…",
+    "createAccountAndContinue": "Créer un compte et continuer",
+    "signInAndContinue": "Se connecter et continuer",
+    "continueToPayment": "Passer au paiement",
+    "continueToReview": "Passer à la vérification",
+    "continueToAccount": "Passer au compte",
+    "termsAgreement": "En cliquant sur « {{cta}} », vous acceptez nos Conditions d'utilisation et notre Politique d'annulation."
+  },
+  "needHelp": {
+    "heading": "Besoin d'aide ?",
+    "body": "Nos experts safari sont disponibles 24h/24 et 7j/7 pour vous aider avec votre réservation."
+  },
+  "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer.",
+  "confirmed": {
+    "badge": "Réservation confirmée avec succès",
+    "headingLine1": "Votre voyage safari",
+    "headingLine2": "commence aujourd'hui.",
+    "thankYouWithTitle": "Merci pour votre réservation de {{title}}.",
+    "thankYouGeneric": "Merci pour votre réservation chez Pande Wilderness Safari.",
+    "subtitle": "Nos guides et planificateurs experts ont bien reçu votre réservation et préparent déjà votre authentique aventure tanzanienne.",
+    "depositReceived": "Acompte de {{amount}} $ reçu",
+    "confirmationSentTo": "Une confirmation de paiement a été envoyée à {{email}}. Il s'agissait d'un paiement test — le traitement réel des cartes arrive bientôt.",
+    "yourRegistrationEmail": "votre e-mail d'inscription",
+    "goToDashboard": "Accéder à mon tableau de bord",
+    "browseMoreSafaris": "Découvrir d'autres safaris",
+    "chatOnWhatsApp": "Discuter sur WhatsApp",
+    "heroImageAlt": "Un éléphant traversant un point d'eau au coucher du soleil doré",
+    "nextSteps": {
+      "heading": "Prochaines étapes",
+      "subtitle": "Trois étapes simples pour finaliser l'expédition de vos rêves.",
+      "itineraryPrep": {
+        "title": "1. Préparation de l'itinéraire",
+        "body": "Nos experts conçoivent un itinéraire personnalisé selon vos préférences sous 24 heures."
+      },
+      "consultationCall": {
+        "title": "2. Appel de consultation",
+        "body": "Nous planifions un bref appel de 15 minutes pour répondre à vos questions et peaufiner les détails de votre voyage exceptionnel."
+      },
+      "welcomePack": {
+        "title": "3. Pack de bienvenue",
+        "body": "Votre acompte étant déjà sécurisé, nous vous enverrons votre pack de bienvenue complet et votre liste de documents de voyage à l'approche de votre départ."
+      }
+    },
+    "resources": {
+      "heading": "Ressources pour votre voyage",
+      "subtitle": "Préparez-vous à l'aventure avec nos conseils d'experts.",
+      "viewAll": "Voir toutes les ressources",
+      "packingGuide": {
+        "imageAlt": "Un camp de safari de luxe illuminé la nuit sous un ciel étoilé",
+        "badge": "Guide expert",
+        "title": "Faire sa valise pour la savane",
+        "body": "Des tissus respirants aux optiques haut de gamme : tout ce dont vous avez besoin."
+      },
+      "photographyTips": {
+        "imageAlt": "Un hamac surplombant une eau turquoise dans un complexe balnéaire",
+        "title": "Conseils de photographie safari",
+        "body": "Capturez l'âme du Serengeti grâce aux conseils de notre guide professionnel."
+      },
+      "safeSecure": {
+        "title": "Sûr et sécurisé",
+        "body": "Nos protocoles de sécurité"
+      },
+      "directHelp": {
+        "title": "Aide directe",
+        "body": "Parlez-nous dès maintenant"
+      }
+    },
+    "urgentQuestion": "Une question urgente ? Notre équipe est disponible 24h/24 et 7j/7."
+  }
+}

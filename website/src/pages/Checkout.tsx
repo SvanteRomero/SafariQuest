@@ -1,5 +1,8 @@
 import { Fragment, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
+import { Link } from '../i18n/routing'
+import { useLocalizedNavigate as useNavigate } from '../i18n/useLocale'
 import {
   CreditCard,
   CalendarBlank,
@@ -29,14 +32,10 @@ import { MockCardFields } from '../components/checkout/MockCardFields'
 
 type CheckoutStep = 'details' | 'review' | 'account' | 'payment'
 
-const ALL_STEPS: { key: CheckoutStep; label: string }[] = [
-  { key: 'details', label: 'Details' },
-  { key: 'account', label: 'Account' },
-  { key: 'review', label: 'Review' },
-  { key: 'payment', label: 'Payment' },
-]
+const ALL_STEP_KEYS: CheckoutStep[] = ['details', 'account', 'review', 'payment']
 
 export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
+  const { t, i18n } = useTranslation('booking')
   const { id } = useParams<{ id: string }>()
   // Both hooks always run (Rules of Hooks) — only the one matching `kind` actually
   // fetches; the other resolves immediately to null, same pattern as an edit-vs-create
@@ -86,19 +85,19 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const source = kind === 'safari' ? safari : regionSafari
 
   if (loading) {
-    return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">Loading…</div>
+    return <div className="min-h-[60vh] flex items-center justify-center text-on-surface-variant">{t('loading')}</div>
   }
 
   if (loadError || !source) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center px-5 py-32 text-center">
         <div className="max-w-xl">
-          <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">Safari Not Found</h1>
+          <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">{t('notFound')}</h1>
           <Link
             to={kind === 'safari' ? '/safaris' : '/destinations'}
             className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
           >
-            {kind === 'safari' ? 'Back to Safaris' : 'Back to Destinations'}
+            {kind === 'safari' ? t('backToSafaris') : t('backToDestinations')}
           </Link>
         </div>
       </section>
@@ -126,7 +125,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const childPrice = Math.round(adultPrice * 0.5)
   const total = adultPrice * adults + childPrice * children
   const deposit = Math.round(total * 0.3)
-  const steps = isAuthenticated ? ALL_STEPS.filter((s) => s.key !== 'account') : ALL_STEPS
+  const stepKeys = isAuthenticated ? ALL_STEP_KEYS.filter((k) => k !== 'account') : ALL_STEP_KEYS
+  const steps = stepKeys.map((key) => ({ key, label: t(`steps.${key}`) }))
   const activeIndex = steps.findIndex((s) => s.key === step)
   const safariTitle = item.title
   // Once signed in — whether they arrived that way or just registered/signed in on the
@@ -134,6 +134,11 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   // on the Details step (which may be stale, e.g. after signing in with a different email).
   const displayName = user?.name || fullName
   const displayEmail = user?.email || email
+
+  const travelersText =
+    children > 0
+      ? `${t('travelers.adults', { count: adults })}, ${t('travelers.children', { count: children })}`
+      : t('travelers.adults', { count: adults })
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -152,7 +157,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
         }
         setStep('review')
       } catch (err) {
-        setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+        setSubmitError(err instanceof ApiError ? err.message : t('somethingWentWrong'))
       } finally {
         setSubmitting(false)
       }
@@ -175,14 +180,14 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
         startDate: preferredDate,
         endDate: addDays(preferredDate, item.days),
         guests: adults + children,
-        message: `${adults} adult${adults !== 1 ? 's' : ''}${children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}.`,
+        message: `${travelersText}.`,
       })
       await payForBooking(booking.id, deposit)
       navigate('/booking-confirmed', {
         state: { title: safariTitle, paidAmount: deposit, paidToEmail: booking.customerEmail },
       })
     } catch (err) {
-      setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setSubmitError(err instanceof ApiError ? err.message : t('somethingWentWrong'))
     } finally {
       setSubmitting(false)
     }
@@ -191,19 +196,19 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const ctaLabel =
     step === 'payment'
       ? submitting
-        ? 'Processing…'
-        : `Pay $${deposit.toLocaleString()} & Book`
+        ? t('cta.processing')
+        : t('cta.payAndBook', { amount: deposit.toLocaleString(i18n.language) })
       : step === 'account'
         ? submitting
-          ? 'Please wait…'
+          ? t('cta.pleaseWait')
           : accountMode === 'register'
-            ? 'Create Account & Continue'
-            : 'Sign In & Continue'
+            ? t('cta.createAccountAndContinue')
+            : t('cta.signInAndContinue')
         : step === 'review'
-          ? 'Continue to Payment'
+          ? t('cta.continueToPayment')
           : isAuthenticated
-            ? 'Continue to Review'
-            : 'Continue to Account'
+            ? t('cta.continueToReview')
+            : t('cta.continueToAccount')
 
   return (
     <section className="min-h-screen bg-surface-container-low py-16 md:py-20 px-5 md:px-margin-desktop">
@@ -244,30 +249,29 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
               {step === 'details' && (
                 <div>
                   <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
-                    Reservation Details
+                    {t('details.heading')}
                   </h1>
                   <p className="text-on-surface-variant mb-8">
-                    Please provide your details exactly as they appear on your passport to ensure a smooth park
-                    entry and lodge check-in for {item.title}.
+                    {t('details.subtitle', { title: item.title })}
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-name" className="font-label-md text-label-sm text-on-surface-variant">
-                        Full Name
+                        {t('details.fullName')}
                       </label>
                       <input
                         id="checkout-name"
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Johnathan Doe"
+                        placeholder={t('details.fullNamePlaceholder')}
                         className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-email" className="font-label-md text-label-sm text-on-surface-variant">
-                        Email Address
+                        {t('details.emailAddress')}
                       </label>
                       <input
                         id="checkout-email"
@@ -275,7 +279,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="john@example.com"
+                        placeholder={t('details.emailPlaceholder')}
                         disabled={isAuthenticated}
                         className="min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
                       />
@@ -285,7 +289,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-adults" className="font-label-md text-label-sm text-on-surface-variant">
-                        Adults (12+ yrs)
+                        {t('details.adultsLabel')}
                       </label>
                       <input
                         id="checkout-adults"
@@ -300,7 +304,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-children" className="font-label-md text-label-sm text-on-surface-variant">
-                        Children (2-11 yrs)
+                        {t('details.childrenLabel')}
                       </label>
                       <input
                         id="checkout-children"
@@ -314,7 +318,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="checkout-date" className="font-label-md text-label-sm text-on-surface-variant">
-                        Preferred Start Date
+                        {t('details.preferredStartDate')}
                       </label>
                       <input
                         id="checkout-date"
@@ -333,7 +337,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                 <div>
                   <div className="flex items-center justify-between mb-8">
                     <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green">
-                      Review Your Details
+                      {t('review.heading')}
                     </h1>
                     <button
                       type="button"
@@ -341,48 +345,45 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                       className="inline-flex items-center gap-1.5 text-terracotta font-label-md text-label-md hover:opacity-80 transition-opacity"
                     >
                       <PencilSimple size={16} />
-                      Edit
+                      {t('review.edit')}
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Full Name
+                        {t('review.fullName')}
                       </p>
                       <p className="font-label-md text-on-surface">{displayName || '—'}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Email
+                        {t('review.email')}
                       </p>
                       <p className="font-label-md text-on-surface">{displayEmail || '—'}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Travelers
+                        {t('review.travelers')}
                       </p>
-                      <p className="font-label-md text-on-surface">
-                        {adults} adult{adults !== 1 ? 's' : ''}
-                        {children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}
-                      </p>
+                      <p className="font-label-md text-on-surface">{travelersText}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Preferred Start Date
+                        {t('review.preferredStartDate')}
                       </p>
                       <p className="font-label-md text-on-surface">{preferredDate}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Package
+                        {t('review.package')}
                       </p>
                       <p className="font-label-md text-on-surface">{item.title}</p>
                     </div>
                     <div>
                       <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                        Duration
+                        {t('review.duration')}
                       </p>
-                      <p className="font-label-md text-on-surface">{item.days} days</p>
+                      <p className="font-label-md text-on-surface">{t('days', { count: item.days })}</p>
                     </div>
                   </div>
                   <button
@@ -391,7 +392,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     className="mt-8 inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
                   >
                     <ArrowLeft size={18} />
-                    Back
+                    {t('review.back')}
                   </button>
                 </div>
               )}
@@ -399,12 +400,10 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
               {step === 'account' && (
                 <div>
                   <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
-                    {accountMode === 'register' ? 'Create Your Account' : 'Sign In'}
+                    {accountMode === 'register' ? t('account.createHeading') : t('account.signInHeading')}
                   </h1>
                   <p className="text-on-surface-variant mb-6">
-                    {accountMode === 'register'
-                      ? "We'll use this to send your booking confirmation and let you track your trip afterward."
-                      : 'Sign in to continue — your details will be pulled from your existing account.'}
+                    {accountMode === 'register' ? t('account.registerSubtitle') : t('account.signInSubtitle')}
                   </p>
 
                   <AccountFields
@@ -424,7 +423,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     className="mt-8 inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
                   >
                     <ArrowLeft size={18} />
-                    Back
+                    {t('account.back')}
                   </button>
                 </div>
               )}
@@ -432,10 +431,10 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
               {step === 'payment' && (
                 <div>
                   <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-savanna-green mb-3">
-                    Payment
+                    {t('payment.heading')}
                   </h1>
                   <p className="text-on-surface-variant mb-6">
-                    Enter your card details to pay the deposit and secure your booking.
+                    {t('payment.subtitle')}
                   </p>
 
                   <MockCardFields
@@ -456,7 +455,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     className="mt-8 inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
                   >
                     <ArrowLeft size={18} />
-                    Back
+                    {t('payment.back')}
                   </button>
                 </div>
               )}
@@ -466,15 +465,15 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
             <div className="flex flex-wrap items-center justify-center gap-6 py-6">
               <div className="flex items-center gap-2 text-on-surface-variant">
                 <ShieldCheck size={18} className="text-savanna-green" />
-                <span className="text-label-sm font-label-sm uppercase">Certified Operator</span>
+                <span className="text-label-sm font-label-sm uppercase">{t('trustBadges.certifiedOperator')}</span>
               </div>
               <div className="flex items-center gap-2 text-on-surface-variant">
                 <Leaf size={18} className="text-savanna-green" />
-                <span className="text-label-sm font-label-sm uppercase">Eco-Tourism</span>
+                <span className="text-label-sm font-label-sm uppercase">{t('trustBadges.ecoTourism')}</span>
               </div>
               <div className="flex items-center gap-2 text-on-surface-variant">
                 <Lock size={18} className="text-savanna-green" />
-                <span className="text-label-sm font-label-sm uppercase">Secure Checkout</span>
+                <span className="text-label-sm font-label-sm uppercase">{t('trustBadges.secureCheckout')}</span>
               </div>
             </div>
           </div>
@@ -491,24 +490,21 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant flex items-center gap-2">
-                      <CalendarBlank size={16} /> Duration
+                      <CalendarBlank size={16} /> {t('summary.duration')}
                     </span>
-                    <span className="font-label-md text-on-surface">{item.days} days</span>
+                    <span className="font-label-md text-on-surface">{t('days', { count: item.days })}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant flex items-center gap-2">
-                      <MapPin size={16} /> Location
+                      <MapPin size={16} /> {t('summary.location')}
                     </span>
                     <span className="font-label-md text-on-surface">{item.destination}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant flex items-center gap-2">
-                      <Users size={16} /> Guests
+                      <Users size={16} /> {t('summary.guests')}
                     </span>
-                    <span className="font-label-md text-on-surface">
-                      {adults} adult{adults !== 1 ? 's' : ''}
-                      {children > 0 ? `, ${children} child${children !== 1 ? 'ren' : ''}` : ''}
-                    </span>
+                    <span className="font-label-md text-on-surface">{travelersText}</span>
                   </div>
                 </div>
 
@@ -516,33 +512,29 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-on-surface-variant">
-                    <span>
-                      {adults} adult{adults !== 1 ? 's' : ''} × ${adultPrice.toLocaleString()}
-                    </span>
-                    <span>${(adultPrice * adults).toLocaleString()}</span>
+                    <span>{t('priceLine.adults', { count: adults, price: adultPrice.toLocaleString(i18n.language) })}</span>
+                    <span>${(adultPrice * adults).toLocaleString(i18n.language)}</span>
                   </div>
                   {children > 0 && (
                     <div className="flex justify-between text-on-surface-variant">
-                      <span>
-                        {children} child{children !== 1 ? 'ren' : ''} × ${childPrice.toLocaleString()}
-                      </span>
-                      <span>${(childPrice * children).toLocaleString()}</span>
+                      <span>{t('priceLine.children', { count: children, price: childPrice.toLocaleString(i18n.language) })}</span>
+                      <span>${(childPrice * children).toLocaleString(i18n.language)}</span>
                     </div>
                   )}
                   {activeSeason && (
                     <p className="text-xs text-terracotta">
-                      {activeSeason.name} pricing applied ({activeSeason.multiplier}×)
+                      {t('summary.seasonPricingApplied', { season: activeSeason.name, multiplier: activeSeason.multiplier })}
                     </p>
                   )}
                 </div>
 
                 <div className="flex justify-between items-baseline pt-4 border-t border-sand-stone">
-                  <span className="font-label-md text-label-md text-on-surface-variant">TOTAL</span>
-                  <span className="font-headline-md text-[28px] text-savanna-green">${total.toLocaleString()}</span>
+                  <span className="font-label-md text-label-md text-on-surface-variant">{t('summary.total')}</span>
+                  <span className="font-headline-md text-[28px] text-savanna-green">${total.toLocaleString(i18n.language)}</span>
                 </div>
                 <div className="flex justify-between font-label-md text-label-md text-terracotta">
-                  <span>Deposit due now (30%)</span>
-                  <span>${deposit.toLocaleString()}</span>
+                  <span>{t('summary.depositDueNow')}</span>
+                  <span>${deposit.toLocaleString(i18n.language)}</span>
                 </div>
 
                 {submitError && (
@@ -561,7 +553,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                   {step !== 'payment' && <ArrowRight size={18} weight="bold" />}
                 </button>
                 <p className="text-center text-label-sm text-on-surface-variant px-2">
-                  By clicking &apos;{ctaLabel}&apos;, you agree to our Terms of Service and Cancellation Policy.
+                  {t('cta.termsAgreement', { cta: ctaLabel })}
                 </p>
               </div>
             </div>
@@ -569,9 +561,9 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
             <div className="mt-6 p-6 bg-terracotta/5 border border-terracotta/20 rounded-xl flex gap-4">
               <Info size={22} className="text-terracotta shrink-0" />
               <div>
-                <h4 className="font-label-md text-label-md text-terracotta mb-1">Need Help?</h4>
+                <h4 className="font-label-md text-label-md text-terracotta mb-1">{t('needHelp.heading')}</h4>
                 <p className="text-sm text-on-surface-variant mb-1">
-                  Our safari experts are available 24/7 to assist with your booking.
+                  {t('needHelp.body')}
                 </p>
                 {contact.phoneHref && (
                   <a href={contact.phoneHref} className="text-terracotta font-bold text-sm hover:underline">

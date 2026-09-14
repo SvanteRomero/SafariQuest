@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "heading": "Unsere Safaripakete",
+    "subtitle": "Entdecken Sie das ungezähmte Herz Tansanias mit unseren fachkundig zusammengestellten Reisen, von der Großen Wanderung bis zu den verborgenen Schätzen des Ngorongoro."
+  },
+  "filter": {
+    "filterBy": "Filtern nach:",
+    "filterByDuration": "Nach Dauer filtern",
+    "filterByBudget": "Nach Budget filtern",
+    "filterByDestination": "Nach Reiseziel filtern",
+    "duration": {
+      "any": "Dauer (Alle)",
+      "3-5": "3–5 Tage",
+      "6-10": "6–10 Tage",
+      "11+": "11+ Tage"
+    },
+    "budget": {
+      "any": "Budget (Alle)",
+      "under-3000": "Unter 3.000 $",
+      "3000-6000": "3.000 $ – 6.000 $",
+      "6000+": "Über 6.000 $"
+    },
+    "destination": {
+      "all": "Reiseziel (Alle)",
+      "serengeti": "Serengeti-Nationalpark",
+      "ngorongoro": "Ngorongoro-Schutzgebiet",
+      "tarangireManyara": "Tarangire & Manyara",
+      "zanzibar": "Sansibar-Erweiterungen"
+    }
+  },
+  "loading": "Safaris werden geladen…",
+  "noResults": "Derzeit entspricht keine Safari diesen Filtern — versuchen Sie eine breitere Suche, oder",
+  "talkToSpecialists": "sprechen Sie mit unseren Spezialisten",
+  "customCta": {
+    "heading": "Nicht gefunden, wonach Sie suchen?",
+    "body": "Unsere Safari-Experten gestalten gerne eine individuelle Reiseroute, die perfekt zu Ihren Wünschen, Ihrem Zeitplan und Ihrem Budget passt.",
+    "cta": "Lassen Sie Ihre Safari individuell gestalten"
+  },
+  "trustBadges": {
+    "parkAuthorized": "Von Parks autorisiert",
+    "ecoFriendlyTours": "Umweltfreundliche Touren",
+    "certifiedGuides": "Zertifizierte Guides"
+  },
+  "card": {
+    "ratedOutOf5": "Bewertet mit {{rating}} von 5",
+    "days_one": "{{count}} Tag",
+    "days_other": "{{count}} Tage",
+    "startingFrom": "Ab",
+    "viewItinerary": "Reiseroute ansehen"
+  },
+  "detail": {
+    "loading": "Wird geladen…",
+    "notFound": "Safari nicht gefunden",
+    "backToSafaris": "Zurück zu den Safaris",
+    "backToDestinations": "Zurück zu den Reisezielen",
+    "daysNights": "{{days}} Tage / {{nights}} Nächte",
+    "overview": "Überblick",
+    "highlights": "Höhepunkte",
+    "itinerary": "Reiseroute Tag für Tag",
+    "dayHeading": "Tag {{day}}: {{title}}",
+    "included": "Inbegriffen",
+    "notIncluded": "Nicht inbegriffen",
+    "bookThisSafari": "Diese Safari buchen",
+    "bookSubtitle": "Beginnen Sie noch heute mit der Planung Ihres Traumabenteuers.",
+    "fromPrice": "Ab {{price}} $",
+    "perPerson": "p. P.",
+    "bookNow": "Jetzt buchen",
+    "talkToTourHelper": "Mit einem Reiseberater sprechen",
+    "duration": "Dauer",
+    "destination": "Reiseziel",
+    "certifiedOperator": "Zertifizierter Veranstalter",
+    "secureBooking": "100 % sichere Buchung"
+  }
+}

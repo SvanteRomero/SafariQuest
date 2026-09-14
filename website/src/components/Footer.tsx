@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   MapPin,
   Phone,
@@ -11,15 +11,17 @@ import {
   WhatsappLogo,
 } from '@phosphor-icons/react'
 import { contact } from '../config/contact'
+import { Link } from '../i18n/routing'
 
 export function Footer() {
+  const { t } = useTranslation('common')
   return (
     <footer className="bg-surface-container-lowest">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-5 md:px-margin-desktop py-16 md:py-section-gap max-w-container-max mx-auto">
         <div>
-          <div className="font-headline-md text-headline-md text-savanna-green mb-6">Pande Wilderness Safari</div>
+          <div className="font-headline-md text-headline-md text-savanna-green mb-6">{t('brandName')}</div>
           <p className="text-on-surface-variant font-body-md mb-6">
-            Crafting authentic Tanzanian memories since 2008. Your window into the wild heart of Africa.
+            {t('footer.tagline')}
           </p>
           {/* `|| '#'` used to render these as dead links whenever the VITE_SOCIAL_*
               vars were unset, which is their state in .env and .env.example alike.
@@ -55,27 +57,27 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">Quick Links</h4>
+          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">{t('footer.quickLinks')}</h4>
           <ul className="space-y-3">
-            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/safaris">Safaris</Link></li>
-            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/destinations">Destinations</Link></li>
-            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/experiences">Experiences</Link></li>
-            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/about">About Us</Link></li>
+            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/safaris">{t('nav.safaris')}</Link></li>
+            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/destinations">{t('nav.destinations')}</Link></li>
+            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/experiences">{t('nav.experiences')}</Link></li>
+            <li><Link className="text-on-surface-variant hover:text-terracotta transition-colors" to="/about">{t('nav.about')}</Link></li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">Legal</h4>
+          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">{t('footer.legal')}</h4>
           <ul className="space-y-3">
-            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">Privacy Policy</a></li>
-            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">Terms of Service</a></li>
-            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">Park Regulations</a></li>
-            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">Sitemap</a></li>
+            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">{t('footer.privacyPolicy')}</a></li>
+            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">{t('footer.termsOfService')}</a></li>
+            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">{t('footer.parkRegulations')}</a></li>
+            <li><a className="text-on-surface-variant hover:text-terracotta transition-colors" href="#">{t('footer.sitemap')}</a></li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">Contact</h4>
+          <h4 className="font-label-md text-label-md text-on-surface font-bold mb-6 uppercase tracking-wider">{t('footer.contact')}</h4>
           <ul className="space-y-3 mb-6">
             <li className="flex items-start gap-2 text-on-surface-variant">
               <MapPin size={18} className="shrink-0 mt-0.5" />
@@ -91,18 +93,18 @@ export function Footer() {
             </li>
           </ul>
           <form className="flex" onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+            <label htmlFor="newsletter-email" className="sr-only">{t('footer.emailAddress')}</label>
             <input
               id="newsletter-email"
               className="bg-ivory-base border border-sand-stone rounded-l-lg px-4 py-2 w-full min-h-[44px] focus:outline-none focus:ring-1 focus:ring-savanna-green"
-              placeholder="Your email"
+              placeholder={t('footer.emailPlaceholder')}
               type="email"
               required
             />
             <button
               type="submit"
               className="bg-savanna-green text-on-primary px-4 py-2 rounded-r-lg hover:opacity-90 transition-opacity min-w-[44px] min-h-[44px] cursor-pointer"
-              aria-label="Subscribe to newsletter"
+              aria-label={t('footer.subscribeToNewsletter')}
             >
               <PaperPlaneTilt size={20} />
             </button>
@@ -110,7 +112,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-surface-variant py-8 text-center px-5 md:px-margin-desktop max-w-container-max mx-auto">
-        <p className="text-on-surface-variant text-label-sm">© {new Date().getFullYear()} Pande Wilderness Safari. All Rights Reserved. Certified Safari Operators.</p>
+        <p className="text-on-surface-variant text-label-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
       </div>
     </footer>
   )

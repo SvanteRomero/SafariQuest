@@ -1,0 +1,139 @@
+{
+  "header": {
+    "heading": "Plan Your Journey",
+    "subtitle": "Build a custom Tanzania itinerary and secure it with a deposit."
+  },
+  "steps": {
+    "regions": "Regions",
+    "experiences": "Experiences",
+    "details": "Details",
+    "review": "Review",
+    "account": "Account",
+    "payment": "Payment"
+  },
+  "travelers": {
+    "adults_one": "{{count}} adult",
+    "adults_other": "{{count}} adults",
+    "children_one": "{{count}} child",
+    "children_other": "{{count}} children"
+  },
+  "primaryInterestPrefix": "Primary interest: {{interest}}",
+  "destinations": {
+    "heading": "Where do you want to go?",
+    "subtitle": "Select one or more regions to begin crafting your perfect Tanzanian adventure. You can always refine this later.",
+    "loading": "Loading destinations…",
+    "empty": "No destinations are available yet.",
+    "next": "Next: Choose Experiences"
+  },
+  "experiences": {
+    "heading": "What do you want to experience?",
+    "subtitle": "See the parks and wonders available in each region, and select the safaris that take you where you want to go.",
+    "loading": "Loading experiences…",
+    "regionSafarisHeading": "{{name}} region safaris",
+    "regionSafarisSubtitle": "Safaris that stay within {{name}}.",
+    "day_one": "{{count}} Day",
+    "day_other": "{{count}} Days",
+    "selected": "Selected",
+    "selectExperience": "Select Experience",
+    "noSafarisYet": "No safari packages visit this park yet.",
+    "noExperiencesYet": "No experiences are set up for {{name}} yet.",
+    "back": "Back",
+    "selectedCount_one": "{{count}} experience selected for {{name}}",
+    "selectedCount_other": "{{count}} experiences selected for {{name}}",
+    "next": "Next: Add Trip Details"
+  },
+  "details": {
+    "heading": "Tell us about your journey",
+    "subtitle": "Fine-tune the logistics so we can craft the perfect itinerary for you.",
+    "durationTiming": "Duration & Timing",
+    "numberOfDays": "Number of Days",
+    "decreaseDays": "Decrease number of days",
+    "increaseDays": "Increase number of days",
+    "estimatedStartDate": "Estimated Start Date",
+    "groupSize": "Group Size",
+    "adults": "Adults",
+    "adultsAge": "Ages 16+",
+    "children": "Children",
+    "childrenAge": "Ages 0-15",
+    "decreaseAdults": "Decrease adults",
+    "increaseAdults": "Increase adults",
+    "decreaseChildren": "Decrease children",
+    "increaseChildren": "Increase children",
+    "accommodationStyle": "Accommodation Style",
+    "tiers": {
+      "Budget": {
+        "title": "Budget",
+        "blurb": "Simple & authentic"
+      },
+      "Mid-range": {
+        "title": "Mid-range",
+        "blurb": "Comfort & quality"
+      },
+      "Luxury": {
+        "title": "Luxury",
+        "blurb": "Ultimate safari experience"
+      }
+    },
+    "personalTouch": "Personal Touch",
+    "optional": "(optional)",
+    "notesPlaceholder": "Dietary needs, special occasions, or specific wildlife you hope to see...",
+    "back": "Back",
+    "next": "Next: Review Trip"
+  },
+  "review": {
+    "heading": "Review your journey",
+    "subtitle": "Take a moment to check your safari details, then continue to secure your booking with an account and a deposit.",
+    "selectAtLeastOne": "Select at least one experience before continuing.",
+    "chooseStartDate": "Choose an estimated start date before continuing.",
+    "destinationsExperiences": "Destinations & Experiences",
+    "selectedExperiences": "Selected Experiences",
+    "noExperiencesSelected": "No experiences selected.",
+    "tripLogistics": "Trip Logistics",
+    "days": "Days",
+    "travelDates": "Travel Dates",
+    "notSet": "Not set",
+    "travelersLabel": "Travelers",
+    "style": "Style",
+    "yourNotes": "Your Notes",
+    "editSelections": "Edit Selections",
+    "yourDetails": "Your Details",
+    "whereToSend": "Where should we send your booking confirmation?",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "e.g. Jane Doe",
+    "email": "Email",
+    "phoneWhatsApp": "Phone / WhatsApp",
+    "countryCode": "Country code",
+    "depositSecures": "A deposit secures your booking.",
+    "nextPayDeposit": "Next you'll pay a deposit to confirm it.",
+    "nextCreateAccountPayDeposit": "Next you'll create an account and pay a deposit to confirm it.",
+    "continue": "Continue"
+  },
+  "account": {
+    "createHeading": "Create Your Account",
+    "signInHeading": "Sign In",
+    "registerSubtitle": "We'll use this to send your booking confirmation and let you track your trip afterward.",
+    "signInSubtitle": "Sign in to continue — your details will be pulled from your existing account.",
+    "back": "Back",
+    "pleaseWait": "Please wait…",
+    "createAccountAndContinue": "Create Account & Continue",
+    "signInAndContinue": "Sign In & Continue",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "payment": {
+    "heading": "Payment",
+    "subtitle": "Enter your card details to pay the deposit and secure your booking.",
+    "depositDueNow": "Deposit due now (30%)",
+    "back": "Back",
+    "processing": "Processing…",
+    "payAndBook": "Pay ${{amount}} & Book",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "message": {
+    "destinations": "Destinations: {{list}}",
+    "experiences": "Experiences: {{list}}",
+    "accommodationStyle": "Accommodation style: {{style}}",
+    "phoneWhatsApp": "Phone / WhatsApp: {{phone}}",
+    "notes": "Notes: {{notes}}",
+    "noneSelected": "None selected"
+  }
+}

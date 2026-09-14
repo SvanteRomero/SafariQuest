@@ -1,5 +1,6 @@
 import { useMemo, useState, type ComponentType } from 'react'
-import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Link } from '../i18n/routing'
 import {
   ArrowRight,
   CaretDown,
@@ -12,28 +13,30 @@ import {
   XCircle,
 } from '@phosphor-icons/react'
 import { Reveal } from '../components/Reveal'
-import { faqCategories } from '../data/faqs'
+import { useFaqCategories, faqStructure } from '../data/faqs'
 
 const categoryIcons: Record<string, ComponentType<{ size?: number; className?: string }>> = {
-  'Booking & Payment': HandCoins,
-  'Visas & Entry': IdentificationCard,
-  'Best Time to Visit': Sun,
-  Packing: Suitcase,
-  'Health & Safety': FirstAidKit,
-  'Cancellation Policy': XCircle,
+  bookingPayment: HandCoins,
+  visasEntry: IdentificationCard,
+  bestTimeToVisit: Sun,
+  packing: Suitcase,
+  healthSafety: FirstAidKit,
+  cancellationPolicy: XCircle,
 }
 
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-const firstCategory = faqCategories[0]
-const firstItem = firstCategory?.items[0]
-const defaultOpenKey = firstCategory && firstItem ? `${firstCategory.category}-${firstItem.question}` : null
+const firstCategoryKey = faqStructure[0]?.key ?? null
+const firstItemKey = faqStructure[0]?.items[0] ?? null
+const defaultOpenKey = firstCategoryKey && firstItemKey ? `${firstCategoryKey}-${firstItemKey}` : null
 
 export function Faqs() {
+  const { t } = useTranslation('faqs')
+  const faqCategories = useFaqCategories()
   const [openKey, setOpenKey] = useState<string | null>(defaultOpenKey)
-  const [activeCategory, setActiveCategory] = useState<string | null>(firstCategory?.category ?? null)
+  const [activeCategory, setActiveCategory] = useState<string | null>(firstCategoryKey)
   const [query, setQuery] = useState('')
 
   const visibleCategories = useMemo(() => {
@@ -47,7 +50,7 @@ export function Faqs() {
         ),
       }))
       .filter((cat) => cat.items.length > 0)
-  }, [query])
+  }, [query, faqCategories])
 
   return (
     <>
@@ -62,11 +65,10 @@ export function Faqs() {
         <div className="absolute inset-0 bg-gradient-to-r from-deep-earth/70 via-deep-earth/40 to-transparent" />
         <div className="relative z-10 px-5 md:px-margin-desktop w-full max-w-container-max mx-auto">
           <h1 className="font-display-lg text-[32px] md:text-display-lg text-ivory-base mb-4 max-w-2xl">
-            Frequently Asked Questions
+            {t('hero.heading')}
           </h1>
           <p className="font-body-lg text-body-lg text-ivory-base/90 max-w-xl mb-8">
-            Preparation is the key to an unforgettable journey. Find expert answers to all your logistical, safety,
-            and travel questions here.
+            {t('hero.subtitle')}
           </p>
           <div className="relative max-w-md">
             <MagnifyingGlass size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
@@ -74,7 +76,7 @@ export function Faqs() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for a topic (e.g. 'Vaccinations')"
+              placeholder={t('hero.searchPlaceholder')}
               className="w-full min-h-[44px] bg-white/95 text-on-surface border-none rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-savanna-green shadow-[0_4px_20px_-2px_rgba(45,45,45,0.15)] font-body-md"
             />
           </div>
@@ -86,18 +88,18 @@ export function Faqs() {
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-28 space-y-2">
             <h3 className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-4">
-              Categories
+              {t('categoriesLabel')}
             </h3>
             <nav className="flex flex-col gap-1">
               {faqCategories.map((cat) => {
-                const Icon = categoryIcons[cat.category]
+                const Icon = categoryIcons[cat.key]
                 return (
                   <a
-                    key={cat.category}
-                    href={`#${slugify(cat.category)}`}
-                    onClick={() => setActiveCategory(cat.category)}
+                    key={cat.key}
+                    href={`#${slugify(cat.key)}`}
+                    onClick={() => setActiveCategory(cat.key)}
                     className={`flex items-center justify-between gap-2 p-3 rounded-lg transition-colors font-label-md text-label-md ${
-                      activeCategory === cat.category
+                      activeCategory === cat.key
                         ? 'bg-surface-container-high text-savanna-green'
                         : 'text-on-surface-variant hover:bg-surface-container hover:text-savanna-green'
                     }`}
@@ -113,12 +115,12 @@ export function Faqs() {
 
         <div className="lg:col-span-9 space-y-16">
           {visibleCategories.length === 0 && (
-            <p className="text-on-surface-variant font-body-md">No questions match “{query}”. Try a different search.</p>
+            <p className="text-on-surface-variant font-body-md">{t('noResults', { query })}</p>
           )}
           {visibleCategories.map((cat) => {
-            const Icon = categoryIcons[cat.category]
+            const Icon = categoryIcons[cat.key]
             return (
-              <div key={cat.category} id={slugify(cat.category)} className="scroll-mt-28">
+              <div key={cat.key} id={slugify(cat.key)} className="scroll-mt-28">
                 <Reveal>
                   <div className="flex items-center gap-3 mb-6">
                     {Icon && <Icon size={24} className="text-savanna-green" />}
@@ -126,7 +128,7 @@ export function Faqs() {
                   </div>
                   <div className="space-y-4">
                     {cat.items.map((item) => {
-                      const key = `${cat.category}-${item.question}`
+                      const key = `${cat.key}-${item.key}`
                       const isOpen = openKey === key
                       return (
                         <div key={key} className="border-b border-sand-stone pb-4">
@@ -163,15 +165,15 @@ export function Faqs() {
       {/* CTA */}
       <section className="bg-surface-container-low py-16 md:py-24">
         <Reveal className="max-w-container-max mx-auto px-5 md:px-margin-desktop text-center">
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-4">Still have questions?</h3>
+          <h3 className="font-headline-md text-headline-md text-on-surface mb-4">{t('cta.heading')}</h3>
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-            Our safari specialists are on hand to help you plan your perfect Tanzanian adventure.
+            {t('cta.body')}
           </p>
           <Link
             to="/about#contact"
             className="inline-flex min-h-[44px] items-center gap-2 bg-savanna-green text-on-primary px-10 py-4 rounded-xl font-label-md hover:opacity-90 transition-opacity group"
           >
-            Contact our experts
+            {t('cta.contactExperts')}
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </Reveal>

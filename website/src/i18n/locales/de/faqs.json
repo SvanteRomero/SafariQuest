@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "heading": "Häufig gestellte Fragen",
+    "subtitle": "Vorbereitung ist der Schlüssel zu einer unvergesslichen Reise. Hier finden Sie fachkundige Antworten auf alle Ihre Fragen zu Logistik, Sicherheit und Reise.",
+    "searchPlaceholder": "Nach einem Thema suchen (z. B. „Impfungen“)"
+  },
+  "categoriesLabel": "Kategorien",
+  "noResults": "Keine Fragen stimmen mit „{{query}}“ überein. Versuchen Sie eine andere Suche.",
+  "categories": {
+    "bookingPayment": {
+      "title": "Buchung & Zahlung",
+      "items": {
+        "howDoIBook": {
+          "question": "Wie buche ich eine Safari?",
+          "answer": "Durchstöbern Sie unsere Safaripakete oder nutzen Sie den Reiseplaner, um eine individuelle Route zusammenzustellen, und senden Sie dann eine Anfrage. Ein Safari-Spezialist meldet sich innerhalb eines Werktags mit einem maßgeschneiderten Angebot."
+        },
+        "paymentMethods": {
+          "question": "Welche Zahlungsmethoden akzeptieren Sie?",
+          "answer": "Wir akzeptieren Banküberweisungen und gängige Kreditkarten. Eine Anzahlung sichert Ihre Buchung, der Restbetrag ist vor Abreise fällig."
+        },
+        "depositRequired": {
+          "question": "Ist eine Anzahlung erforderlich?",
+          "answer": "Ja, zur Bestätigung Ihrer Buchung ist eine Anzahlung von 30 % erforderlich; der Restbetrag ist 60 Tage vor Beginn Ihrer Safari fällig."
+        }
+      }
+    },
+    "visasEntry": {
+      "title": "Visa & Einreise",
+      "items": {
+        "visaRequired": {
+          "question": "Benötige ich ein Visum für Tansania?",
+          "answer": "Die meisten Besucher benötigen ein Visum, das entweder bei der Ankunft oder vorab online über das offizielle tansanische E-Visa-Portal erhältlich ist. Wir empfehlen, mindestens zwei Wochen vor der Reise einen Antrag zu stellen."
+        },
+        "documentsNeeded": {
+          "question": "Welche Dokumente benötige ich für die Reise?",
+          "answer": "Einen Reisepass, der noch mindestens sechs Monate über Ihre Reisedaten hinaus gültig ist, Ihr Visum sowie einen Nachweis der Gelbfieberimpfung bei Einreise aus einem Risikoland."
+        }
+      }
+    },
+    "bestTimeToVisit": {
+      "title": "Beste Reisezeit",
+      "items": {
+        "migrationTiming": {
+          "question": "Wann ist die beste Zeit, um die Große Wanderung zu erleben?",
+          "answer": "Die Flussüberquerungen am Mara-Fluss erreichen typischerweise zwischen Juli und September ihren Höhepunkt, während die Kalbungssaison im südlichen Serengeti von Januar bis März stattfindet."
+        },
+        "weather": {
+          "question": "Wie ist das Wetter?",
+          "answer": "Tansania hat zwei Regenzeiten (März-Mai und November) und ist den Rest des Jahres meist trocken und sonnig, mit kühleren Abenden in höheren Lagen."
+        }
+      }
+    },
+    "packing": {
+      "title": "Packen",
+      "items": {
+        "whatToPack": {
+          "question": "Was sollte ich für eine Safari einpacken?",
+          "answer": "Leichte Kleidung in neutralen Farben, eine warme Schicht für frühmorgendliche Fahrten, robuste geschlossene Schuhe, Sonnenschutz und ein Fernglas. Eine detaillierte Packliste wird nach der Buchung zugesandt."
+        },
+        "luggageRestrictions": {
+          "question": "Gibt es Gepäckbeschränkungen bei Inlandsflügen?",
+          "answer": "Ja — bei Transfers mit Kleinflugzeugen ist das Gepäck in der Regel auf 15 kg in einer weichen Tasche begrenzt. Wir bestätigen die genauen Grenzwerte für Ihre spezifische Reiseroute."
+        }
+      }
+    },
+    "healthSafety": {
+      "title": "Gesundheit & Sicherheit",
+      "items": {
+        "vaccinations": {
+          "question": "Benötige ich Impfungen?",
+          "answer": "Bei Einreise aus einem Gelbfieber-Risikogebiet ist eine Gelbfieberimpfung erforderlich. Wir empfehlen zudem, sich in einer reisemedizinischen Beratung über Malariaprophylaxe und Standardimpfungen zu informieren."
+        },
+        "safety": {
+          "question": "Ist Tansania sicher für Reisende?",
+          "answer": "Ja — alle unsere Safaris werden von lizenzierten, erfahrenen Guides geleitet, und unsere Fahrzeuge und Camps erfüllen strenge Sicherheitsstandards. Wir bieten während Ihrer gesamten Reise einen 24/7-Notfallkontakt."
+        }
+      }
+    },
+    "cancellationPolicy": {
+      "title": "Stornierungsbedingungen",
+      "items": {
+        "cancellationPolicy": {
+          "question": "Wie lauten Ihre Stornierungsbedingungen?",
+          "answer": "Stornierungen mehr als 90 Tage vor Abreise erhalten eine vollständige Rückerstattung abzüglich einer kleinen Bearbeitungsgebühr. Spätere Stornierungen unterliegen einer gestaffelten Regelung — alle Details finden Sie in Ihrer Buchungsbestätigung."
+        },
+        "travelInsurance": {
+          "question": "Empfehlen Sie eine Reiseversicherung?",
+          "answer": "Ja, eine umfassende Reiseversicherung, die Reiserücktritt, medizinische Evakuierung und persönliches Eigentum abdeckt, ist für alle unsere Safaris erforderlich."
+        }
+      }
+    }
+  },
+  "cta": {
+    "heading": "Noch Fragen?",
+    "body": "Unsere Safari-Spezialisten stehen Ihnen zur Seite, um Ihre perfekte Tansania-Reise zu planen.",
+    "contactExperts": "Unsere Experten kontaktieren"
+  }
+}

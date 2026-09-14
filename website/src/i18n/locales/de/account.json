@@ -1,0 +1,132 @@
+{
+  "layout": {
+    "brandName": "Pande Wilderness",
+    "safariPortal": "Safari-Portal",
+    "myTrips": "Meine Reisen",
+    "invoicesPayments": "Rechnungen & Zahlungen",
+    "tripProgress": "Reiseverlauf",
+    "complaints": "Beschwerden",
+    "profile": "Profil",
+    "bookNewSafari": "Neue Safari buchen",
+    "signOut": "Abmelden",
+    "customerPortal": "Kundenportal",
+    "notifications": "Benachrichtigungen"
+  },
+  "stageLabels": {
+    "new_inquiry": "Neue Anfrage",
+    "quoted": "Angebot erhalten",
+    "deposit_paid": "Anzahlung geleistet",
+    "confirmed": "Bestätigt",
+    "completed": "Abgeschlossen"
+  },
+  "invoiceStatusLabels": {
+    "unpaid": "Unbezahlt",
+    "deposit_paid": "Anzahlung geleistet",
+    "paid": "Bezahlt",
+    "overdue": "Überfällig"
+  },
+  "ticketStatusLabels": {
+    "open": "Offen",
+    "in_progress": "In Bearbeitung",
+    "resolved": "Gelöst"
+  },
+  "myTrips": {
+    "heading": "Meine Reisen",
+    "subtitle": "Verwalten Sie Ihre bevorstehenden Abenteuer, prüfen Sie ausstehende Angebote und lassen Sie vergangene Reisen durch die weiten Ebenen Afrikas Revue passieren.",
+    "loading": "Ihre Reisen werden geladen…",
+    "empty": "Noch keine Reisen.",
+    "guideAssigned": "Guide: {{name}}",
+    "guideNotAssigned": "Noch kein Guide zugewiesen.",
+    "viewDetails": "Reisedetails ansehen"
+  },
+  "invoices": {
+    "heading": "Rechnungen & Zahlungen",
+    "subtitle": "Überprüfen Sie Anzahlungs- und Restzahlungsrechnungen für jede Ihrer Safaris.",
+    "loading": "Wird geladen…",
+    "emptyHeading": "Noch keine Zahlungen",
+    "emptyBody": "Eine Anzahlungsrechnung erscheint hier, sobald Sie eine im Checkout bezahlen oder sobald Ihr Safari-Spezialist Ihnen ein Angebot zur Zahlung sendet.",
+    "package": "Paket",
+    "amount": "Betrag",
+    "issued": "Ausgestellt",
+    "due": "Fällig",
+    "status": "Status"
+  },
+  "complaints": {
+    "heading": "Beschwerden",
+    "subtitle": "Ist etwas nicht wie geplant verlaufen? Teilen Sie es uns mit, und unser Team meldet sich innerhalb eines Werktags bei Ihnen.",
+    "loading": "Ihre Beschwerden werden geladen…",
+    "emptyHeading": "Keine Beschwerden eingereicht",
+    "emptyBody": "Wenn während einer Reise etwas Ihre Aufmerksamkeit erfordert, melden Sie es direkt über die Verlaufsseite dieser Reise, und unser Team wird tätig.",
+    "reportAnIssue": "Problem melden",
+    "reportAnotherIssue": "Weiteres Problem melden",
+    "filedOn": "Eingereicht am {{date}}"
+  },
+  "profile": {
+    "heading": "Profil",
+    "subtitle": "Halten Sie Ihre Kontaktdaten aktuell, damit wir Sie bezüglich Ihrer Safaris erreichen können.",
+    "updated": "Profil aktualisiert.",
+    "fullName": "Vollständiger Name",
+    "email": "E-Mail",
+    "phoneWhatsApp": "Telefon / WhatsApp",
+    "phonePlaceholder": "+255 700 000 000",
+    "saveChanges": "Änderungen speichern"
+  },
+  "tripProgress": {
+    "loading": "Wird geladen…",
+    "noActiveTrip": "Keine aktive Reise",
+    "noActiveTripBody": "Sie haben derzeit keine laufende Reise.",
+    "backToMyTrips": "Zurück zu meinen Reisen",
+    "heading": "Ihre Safarireise",
+    "certifiedGuide": "Zertifizierter Guide",
+    "guideNotAssigned": "Ihrer Reise wurde noch kein Guide zugewiesen.",
+    "itineraryProgress": "Reiseroutenfortschritt",
+    "noMilestones": "Die tagesgenaue Verfolgung der Reiseroute ist für diese Reise nicht verfügbar — die aktuelle Phase Ihrer Buchung wird oben angezeigt.",
+    "youAreHere": "Sie sind hier",
+    "day": "Tag {{day}}",
+    "rateExperience": "Bewerten Sie Ihr Erlebnis"
+  },
+  "rateExperience": {
+    "loading": "Wird geladen…",
+    "tripNotFound": "Reise nicht gefunden",
+    "backToMyTrips": "Zurück zu meinen Reisen",
+    "notAvailableYet": "Noch nicht verfügbar",
+    "onlyCompletedTrips": "Nur abgeschlossene Reisen können bewertet werden.",
+    "starRating_one": "{{count}} Stern",
+    "starRating_other": "{{count}} Sterne",
+    "thankYou": "Vielen Dank!",
+    "thankYouBody": "Ihre Bewertung hilft anderen Reisenden und bedeutet {{guideName}} sehr viel.",
+    "yourGuide": "Ihrem Guide",
+    "howWasYourSafari": "Wie war Ihre Safari?",
+    "intro": "Vielen Dank, dass Sie sich für Pande Wilderness Safari entschieden haben. Wir würden gerne von Ihrem Abenteuer hören!",
+    "yourLeadGuide": "Ihr leitender Guide",
+    "guideRatingPrompt": "Wie würden Sie {{firstName}}s Fachwissen, Gastfreundschaft und Betreuung während Ihrer Reise bewerten?",
+    "tapToRate": "Zum Bewerten tippen",
+    "overallExperience": "Gesamterlebnis",
+    "overallRatingPrompt": "Von der Buchung bis zur Abreise — wie war Ihre Reise mit Pande Wilderness?",
+    "shareYourMemories": "Teilen Sie Ihre Erinnerungen",
+    "memoriesPrompt": "Erzählen Sie uns von Ihren schönsten Momenten, Verbesserungsvorschlägen oder einem Erfahrungsbericht, den wir teilen dürfen.",
+    "testimonialPlaceholder": "Der Sonnenaufgang über der Serengeti war...",
+    "submitting": "Wird gesendet…",
+    "submitReview": "Bewertung absenden",
+    "failedToSubmit": "Ihre Bewertung konnte nicht gesendet werden."
+  },
+  "reportIssue": {
+    "loading": "Wird geladen…",
+    "tripNotFound": "Reise nicht gefunden",
+    "backToMyTrips": "Zurück zu meinen Reisen",
+    "reportSubmitted": "Meldung gesendet",
+    "reportSubmittedBody": "Unser Gästeservice-Team wurde benachrichtigt und meldet sich innerhalb von 24 Stunden bei Ihnen.",
+    "backToTrip": "Zurück zur Reise",
+    "guestSupport": "Gästeservice",
+    "intro": "Bitte geben Sie Details zu Ihrem Erlebnis an. Unser engagiertes Team ist für Sie da.",
+    "trip": "Reise",
+    "guide": "Guide",
+    "tellUsWhatWentWrong": "Erzählen Sie uns, was schiefgelaufen ist",
+    "descriptionPlaceholder": "Bitte beschreiben Sie das Problem im Detail...",
+    "optionalPhotoUrl": "Optional: Foto-URL",
+    "reassurance": "Wir nehmen Ihr Feedback ernst, und unser Gästebetreuungsteam wird sich zügig um die Lösung dieser Angelegenheit kümmern.",
+    "submitting": "Wird gesendet…",
+    "submitReport": "Meldung absenden",
+    "failedToSubmit": "Ihre Meldung konnte nicht gesendet werden."
+  }
+}

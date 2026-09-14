@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CheckCircle } from '@phosphor-icons/react'
 import { useAuth } from '../../auth/AuthContext'
 
 export function AccountProfile() {
+  const { t } = useTranslation('account')
   const { user } = useAuth()
   const [name, setName] = useState(user?.name ?? '')
   const [phone, setPhone] = useState('')
@@ -17,9 +19,9 @@ export function AccountProfile() {
   return (
     <div>
       <div className="mb-10">
-        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Profile</h1>
+        <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">{t('profile.heading')}</h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">
-          Keep your contact details up to date so we can reach you about your safaris.
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -30,12 +32,12 @@ export function AccountProfile() {
         {saved && (
           <div className="flex items-center gap-2 bg-savanna-green/10 text-savanna-green rounded-lg px-4 py-3">
             <CheckCircle size={20} weight="fill" />
-            Profile updated.
+            {t('profile.updated')}
           </div>
         )}
         <div>
           <label htmlFor="profile-name" className="block font-label-md text-label-md text-on-surface mb-2">
-            Full Name
+            {t('profile.fullName')}
           </label>
           <input
             id="profile-name"
@@ -48,7 +50,7 @@ export function AccountProfile() {
         </div>
         <div>
           <label htmlFor="profile-email" className="block font-label-md text-label-md text-on-surface mb-2">
-            Email
+            {t('profile.email')}
           </label>
           <input
             id="profile-email"
@@ -60,14 +62,14 @@ export function AccountProfile() {
         </div>
         <div>
           <label htmlFor="profile-phone" className="block font-label-md text-label-md text-on-surface mb-2">
-            Phone / WhatsApp
+            {t('profile.phoneWhatsApp')}
           </label>
           <input
             id="profile-phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="+255 700 000 000"
+            placeholder={t('profile.phonePlaceholder')}
             className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
           />
         </div>
@@ -75,7 +77,7 @@ export function AccountProfile() {
           type="submit"
           className="min-h-[44px] bg-savanna-green text-on-primary px-6 py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity"
         >
-          Save Changes
+          {t('profile.saveChanges')}
         </button>
       </form>
     </div>

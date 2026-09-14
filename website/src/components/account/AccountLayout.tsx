@@ -1,5 +1,8 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Bell, Compass, CreditCard, TrendUp, Warning, User, SignOut } from '@phosphor-icons/react'
+import { Link, NavLink } from '../../i18n/routing'
+import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { useAuth } from '../../auth/AuthContext'
 
 function initials(nameOrEmail: string) {
@@ -8,15 +11,16 @@ function initials(nameOrEmail: string) {
   return (parts[0][0] + parts[1][0]).toUpperCase()
 }
 
-const NAV_ITEMS = [
-  { to: '/account', label: 'My Trips', icon: Compass, end: true },
-  { to: '/account/invoices', label: 'Invoices & Payments', icon: CreditCard, end: false },
-  { to: '/account/trips', label: 'Trip Progress', icon: TrendUp, end: false },
-  { to: '/account/complaints', label: 'Complaints', icon: Warning, end: false },
-  { to: '/account/profile', label: 'Profile', icon: User, end: false },
-]
+const NAV_ITEM_KEYS = [
+  { to: '/account', key: 'myTrips', icon: Compass, end: true },
+  { to: '/account/invoices', key: 'invoicesPayments', icon: CreditCard, end: false },
+  { to: '/account/trips', key: 'tripProgress', icon: TrendUp, end: false },
+  { to: '/account/complaints', key: 'complaints', icon: Warning, end: false },
+  { to: '/account/profile', key: 'profile', icon: User, end: false },
+] as const
 
 export function AccountLayout() {
+  const { t } = useTranslation('account')
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -32,12 +36,12 @@ export function AccountLayout() {
       <nav className="hidden md:flex flex-col w-72 fixed left-0 top-0 h-screen bg-surface-container-low py-8 px-4 gap-4 shrink-0">
         <div className="px-4 mb-4">
           <h1 className="font-headline-md text-headline-md font-bold text-savanna-green" style={{ fontSize: 22 }}>
-            Pande Wilderness
+            {t('layout.brandName')}
           </h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Safari Portal</p>
+          <p className="text-on-surface-variant mt-1 text-sm">{t('layout.safariPortal')}</p>
         </div>
         <ul className="flex-1 flex flex-col gap-1">
-          {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+          {NAV_ITEM_KEYS.map(({ to, key, icon: Icon, end }) => (
             <li key={to}>
               <NavLink
                 to={to}
@@ -51,7 +55,7 @@ export function AccountLayout() {
                 }
               >
                 <Icon size={20} weight={undefined} />
-                {label}
+                {t(`layout.${key}`)}
               </NavLink>
             </li>
           ))}
@@ -61,7 +65,7 @@ export function AccountLayout() {
             to="/plan"
             className="w-full min-h-[44px] flex items-center justify-center bg-savanna-green text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm"
           >
-            Book New Safari
+            {t('layout.bookNewSafari')}
           </Link>
           <button
             type="button"
@@ -69,7 +73,7 @@ export function AccountLayout() {
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-label-md text-label-md text-error hover:bg-error/10 transition-colors"
           >
             <SignOut size={18} />
-            Sign Out
+            {t('layout.signOut')}
           </button>
         </div>
       </nav>
@@ -77,13 +81,13 @@ export function AccountLayout() {
       <div className="flex-1 md:ml-72 min-h-screen flex flex-col">
         <header className="sticky top-0 z-40 h-20 flex items-center justify-between px-5 md:px-margin-desktop backdrop-blur-xl bg-surface/80 shadow-sm shrink-0">
           <span className="font-headline-md text-headline-md text-savanna-green" style={{ fontSize: 22 }}>
-            Customer Portal
+            {t('layout.customerPortal')}
           </span>
           <div className="flex items-center gap-4">
             <button
               type="button"
               className="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full"
-              aria-label="Notifications"
+              aria-label={t('layout.notifications')}
             >
               <Bell size={22} />
             </button>
