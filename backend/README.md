@@ -230,6 +230,21 @@ python manage.py seed_safaris          # safari packages, itineraries, park link
 python manage.py seed_region_safaris   # one region-scoped mini safari per region
 ```
 
+### Seeding the admin user
+
+`seed_admin` creates (or updates) a single `ROLE_ADMIN` user from environment
+variables, rather than the interactive `createsuperuser` prompt. It's
+idempotent — safe to run on every deploy — and always drives the user's
+name/role/password/`is_staff`/`is_superuser`/`is_active` to match the
+env vars, so rotating `ADMIN_PASSWORD` and re-running it changes the password.
+
+```bash
+ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=change-me python manage.py seed_admin
+```
+
+`ADMIN_NAME` is optional. Missing `ADMIN_EMAIL`/`ADMIN_PASSWORD` raises a
+`CommandError` rather than silently doing nothing.
+
 ### Running tests
 
 ```bash
@@ -264,6 +279,8 @@ defaults.
 | `SECURE_HSTS_SECONDS` | HSTS max-age, default `0` (off). **One-way door:** browsers refuse plain HTTP to the host for the full duration and you cannot call it back. Turn on deliberately, starting small. |
 | `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD` | `True`/`False`, both default `False`. Only meaningful with a non-zero `SECURE_HSTS_SECONDS`. |
 | `AWS_S3_CUSTOM_DOMAIN` | Public host (+ bucket path, for path-style addressing) used to build the URLs returned to the frontend — see the note below on why this is a *different* value from `AWS_S3_ENDPOINT_URL` in production. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Read only by `manage.py seed_admin` (not at server startup) — see "Seeding the admin user" above. |
+| `ADMIN_NAME` | Optional display name for the `seed_admin` user. |
 
 ### Transactional email
 
