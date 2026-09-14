@@ -6,9 +6,9 @@ import {
   PaperPlaneTilt,
   InstagramLogo,
   FacebookLogo,
-  WhatsappLogo,
-  LinkedinLogo,
   TiktokLogo,
+  LinkedinLogo,
+  WhatsappLogo,
 } from '@phosphor-icons/react'
 import { contact } from '../config/contact'
 
@@ -36,9 +36,9 @@ export function Footer() {
                 <FacebookLogo size={22} />
               </a>
             )}
-            {contact.social.whatsapp && (
-              <a href={contact.social.whatsapp} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
-                <WhatsappLogo size={22} />
+            {contact.social.tiktok && (
+              <a href={contact.social.tiktok} aria-label="TikTok" className="hover:text-savanna-green transition-colors">
+                <TiktokLogo size={22} />
               </a>
             )}
             {contact.social.linkedin && (
@@ -46,9 +46,9 @@ export function Footer() {
                 <LinkedinLogo size={22} />
               </a>
             )}
-            {contact.social.tiktok && (
-              <a href={contact.social.tiktok} aria-label="TikTok" className="hover:text-savanna-green transition-colors">
-                <TiktokLogo size={22} />
+            {contact.social.whatsapp && (
+              <a href={contact.social.whatsapp} aria-label="WhatsApp" className="hover:text-savanna-green transition-colors">
+                <WhatsappLogo size={22} />
               </a>
             )}
           </div>

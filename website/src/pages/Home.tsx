@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ShieldCheck,
@@ -130,14 +131,32 @@ export function Home() {
   const { data: destinations } = useFetch(getDestinations, [])
   const featuredDestinations = (destinations ?? []).slice(0, 4)
 
+  // <video autoPlay> ignores the global prefers-reduced-motion CSS (it only
+  // covers CSS animations/transitions), so it's gated here in JS instead.
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleChange = (event: MediaQueryListEvent) => setPrefersReducedMotion(event.matches)
+    query.addEventListener('change', handleChange)
+    return () => query.removeEventListener('change', handleChange)
+  }, [])
+
   return (
     <>
       {/* Hero */}
       <section className="relative h-screen min-h-[640px] w-full flex items-center justify-center overflow-hidden">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMR8vztW8A14neiYV4bSqSlUMuo1Y9-mwfvWjE4CS0mK-8UA2Exzvz2F3I9sG-hFGJblKAlfOaZBBbnZqeDi0ivQhv_4XdzmiDeAA7SaAoD1Vbohvb_KalozG-peJSBYM_iDUlD4JEMW3paUXvdttilCgtcnAE5GUg_AiBUFlosW2GqV24mFAx3gROTnY6wB7wJfGBPDixNHiweh10u0W2I2xJeSNIcMvacvsGk_NOXRiC7ZdnPoFM"
-          alt="A lion standing on a rock outcropping in the Serengeti at golden hour, overlooking the savanna."
-          fetchPriority="high"
+        <video
+          src="/videos/hero.mp4"
+          poster="https://lh3.googleusercontent.com/aida-public/AB6AXuAMR8vztW8A14neiYV4bSqSlUMuo1Y9-mwfvWjE4CS0mK-8UA2Exzvz2F3I9sG-hFGJblKAlfOaZBBbnZqeDi0ivQhv_4XdzmiDeAA7SaAoD1Vbohvb_KalozG-peJSBYM_iDUlD4JEMW3paUXvdttilCgtcnAE5GUg_AiBUFlosW2GqV24mFAx3gROTnY6wB7wJfGBPDixNHiweh10u0W2I2xJeSNIcMvacvsGk_NOXRiC7ZdnPoFM"
+          autoPlay={!prefersReducedMotion}
+          loop={!prefersReducedMotion}
+          muted
+          playsInline
+          preload={prefersReducedMotion ? 'none' : 'auto'}
+          aria-hidden="true"
+          tabIndex={-1}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />
