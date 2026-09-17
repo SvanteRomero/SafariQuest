@@ -112,6 +112,11 @@ class Invoice(models.Model):
 
     booking = models.OneToOneField(Booking, related_name="invoice", on_delete=models.CASCADE)
     amount = models.PositiveIntegerField()
+    # Full trip price, captured at deposit-payment time from the checkout page's own price
+    # computation (the same trust boundary `amount` already crosses — there's still no
+    # server-side price recompute). Null for invoices issued the older way (2.2 send_quote),
+    # which have no "remaining balance" concept to offer.
+    trip_total = models.PositiveIntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_UNPAID)
     issued_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
@@ -134,6 +139,12 @@ class Invoice(models.Model):
     @property
     def effective_status(self):
         return "overdue" if self.is_overdue else self.status
+
+    @property
+    def remaining_balance(self):
+        if self.trip_total is None:
+            return None
+        return max(self.trip_total - self.amount, 0)
 
 
 class QuoteLineItem(models.Model):

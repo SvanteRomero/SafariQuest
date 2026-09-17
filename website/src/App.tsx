@@ -16,6 +16,8 @@ import { SetPassword } from './pages/SetPassword'
 import { Faqs } from './pages/Faqs'
 import { Checkout } from './pages/Checkout'
 import { BookingConfirmed } from './pages/BookingConfirmed'
+import { ReferralSignup } from './pages/ReferralSignup'
+import { AgentDashboard } from './pages/agent/AgentDashboard'
 import { PlanLayout } from './components/plan/PlanLayout'
 import { PlanDestinations } from './pages/plan/PlanDestinations'
 import { PlanExperiences } from './pages/plan/PlanExperiences'
@@ -51,6 +53,7 @@ import { AdminDestinationForm } from './pages/admin/AdminDestinationForm'
 import { AdminParkForm } from './pages/admin/AdminParkForm'
 import { AdminSafariForm } from './pages/admin/AdminSafariForm'
 import { AdminRegionSafariForm } from './pages/admin/AdminRegionSafariForm'
+import { AdminReferrals } from './pages/admin/AdminReferrals'
 import { AdminFinance } from './pages/admin/AdminFinance'
 import { AdminInvoices } from './pages/admin/AdminInvoices'
 import { AdminInvoiceDocument } from './pages/admin/AdminInvoiceDocument'
@@ -117,6 +120,7 @@ function App() {
               <Route path="region-safaris/:id" element={<RegionSafariDetail />} />
               <Route path="region-safaris/:id/book" element={<Checkout kind="regionSafari" />} />
               <Route path="booking-confirmed" element={<BookingConfirmed />} />
+              <Route path="become-agent" element={<ReferralSignup />} />
               <Route element={<PlanLayout />}>
                 <Route path="plan" element={<PlanDestinations />} />
                 <Route path="plan/experiences" element={<PlanExperiences />} />
@@ -149,6 +153,10 @@ function App() {
           <Route path="support" element={<GuideSupport />} />
         </Route>
 
+        <Route path="/agent" element={<RequireRole allow={['referral_agent']} />}>
+          <Route index element={<AgentDashboard />} />
+        </Route>
+
         <Route element={<RequireRole allow={['admin']} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
@@ -163,6 +171,7 @@ function App() {
             <Route path="guides" element={<AdminStaffGuides />} />
             <Route path="guides/:id" element={<AdminGuideDetail />} />
             <Route path="complaints" element={<AdminComplaints />} />
+            <Route path="referrals" element={<AdminReferrals />} />
             <Route path="content" element={<AdminContent />} />
             <Route path="content/destinations/new" element={<AdminDestinationForm />} />
             <Route path="content/destinations/:slug/edit" element={<AdminDestinationForm />} />

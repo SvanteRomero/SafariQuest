@@ -125,17 +125,17 @@ export function AdminDashboard() {
           <h2 className="font-headline-md text-[24px] text-on-surface mt-1">Karibu, {firstName}</h2>
           <p className="text-on-surface-variant text-sm mt-1">Here's what's happening across Safari Ops today.</p>
         </div>
-        <div className="flex gap-2 w-fit">
-          <div className="bg-surface-container-high px-4 py-2 rounded-lg font-label-md text-sm flex items-center gap-2 text-on-surface-variant">
-            <CalendarBlank size={18} />
-            {dateRangeLabel}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-fit min-w-0">
+          <div className="bg-surface-container-high px-4 py-2 rounded-lg font-label-md text-sm flex items-center gap-2 text-on-surface-variant min-w-0">
+            <CalendarBlank size={18} className="shrink-0" />
+            <span className="truncate">{dateRangeLabel}</span>
           </div>
           <button
             type="button"
-            className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity"
+            className="min-h-[40px] flex items-center justify-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity min-w-0"
           >
-            <DownloadSimple size={18} />
-            Export Report
+            <DownloadSimple size={18} className="shrink-0" />
+            <span className="truncate">Export Report</span>
           </button>
         </div>
       </div>

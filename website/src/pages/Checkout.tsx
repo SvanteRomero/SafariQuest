@@ -29,6 +29,7 @@ import { activeSeasonForDate, seasonalPrice } from '../lib/seasonalPrice'
 import { contact } from '../config/contact'
 import { AccountFields, type AccountMode } from '../components/checkout/AccountFields'
 import { MockCardFields } from '../components/checkout/MockCardFields'
+import { ReferralCodeField } from '../components/checkout/ReferralCodeField'
 
 type CheckoutStep = 'details' | 'review' | 'account' | 'payment'
 
@@ -56,7 +57,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const { data: destinations } = useFetch(getDestinations, [])
   const { data: seasons } = useFetch(getSeasons, [])
   const navigate = useNavigate()
-  const { user, login, register } = useAuth()
+  const { user, login, register, logout } = useAuth()
   const isAuthenticated = Boolean(user)
 
   const [step, setStep] = useState<CheckoutStep>('details')
@@ -79,6 +80,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const [cardNumber, setCardNumber] = useState('')
   const [cardExpiry, setCardExpiry] = useState('')
   const [cardCvv, setCardCvv] = useState('')
+  const [referralCode, setReferralCode] = useState('')
+  const [referralDiscountPercent, setReferralDiscountPercent] = useState<number | null>(null)
 
   const loading = safariLoading || regionSafariLoading
   const loadError = safariError || regionSafariError
@@ -104,6 +107,27 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
     )
   }
 
+  if (user && user.role !== 'tourist') {
+    return (
+      <section className="min-h-[60vh] flex items-center justify-center px-5 py-32 text-center">
+        <div className="max-w-xl">
+          <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">Sign In Required</h1>
+          <p className="text-on-surface-variant mb-8">
+            You're signed in with a {user.role.replace('_', ' ')} account, which can't make bookings. Sign out and
+            continue as a tourist (or without an account) to book this safari.
+          </p>
+          <button
+            type="button"
+            onClick={() => logout()}
+            className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
+          >
+            Sign Out
+          </button>
+        </div>
+      </section>
+    )
+  }
+
   // Normalized view over whichever product this checkout is for, so the rest of the
   // page doesn't need to branch on `kind` again.
   const item = {
@@ -124,7 +148,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const adultPrice = seasonalPrice(item.price, seasons ?? [], preferredDate)
   const childPrice = Math.round(adultPrice * 0.5)
   const total = adultPrice * adults + childPrice * children
-  const deposit = Math.round(total * 0.3)
+  const discountedTotal = referralDiscountPercent ? Math.round(total * (1 - referralDiscountPercent / 100)) : total
+  const deposit = Math.round(discountedTotal * 0.3)
   const stepKeys = isAuthenticated ? ALL_STEP_KEYS.filter((k) => k !== 'account') : ALL_STEP_KEYS
   const steps = stepKeys.map((key) => ({ key, label: t(`steps.${key}`) }))
   const activeIndex = steps.findIndex((s) => s.key === step)
@@ -182,7 +207,12 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
         guests: adults + children,
         message: `${travelersText}.`,
       })
-      await payForBooking(booking.id, deposit)
+      await payForBooking(
+        booking.id,
+        deposit,
+        discountedTotal,
+        referralDiscountPercent ? referralCode.trim() : undefined,
+      )
       navigate('/booking-confirmed', {
         state: { title: safariTitle, paidAmount: deposit, paidToEmail: booking.customerEmail },
       })
@@ -437,17 +467,25 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     {t('payment.subtitle')}
                   </p>
 
-                  <MockCardFields
-                    namePlaceholder={fullName || 'Johnathan Doe'}
-                    cardName={cardName}
-                    onCardNameChange={setCardName}
-                    cardNumber={cardNumber}
-                    onCardNumberChange={setCardNumber}
-                    cardExpiry={cardExpiry}
-                    onCardExpiryChange={setCardExpiry}
-                    cardCvv={cardCvv}
-                    onCardCvvChange={setCardCvv}
+                  <ReferralCodeField
+                    code={referralCode}
+                    onCodeChange={setReferralCode}
+                    onDiscountChange={setReferralDiscountPercent}
                   />
+
+                  <div className="mt-6">
+                    <MockCardFields
+                      namePlaceholder={fullName || 'Johnathan Doe'}
+                      cardName={cardName}
+                      onCardNameChange={setCardName}
+                      cardNumber={cardNumber}
+                      onCardNumberChange={setCardNumber}
+                      cardExpiry={cardExpiry}
+                      onCardExpiryChange={setCardExpiry}
+                      cardCvv={cardCvv}
+                      onCardCvvChange={setCardCvv}
+                    />
+                  </div>
 
                   <button
                     type="button"
@@ -533,7 +571,10 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                   <span className="font-headline-md text-[28px] text-savanna-green">${total.toLocaleString(i18n.language)}</span>
                 </div>
                 <div className="flex justify-between font-label-md text-label-md text-terracotta">
-                  <span>{t('summary.depositDueNow')}</span>
+                  <span>
+                    {t('summary.depositDueNow')}
+                    {referralDiscountPercent ? ` (${referralDiscountPercent}% off applied)` : ''}
+                  </span>
                   <span>${deposit.toLocaleString(i18n.language)}</span>
                 </div>
 

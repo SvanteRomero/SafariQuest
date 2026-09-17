@@ -8,11 +8,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     ROLE_TOURIST = "tourist"
     ROLE_GUIDE = "guide"
     ROLE_ADMIN = "admin"
+    ROLE_REFERRAL_AGENT = "referral_agent"
 
     ROLE_CHOICES = [
         (ROLE_TOURIST, "Tourist"),
         (ROLE_GUIDE, "Guide"),
         (ROLE_ADMIN, "Administrator"),
+        (ROLE_REFERRAL_AGENT, "Referral Agent"),
     ]
 
     email = models.EmailField(unique=True)

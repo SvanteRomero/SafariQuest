@@ -21,6 +21,7 @@ urlpatterns = [
     path("api/support/", include("support.urls")),
     path("api/analytics/", include("analytics.urls")),
     path("api/audit-log/", include("audit.urls")),
+    path("api/referrals/", include("referrals.urls")),
 ]
 
 if settings.DEBUG:

@@ -78,8 +78,8 @@ export function AdminBookingsPipeline() {
       </div>
 
       <div className="flex flex-wrap gap-4 items-center bg-surface-container-low p-4 rounded-xl border border-sand-stone mb-6">
-        <div className="flex items-center gap-2 flex-1 min-w-[240px]">
-          <Funnel size={18} className="text-on-surface-variant" />
+        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[240px]">
+          <Funnel size={18} className="text-on-surface-variant shrink-0" />
           <span className="font-label-md text-sm text-on-surface-variant mr-1">Filters:</span>
           <select
             value={region}

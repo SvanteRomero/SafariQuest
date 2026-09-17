@@ -28,11 +28,11 @@ export function AccountFields({
   const { t } = useTranslation('booking')
   return (
     <div>
-      <div className="flex gap-2 mb-6 p-1 bg-surface-container-low rounded-lg w-fit">
+      <div className="flex flex-col sm:flex-row gap-2 mb-6 p-1 bg-surface-container-low rounded-lg w-full sm:w-fit">
         <button
           type="button"
           onClick={() => onAccountModeChange('register')}
-          className={`px-4 py-2 rounded-md font-label-md text-label-sm transition-colors ${
+          className={`px-4 py-2.5 sm:py-2 rounded-md font-label-md text-label-sm transition-colors min-h-[44px] sm:min-h-0 ${
             accountMode === 'register' ? 'bg-surface-container-lowest shadow-sm text-savanna-green' : 'text-on-surface-variant'
           }`}
         >
@@ -41,7 +41,7 @@ export function AccountFields({
         <button
           type="button"
           onClick={() => onAccountModeChange('signin')}
-          className={`px-4 py-2 rounded-md font-label-md text-label-sm transition-colors ${
+          className={`px-4 py-2.5 sm:py-2 rounded-md font-label-md text-label-sm transition-colors min-h-[44px] sm:min-h-0 ${
             accountMode === 'signin' ? 'bg-surface-container-lowest shadow-sm text-savanna-green' : 'text-on-surface-variant'
           }`}
         >

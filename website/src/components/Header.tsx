@@ -1,17 +1,23 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink as PlainNavLink } from 'react-router-dom'
-import { List, X, UserCircle, ShieldCheck, Binoculars } from '@phosphor-icons/react'
+import { List, X, UserCircle, SignOut, HandCoins } from '@phosphor-icons/react'
 import { useAuth } from '../auth/AuthContext'
 import { NavLink } from '../i18n/routing'
-import { useLocalizedNavigate as useNavigate } from '../i18n/useLocale'
+import { useCurrentLocale, useLocalizedNavigate as useNavigate } from '../i18n/useLocale'
+import { localize } from '../i18n/localize'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ROLE_HOME } from '../api/auth'
 
 export function Header() {
   const { t } = useTranslation('common')
   const [menuOpen, setMenuOpen] = useState(false)
   const { role, logout } = useAuth()
   const navigate = useNavigate()
+  const locale = useCurrentLocale()
+  // Only the tourist portal (/account) lives inside the locale-prefixed route tree — /guide,
+  // /agent, /admin are plain, unlocalized routes (see App.tsx and useRoleHomeNavigate).
+  const dashboardHref = role ? (role === 'tourist' ? localize(locale, ROLE_HOME.tourist) : ROLE_HOME[role]) : null
 
   const NAV_LINKS = [
     { label: t('nav.destinations'), to: '/destinations' },
@@ -57,38 +63,36 @@ export function Header() {
 
         <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
           <NavLink
+            to="/become-agent"
+            className="hidden lg:flex items-center gap-1.5 text-terracotta font-label-sm text-label-sm px-3 py-2 rounded-full border border-terracotta/30 hover:bg-terracotta/10 transition-colors shrink-0 mr-1 whitespace-nowrap"
+          >
+            <HandCoins size={15} weight="bold" />
+            Refer &amp; Earn
+          </NavLink>
+          <NavLink
             to="/plan"
             className="hidden lg:flex items-center bg-savanna-green text-on-primary font-label-md text-label-md px-4 xl:px-6 py-3 rounded hover:opacity-90 transition-opacity shrink-0 mr-1 xl:mr-2 whitespace-nowrap"
           >
             {t('planYourJourney')}
           </NavLink>
-          {role === 'admin' && (
-            <PlainNavLink
-              to="/admin"
-              title={t('admin')}
-              className="hidden lg:flex items-center justify-center w-9 h-9 border border-sand-stone text-on-surface-variant hover:border-savanna-green hover:text-savanna-green transition-colors rounded-full shrink-0"
-            >
-              <ShieldCheck size={16} />
-            </PlainNavLink>
-          )}
-          {role === 'guide' && (
-            <PlainNavLink
-              to="/guide"
-              title={t('guide')}
-              className="hidden lg:flex items-center justify-center w-9 h-9 border border-sand-stone text-on-surface-variant hover:border-savanna-green hover:text-savanna-green transition-colors rounded-full shrink-0"
-            >
-              <Binoculars size={16} />
-            </PlainNavLink>
-          )}
-          {role ? (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              title={t('signOut')}
-              className="hidden lg:flex items-center justify-center w-9 h-9 text-on-surface-variant hover:text-savanna-green transition-colors shrink-0"
-            >
-              <UserCircle size={20} />
-            </button>
+          {role && dashboardHref ? (
+            <>
+              <PlainNavLink
+                to={dashboardHref}
+                className="hidden lg:flex items-center gap-1.5 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md px-2 shrink-0 whitespace-nowrap"
+              >
+                <UserCircle size={18} />
+                Dashboard
+              </PlainNavLink>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                title={t('signOut')}
+                className="hidden lg:flex items-center justify-center w-9 h-9 text-on-surface-variant hover:text-savanna-green transition-colors shrink-0"
+              >
+                <SignOut size={18} />
+              </button>
+            </>
           ) : (
             <NavLink
               to="/sign-in"
@@ -137,15 +141,37 @@ export function Header() {
           >
             {t('planYourJourney')}
           </NavLink>
-          {role ? (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 border-t border-surface-variant mt-1 pt-4 text-on-surface-variant hover:bg-surface-container-low"
-            >
-              <UserCircle size={20} />
-              {t('signOut')}
-            </button>
+          <NavLink
+            to="/become-agent"
+            onClick={() => setMenuOpen(false)}
+            className="font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 text-terracotta hover:bg-terracotta/10"
+          >
+            <HandCoins size={20} />
+            Become a Referral Agent
+          </NavLink>
+          {role && dashboardHref ? (
+            <>
+              <PlainNavLink
+                to={dashboardHref}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  `font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 border-t border-surface-variant mt-1 pt-4 ${
+                    isActive ? 'text-savanna-green' : 'text-on-surface-variant hover:bg-surface-container-low'
+                  }`
+                }
+              >
+                <UserCircle size={20} />
+                Dashboard
+              </PlainNavLink>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 text-on-surface-variant hover:bg-surface-container-low"
+              >
+                <SignOut size={20} />
+                {t('signOut')}
+              </button>
+            </>
           ) : (
             <NavLink
               to="/sign-in"
@@ -159,34 +185,6 @@ export function Header() {
               <UserCircle size={20} />
               {t('signIn')}
             </NavLink>
-          )}
-          {role === 'admin' && (
-            <PlainNavLink
-              to="/admin"
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 ${
-                  isActive ? 'text-savanna-green' : 'text-on-surface-variant hover:bg-surface-container-low'
-                }`
-              }
-            >
-              <ShieldCheck size={20} />
-              {t('admin')}
-            </PlainNavLink>
-          )}
-          {role === 'guide' && (
-            <PlainNavLink
-              to="/guide"
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `font-label-md text-label-md py-3 px-2 rounded-lg min-h-[44px] flex items-center gap-1.5 ${
-                  isActive ? 'text-savanna-green' : 'text-on-surface-variant hover:bg-surface-container-low'
-                }`
-              }
-            >
-              <Binoculars size={20} />
-              {t('guide')}
-            </PlainNavLink>
           )}
           <LanguageSwitcher variant="mobile" />
         </div>

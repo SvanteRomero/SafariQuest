@@ -1,9 +1,11 @@
+import { useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { ComponentType } from 'react'
-import { CalendarBlank, CheckCircle, Clock, ClockCounterClockwise, MapPin } from '@phosphor-icons/react'
+import { CalendarBlank, CheckCircle, Clock, ClockCounterClockwise, MapPin, CreditCard } from '@phosphor-icons/react'
 import { Link } from '../../i18n/routing'
-import { getBookings, type Booking, type BookingStage } from '../../api/bookings'
+import { getBookings, payRemainingBalance, type Booking, type BookingStage } from '../../api/bookings'
+import { getMyInvoices } from '../../api/invoices'
 import { useFetch } from '../../lib/useFetch'
+import { ApiError } from '../../lib/api'
 
 const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ size?: number; weight?: 'fill' }> }> = {
   new_inquiry: { className: 'bg-surface-tint text-on-primary', icon: CheckCircle },
@@ -15,8 +17,25 @@ const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ siz
 
 export function MyTrips() {
   const { t } = useTranslation('account')
-  const { data: bookings, loading, error } = useFetch<Booking[]>(() => getBookings(), [])
+  const { data: bookings, loading, error, refetch: refetchBookings } = useFetch<Booking[]>(() => getBookings(), [])
+  const { data: invoices, refetch: refetchInvoices } = useFetch(getMyInvoices, [])
   const trips = bookings ?? []
+  const [payingId, setPayingId] = useState<number | null>(null)
+  const [payError, setPayError] = useState<string | null>(null)
+
+  async function handlePayBalance(bookingId: number) {
+    setPayError(null)
+    setPayingId(bookingId)
+    try {
+      await payRemainingBalance(bookingId)
+      refetchInvoices()
+      refetchBookings()
+    } catch (err) {
+      setPayError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setPayingId(null)
+    }
+  }
 
   return (
     <div>
@@ -29,6 +48,11 @@ export function MyTrips() {
 
       {loading && <p className="text-on-surface-variant">{t('myTrips.loading')}</p>}
       {error && <p className="text-error">{error}</p>}
+      {payError && (
+        <p role="alert" className="text-error font-label-sm text-label-sm mb-6">
+          {payError}
+        </p>
+      )}
 
       {!loading && !error && (
         <>
@@ -40,6 +64,8 @@ export function MyTrips() {
                 const badge = BADGE[trip.stage]
                 const BadgeIcon = badge.icon
                 const isCompleted = trip.stage === 'completed'
+                const invoice = (invoices ?? []).find((i) => i.bookingId === trip.id)
+                const remainingBalance = invoice?.remainingBalance
                 return (
                   <div
                     key={trip.id}
@@ -64,9 +90,22 @@ export function MyTrips() {
                           {trip.startDate} – {trip.endDate}
                         </span>
                       </div>
-                      <p className="font-body-md text-on-surface-variant/80 text-sm mb-6 flex-1">
+                      <p className="font-body-md text-on-surface-variant/80 text-sm mb-4 flex-1">
                         {trip.assignedGuideName ? t('myTrips.guideAssigned', { name: trip.assignedGuideName }) : t('myTrips.guideNotAssigned')}
                       </p>
+                      {Boolean(remainingBalance) && (
+                        <button
+                          type="button"
+                          onClick={() => handlePayBalance(trip.id)}
+                          disabled={payingId === trip.id}
+                          className="w-full mb-2 inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          <CreditCard size={18} weight="bold" />
+                          {payingId === trip.id
+                            ? 'Processing…'
+                            : `Pay Remaining Balance ($${remainingBalance!.toLocaleString()})`}
+                        </button>
+                      )}
                       <Link
                         to={`/account/trips/${trip.id}`}
                         className="w-full mt-auto bg-savanna-green text-on-primary py-3 rounded-lg font-label-md hover:bg-primary-container transition-colors text-center"
