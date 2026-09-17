@@ -25,6 +25,8 @@ export interface Invoice {
   customerEmail: string
   packageTitle: string
   amount: number
+  tripTotal: number | null
+  remainingBalance: number | null
   status: InvoiceStatus
   issuedDate: string
   dueDate: string
@@ -59,6 +61,8 @@ export interface InvoiceApiShape {
   customer_email: string
   package_title: string
   amount: number
+  trip_total: number | null
+  remaining_balance: number | null
   status: InvoiceStatus
   issued_date: string
   due_date: string

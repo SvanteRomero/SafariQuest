@@ -69,6 +69,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     customer_email = serializers.EmailField(source="booking.customer.email", read_only=True)
     package_title = serializers.CharField(source="booking.package_title", read_only=True)
     status = serializers.CharField(source="effective_status", read_only=True)
+    remaining_balance = serializers.ReadOnlyField()
 
     class Meta:
         model = Invoice
@@ -79,6 +80,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "customer_email",
             "package_title",
             "amount",
+            "trip_total",
+            "remaining_balance",
             "status",
             "issued_date",
             "due_date",
@@ -163,6 +166,12 @@ class BookingPaySerializer(serializers.Serializer):
     processor yet (PLANNED)."""
 
     amount = serializers.IntegerField(min_value=1)
+    # trip_total is the full trip price the checkout page already computed — needed because
+    # Booking stores no price field of its own, so it's trusted from the client the same way
+    # `amount` already is. Stored on the resulting Invoice so a later pay_balance call knows
+    # what's left to collect; also required to record a referral redemption's commission.
+    trip_total = serializers.IntegerField(required=False, min_value=1)
+    referral_code = serializers.CharField(required=False, allow_blank=True)
 
 
 class QuoteLineItemInputSerializer(serializers.Serializer):
@@ -230,6 +239,14 @@ class BookingCreateSerializer(serializers.Serializer):
         request = self.context["request"]
         if not request.user.is_authenticated and not attrs.get("email"):
             raise serializers.ValidationError({"email": "This field is required."})
+        # A signed-in staff/guide/referral-agent account must not become a booking's
+        # customer — BookingViewSet.get_queryset() only scopes bookings to tourist/guide
+        # (own)/admin, so any other role's "own" booking would be silently invisible to it
+        # afterward (e.g. the /pay/ action 404ing instead of ever finding it).
+        if request.user.is_authenticated and request.user.role != User.ROLE_TOURIST:
+            raise serializers.ValidationError(
+                {"detail": "This account type can't make bookings. Sign out and continue as a tourist to book."}
+            )
         return attrs
 
     def _resolve_customer(self, attrs):

@@ -1,6 +1,6 @@
 import { apiGet, apiPost } from '../lib/api'
 
-export type Role = 'tourist' | 'guide' | 'admin'
+export type Role = 'tourist' | 'guide' | 'admin' | 'referral_agent'
 
 interface RoleResponse {
   role: Role
@@ -49,4 +49,5 @@ export const ROLE_HOME: Record<Role, string> = {
   tourist: '/account',
   guide: '/guide',
   admin: '/admin',
+  referral_agent: '/agent',
 }

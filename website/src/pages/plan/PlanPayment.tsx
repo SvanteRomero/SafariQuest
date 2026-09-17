@@ -13,6 +13,7 @@ import { addDays } from '../../lib/date'
 import { seasonalPrice } from '../../lib/seasonalPrice'
 import { trackFunnelEvent } from '../../lib/funnelTracking'
 import { MockCardFields } from '../../components/checkout/MockCardFields'
+import { ReferralCodeField } from '../../components/checkout/ReferralCodeField'
 
 export function PlanPayment() {
   const { t, i18n } = useTranslation('plan')
@@ -36,6 +37,8 @@ export function PlanPayment() {
   const [cardCvv, setCardCvv] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [referralCode, setReferralCode] = useState('')
+  const [referralDiscountPercent, setReferralDiscountPercent] = useState<number | null>(null)
 
   const travelers = plan.adults + plan.children
 
@@ -62,7 +65,8 @@ export function PlanPayment() {
   const adultPrice = seasonalPrice(primaryPrice, seasons ?? [], plan.travelDates)
   const childPrice = Math.round(adultPrice * 0.5)
   const total = adultPrice * plan.adults + childPrice * plan.children
-  const deposit = Math.round(total * 0.3)
+  const discountedTotal = referralDiscountPercent ? Math.round(total * (1 - referralDiscountPercent / 100)) : total
+  const deposit = Math.round(discountedTotal * 0.3)
 
   function buildMessage(): string {
     const lines = [
@@ -90,7 +94,12 @@ export function PlanPayment() {
         guests: travelers,
         message: buildMessage(),
       })
-      await payForBooking(booking.id, deposit)
+      await payForBooking(
+        booking.id,
+        deposit,
+        discountedTotal,
+        referralDiscountPercent ? referralCode.trim() : undefined,
+      )
       trackFunnelEvent('submitted')
       navigate('/booking-confirmed', {
         state: {
@@ -120,9 +129,14 @@ export function PlanPayment() {
         className="bg-surface-container-lowest rounded-xl p-6 md:p-8 shadow-sm border border-sand-stone space-y-6"
       >
         <div className="flex justify-between items-baseline pb-4 border-b border-sand-stone">
-          <span className="font-label-md text-label-md text-on-surface-variant">{t('payment.depositDueNow')}</span>
+          <span className="font-label-md text-label-md text-on-surface-variant">
+            {t('payment.depositDueNow')}
+            {referralDiscountPercent ? ` (${referralDiscountPercent}% off applied)` : ''}
+          </span>
           <span className="font-headline-md text-[24px] text-savanna-green">${deposit.toLocaleString(i18n.language)}</span>
         </div>
+
+        <ReferralCodeField code={referralCode} onCodeChange={setReferralCode} onDiscountChange={setReferralDiscountPercent} />
 
         <MockCardFields
           namePlaceholder={plan.contactName || 'Johnathan Doe'}

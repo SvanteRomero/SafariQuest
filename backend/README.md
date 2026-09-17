@@ -41,10 +41,14 @@ in that region, and then see which safaris actually stop there — the join is
 ### Accounts and roles (`accounts` app)
 
 A single custom `User` model (`AUTH_USER_MODEL`, email as the username field)
-carries a `role`: `tourist`, `guide`, or `admin`. There is no separate
-staff/customer table — the same model and the same JWT login flow cover
-everyone, and the frontend decides which portal shell to render based on
-`role` (see `ROLE_HOME` in the frontend's `AuthContext`).
+carries a `role`: `tourist`, `guide`, `admin`, or `referral_agent`. There is
+no separate staff/customer table — the same model and the same JWT login
+flow cover everyone, and the frontend decides which portal shell to render
+based on `role` (see `ROLE_HOME` in the frontend's `api/auth.ts`, imported
+everywhere a role→home redirect is needed rather than re-declared per page —
+a page that kept its own local copy of this map is exactly how the
+`referral_agent` role went briefly unreachable from the sign-in page, see
+`CHANGELOG.md`).
 
 Auth is **HttpOnly-cookie JWT**, not a bearer token the frontend has to
 manage:
@@ -76,9 +80,19 @@ admins.
 **Guide accounts** are created and activated together in one step by an
 admin, via `POST /api/guides/create-with-account/` (see the `guides` app
 below) — nothing is emailed; a one-time generated password is returned in
-the response for the admin to share directly. **Tourist accounts** are the
-only self-service path: `POST /api/auth/register/` always creates a
-`tourist`.
+the response for the admin to share directly. **Tourist accounts** and
+**referral agent accounts** are the only fully self-service paths:
+`POST /api/auth/register/` always creates a `tourist`;
+`POST /api/referrals/agents/register/` always creates a `referral_agent`
+(see the `referrals` app below) — separate endpoints rather than a role
+parameter on one, so neither can be tricked into creating the other.
+
+Only a `tourist` account can be the customer on a booking —
+`BookingCreateSerializer.validate()` rejects checkout from any other
+signed-in role with a clear message, rather than silently attributing the
+booking to a staff/agent account that `BookingViewSet.get_queryset()` would
+then never surface back to them (see the booking pipeline section below,
+and `CHANGELOG.md` for how this was found).
 
 `PATCH /api/users/{id}/` (`UserDetailView`, admin-only) activates/deactivates
 an existing **Administrator** account — the admin Users screen's toggle.
@@ -113,19 +127,37 @@ Three more models hang off a completed-or-in-progress booking:
   testimonial), submittable once a booking reaches `completed`
   (`POST .../review/`). Saving one recomputes the assigned guide's cached
   `rating` (`Guide.recompute_rating`).
-- **`Invoice`** — auto-issued (`get_or_create`) the moment a quote is sent
-  (`POST .../quote/send/`), due 14 days out. `status` is
-  `unpaid`/`deposit_paid`/`paid`, set manually by Admin (there's no payment
-  gateway); `effective_status` reports `overdue` instead once `due_date` has
-  passed and it isn't `paid` — see `InvoiceQuerySet.with_effective_status()`
-  below for how that's queried efficiently. Lives at its own top-level
-  routes, `/api/invoices/` and `/api/finance/summary/` (see Routes).
+- **`Invoice`** — issued one of two ways. Admin-quoted bookings get one
+  auto-issued (`get_or_create`) the moment a quote is sent
+  (`POST .../quote/send/`), due 14 days out, `status` set manually by Admin.
+  A direct-checkout booking gets one from `POST .../pay/` instead (below),
+  with `trip_total` populated — the only case where `remaining_balance`
+  (`trip_total - amount`, `None` when `trip_total` is unset) means anything.
+  `status` is `unpaid`/`deposit_paid`/`paid`; `effective_status` reports
+  `overdue` instead once `due_date` has passed and it isn't `paid` — see
+  `InvoiceQuerySet.with_effective_status()` below for how that's queried
+  efficiently. Lives at its own top-level routes, `/api/invoices/` and
+  `/api/finance/summary/` (see Routes).
 
 `BookingViewSet` (`bookings/views.py`) is where the pipeline lives day to
 day:
 
 - `partial_update` — move a booking to a new stage (with stage-order
   validation); logs an `AuditLogEntry` on every real stage change.
+- `POST .../pay/` — records a **mock** checkout deposit (there's no payment
+  gateway; card details never reach the backend, only the `amount` and
+  `trip_total` the checkout page already computed and showed the tourist —
+  the same trust boundary the rest of the price math already crosses, since
+  `Booking` stores no price of its own). Creates the `Invoice` above,
+  advances the booking to `deposit_paid`, emails a confirmation. Optionally
+  accepts a `referral_code` to redeem — see the `referrals` app below.
+- `POST .../pay-balance/` — pays off whatever's left on that same invoice.
+  Unlike `pay/`, the amount here is **computed server-side**
+  (`invoice.remaining_balance`), never trusted from the client — there's
+  nothing left to negotiate, it's exactly what remains. Advances the
+  booking to `confirmed`. This is what lets a signed-in tourist settle their
+  balance from `/account` without re-entering any credentials or card
+  details — it's just another authenticated request on the same session.
 - `PATCH .../quote/` — edit line items and recompute the quote.
 - `POST .../notes/` — add an internal note.
 - `POST .../quote/send/` — email the finalized quote to the customer,
@@ -151,6 +183,23 @@ day:
   public-read so the checkout page can price a package for whatever trip
   date the tourist picked (`website/src/lib/seasonalPrice.ts`); admin-write
   for the admin pricing page.
+- **`referrals`** — a field-sales referral program. `ReferralSettings` is a
+  singleton row (`get_solo()`) holding the admin-editable discount %
+  (tourist-facing, default 2%) and commission % (agent-facing, default 5%).
+  `ReferralCode` (`agent` FK, an 8-char code from an unambiguous alphabet —
+  no `0`/`O`/`1`/`I` — `contact_name`, `expires_at`) is single-use and
+  expires lazily (`status`/`is_expired` are computed properties, not a
+  cron-maintained field): `POST /api/referrals/codes/` generates one,
+  `GET /api/referrals/codes/mine/` lists an agent's own,
+  `POST /api/referrals/codes/validate/` checks one at checkout before
+  submit. Redemption happens inside `BookingViewSet.pay` (above), not at
+  booking creation — `ReferralCode.objects.select_for_update().filter
+  (is_used=False)` inside that same transaction is what makes "once one
+  person uses it, others can't" race-safe — and creates a
+  `ReferralRedemption` snapshotting the rates in effect at that moment (so a
+  later admin rate change can't retroactively alter what's already owed)
+  plus a `commission_status` (`pending`/`paid`) an admin flips manually via
+  `POST /api/referrals/admin/redemptions/{id}/mark-paid/`.
 - **`support`** — `SupportTicket`: a guide- or tourist-filed issue (optional
   timestamped `SupportTicketNote` thread), worked from the admin Complaints
   inbox. `status` (`open`/`in_progress`/`resolved`) changes log an
@@ -166,9 +215,11 @@ day:
 - **`audit`** — `AuditLogEntry`: an admin-visible, append-only trail of
   state-changing actions. Not every mutation writes one — currently:
   admin-user invited/activated/deactivated, a booking's stage changing, a
-  quote being sent, an invoice's status changing, a support ticket's status
-  changing, and a guide account being created. `GET /api/audit-log/`
-  (admin-only, paginated) backs the widget on the admin Users page.
+  quote being sent, a mock deposit/balance payment being recorded, a
+  referral code being redeemed, an invoice's status changing, a support
+  ticket's status changing, and a guide account being created.
+  `GET /api/audit-log/` (admin-only, paginated) backs the widget on the
+  admin Users page.
 - **`uploads`** — a single `ImageUploadView` (admin-only, JPEG/PNG/WEBP/GIF,
   8MB max) that all the admin content-editing forms (destinations, parks,
   safaris, region safaris) use for image fields. Writes go through Django's
@@ -191,9 +242,13 @@ GET is public unless noted, everything else is role-gated.
 | region_safaris | `/api/region-safaris/` | region-scoped mini safaris — full CRUD, admin-write |
 | pricing | `/api/pricing/seasons/` | public-read, admin-write |
 | guides | `/api/guides/` | admin-only CRUD, plus `create-with-account/`, `me/`, `me/certifications/` |
-| bookings | `/api/bookings/` | staff-role CRUD + pipeline actions above, paginated |
-| bookings | `/api/invoices/` | admin-only, paginated + `{id}/remind/` |
+| bookings | `/api/bookings/` | staff-role CRUD + pipeline actions above, paginated. `{id}/pay/` and `{id}/pay-balance/` are tourist-only (own booking) |
+| bookings | `/api/invoices/` | admin-only list/detail + `{id}/remind/`, paginated — except `mine/`, any authenticated tourist's own (unpaginated) |
 | bookings | `/api/finance/summary/` | admin-only revenue/collections snapshot |
+| referrals | `/api/referrals/agents/register/` | public — self-serve referral agent signup |
+| referrals | `/api/referrals/codes/` | referral-agent-only `POST` (generate) + `mine/` (their own codes); `validate/` is any authenticated user, checkout-side |
+| referrals | `/api/referrals/settings/` | `public/` is public-read (discount % only); the admin-only base route also reads/writes commission % |
+| referrals | `/api/referrals/admin/redemptions/` | admin-only list + `{id}/mark-paid/` |
 | support | `/api/support/tickets/` | admin-only inbox (paginated) + `mine/`, `{id}/notes/` |
 | analytics | `/api/analytics/events/` | public, throttled — funnel-step recording |
 | analytics | `/api/analytics/funnel/` | admin-only funnel aggregation |
@@ -356,12 +411,13 @@ connection open for an SMTP round trip.
 
 ### Role constants
 
-`User.ROLE_TOURIST` / `ROLE_GUIDE` / `ROLE_ADMIN` (`accounts/models.py`) name
-the three values in `User.ROLE_CHOICES`. Every `role == "..."` check and every
-`role="..."` assignment across `accounts`, `bookings`, and `guides` goes
-through these now, rather than a repeated string literal — the same idiom
-already used for `Booking.STAGE_*`, `Invoice.STATUS_*`, and
-`SupportTicket.STATUS_*`, just applied to the one model that was missing it.
+`User.ROLE_TOURIST` / `ROLE_GUIDE` / `ROLE_ADMIN` / `ROLE_REFERRAL_AGENT`
+(`accounts/models.py`) name the four values in `User.ROLE_CHOICES`. Every
+`role == "..."` check and every `role="..."` assignment across `accounts`,
+`bookings`, `guides`, and `referrals` goes through these now, rather than a
+repeated string literal — the same idiom already used for `Booking.STAGE_*`,
+`Invoice.STATUS_*`, and `SupportTicket.STATUS_*`, just applied to the one
+model that was missing it.
 `UserManager.create_user`'s `role` parameter can't default to
 `self.model.ROLE_TOURIST` directly (`self` isn't available yet when Python
 evaluates a default), so it defaults to `None` and substitutes inside the

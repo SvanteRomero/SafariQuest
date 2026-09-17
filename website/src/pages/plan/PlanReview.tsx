@@ -10,7 +10,7 @@ export function PlanReview() {
   const { t } = useTranslation('plan')
   const { plan, setContactName, setContactEmail, setContactPhone } = useTripPlan()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const {
     loading: experiencesLoading,
     selectedDestinations,
@@ -29,6 +29,27 @@ export function PlanReview() {
   }
 
   const canContinue = hasPrimaryProduct && Boolean(plan.travelDates)
+
+  if (user && user.role !== 'tourist') {
+    return (
+      <div className="max-w-xl mx-auto text-center py-12">
+        <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-4">
+          Sign In Required
+        </h2>
+        <p className="text-on-surface-variant mb-8">
+          You're signed in with a {user.role.replace('_', ' ')} account, which can't make bookings. Sign out and
+          continue as a tourist (or without an account) to book this trip.
+        </p>
+        <button
+          type="button"
+          onClick={() => logout()}
+          className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
+        >
+          Sign Out
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div>

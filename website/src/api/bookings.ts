@@ -241,9 +241,28 @@ export async function sendQuote(id: number): Promise<BookingDetail> {
 }
 
 /** Records a mock deposit payment at checkout (1.3) — no card gateway is integrated yet, so
- * this just posts the amount the checkout page already computed and showed the tourist. */
-export async function payForBooking(id: number, amount: number): Promise<BookingDetail> {
-  const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/pay/`, { amount })
+ * this just posts the amount and the full trip price the checkout page already computed and
+ * showed the tourist. tripTotal is stored on the resulting invoice so a later payRemainingBalance
+ * call knows what's left to collect. */
+export async function payForBooking(
+  id: number,
+  amount: number,
+  tripTotal: number,
+  referralCode?: string,
+): Promise<BookingDetail> {
+  const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/pay/`, {
+    amount,
+    trip_total: tripTotal,
+    ...(referralCode ? { referral_code: referralCode } : {}),
+  })
+  return mapBookingDetail(raw)
+}
+
+/** Pays off whatever remains after the deposit, from the tourist's own dashboard — no
+ * credentials or card details are re-entered; the amount is computed server-side from the
+ * invoice's trip_total, not trusted from the client. */
+export async function payRemainingBalance(id: number): Promise<BookingDetail> {
+  const raw = await apiPost<BookingDetailApiShape>(`/api/bookings/${id}/pay-balance/`)
   return mapBookingDetail(raw)
 }
 

@@ -8,6 +8,161 @@ entries below note which side(s) each change touched.
 See `backend/README.md` and `website/README.md` for the current-state
 architecture overview; this file is the story of how it got there.
 
+## 2026-09-17 — Unified header dashboard, a sign-in/out audit, and paying off the remaining balance
+
+**Sign-in/out audit, at the user's request**
+- Audited sign-in/out end to end across all four roles (tourist, guide,
+  admin, referral agent). Found two real bugs, both stemming from the same
+  root cause: a fourth role (`referral_agent`, added the day before) wasn't
+  propagated everywhere a role→redirect mapping lived.
+- `SignIn.tsx` kept its own local, duplicate `ROLE_HOME` map (missing
+  `referral_agent`) instead of importing the canonical one from
+  `api/auth.ts` — an agent signing in through the generic `/sign-in` page
+  (rather than staying on `/become-agent`, which redirects correctly) was
+  misrouted to `/account`, a dead end for their role. Deduplicated onto the
+  shared map.
+- `/account` had no role gate at all — any authenticated role landing there
+  (via the bug above, or a stale bookmark) saw silently empty "My
+  Trips"/"Invoices" panels (both scoped server-side to
+  `customer=request.user`) with no indication why. `AccountLayout` now
+  redirects any non-tourist role to their real dashboard.
+
+**Header: unified Dashboard + Sign Out**
+- Previously each role got different header treatment: admin and guide had
+  small icon-only links (`ShieldCheck`→`/admin`, `Binoculars`→`/guide`)
+  next to a generic sign-out icon; tourist and referral agent had no
+  dashboard link at all beyond that same generic icon. All four roles now
+  get one pattern once signed in: a labeled **Dashboard** button (routes
+  via the shared `ROLE_HOME` map) plus a separate **Sign Out** button, on
+  both desktop and mobile.
+
+**Pay the remaining balance, without re-authenticating**
+- `Invoice` gained `trip_total` (captured from the checkout page's own
+  price computation at deposit time — the same trust boundary the deposit
+  `amount` already crosses, since `Booking` has never stored a price of its
+  own) and a computed `remaining_balance` property.
+- New `POST /api/bookings/{id}/pay-balance/` pays off whatever's left on a
+  booking's invoice — unlike the deposit, the amount here is computed
+  server-side (`trip_total - amount`), never trusted from the client, since
+  there's nothing left to negotiate. Advances the booking to `confirmed`,
+  emails a confirmation, logs the action.
+- `MyTrips.tsx` shows a "Pay Remaining Balance" button directly on any trip
+  that has one outstanding — it's just another authenticated request on the
+  same cookie session, so the tourist never re-enters credentials or card
+  details.
+- Both checkout flows (`Checkout.tsx`, `PlanPayment.tsx`) now always send
+  `trip_total` alongside the deposit `amount`, not only when a referral
+  code happens to be present (previously the only reason it was ever sent).
+
+## 2026-09-14 — Referral agent program
+
+A field-sales referral system: an agent signs up, generates single-use
+referral codes for prospects, and earns a commission when a code converts
+into a paid booking. Discount and commission percentages are
+admin-editable (defaults 2% / 5%), not hardcoded.
+
+**New `referrals` Django app**
+- `ReferralSettings` — a singleton row (`get_solo()`) holding the
+  admin-editable discount % and commission %, plus how many days an unused
+  code stays valid (default 3).
+- `ReferralCode` — `agent` FK, an 8-character code (unambiguous alphabet —
+  no `0`/`O`/`1`/`I` — via `secrets.choice`, collision-checked), optional
+  `contact_name`, `expires_at` (set from `ReferralSettings.code_expiry_days`
+  at creation), `is_used`. `status` (`active`/`used`/`expired`) is a
+  computed property rather than a stored/cron-maintained field — checked
+  lazily wherever a code is read or redeemed.
+- `ReferralRedemption` — one per booking, snapshotting the discount/
+  commission rates in effect at redemption time (so a later admin rate
+  change can't retroactively alter what's already owed), the trip total,
+  and a `commission_status` (`pending`/`paid`) an admin flips manually once
+  payout happens, matching "paid out once the customer's trip is complete."
+- A new `User.ROLE_REFERRAL_AGENT` — fully self-serve signup
+  (`POST /api/referrals/agents/register/`, no admin approval gate), same
+  JWT-cookie sign-in as every other role.
+- Redemption happens inside the existing `BookingViewSet.pay` action, not
+  at booking creation, so an abandoned checkout never burns a code —
+  `ReferralCode.objects.select_for_update().filter(is_used=False)` inside
+  the same `transaction.atomic()` block that records the deposit is what
+  makes "once one person uses it, others can't" race-safe.
+
+**Frontend**
+- `/become-agent` (`ReferralSignup.tsx`) — public self-serve signup.
+- `/agent` (`AgentDashboard.tsx`, `RequireRole allow={['referral_agent']}`)
+  — generate a code, see all your codes with status badges, and the
+  commission owed/paid on each redeemed one.
+- A shared `ReferralCodeField` (validate-on-blur) dropped into the payment
+  step of both checkout flows — a valid code discounts the deposit live,
+  before submit.
+- `AdminReferrals.tsx` — a settings card (edit the discount/commission %)
+  plus a table of every redemption with a "Mark Paid" action, following the
+  same `useFetch` + table + badge pattern as the rest of the admin portal.
+- Header nav: pulled "Become a Referral Agent" out of the primary nav
+  links (where it read as an oddly long entry crowding three one-word
+  items and the "Plan Your Journey" CTA) into its own compact "Refer &
+  Earn" pill.
+
+## 2026-09-13 → 2026-09-14 — Booking now requires an account and a (mock) deposit
+
+Tourists could previously "complete" a booking with no account and no
+payment — pure inquiry, indistinguishable from a maybe-someday lead. Closed
+that gap end to end, for both booking paths, with a mock payment (card
+fields never leave the browser; real card processing is still PLANNED).
+
+**Backend**
+- New `BookingViewSet.pay` action (`POST /api/bookings/{id}/pay/`) —
+  records a mock deposit, creates an `Invoice`, advances the booking to
+  `deposit_paid`, emails a confirmation to the account's registered
+  address. `InvoiceViewSet.mine` (`GET /api/invoices/mine/`) gives a
+  tourist their own payment history.
+
+**Frontend — two checkout flows, one pattern**
+- Direct checkout (`Checkout.tsx`, `/safaris/:id/book`) is a single-page
+  wizard: details → account (skipped if already signed in) → review →
+  payment. The Trip Curator (`PlanReview` → `PlanAccount` → `PlanPayment`)
+  is the routed equivalent, sharing `TripPlanContext` state across the
+  extra steps.
+- Both reuse new shared components rather than duplicating the account/
+  payment UI a second time: `AccountFields` (register/sign-in toggle),
+  `MockCardFields` (mock card inputs, clearly labeled test mode),
+  `SafariLikeDetail` (the detail-page layout both `SafariDetail` and the
+  new `RegionSafariDetail` render).
+- **Region Safaris get a real checkout for the first time** — previously
+  only selectable inside the Trip Curator picker, with no standalone
+  detail or booking page at all. Added `RegionSafariDetail.tsx` and
+  generalized `Checkout` to take a `kind: 'safari' | 'regionSafari'` prop
+  instead of being safari-only.
+- Both flows land on one unified `/booking-confirmed` screen; the old,
+  separate `/inquiry-received` page is deleted (route, import, and all) —
+  a user reported landing on two different confirmation pages depending on
+  which flow they used, and explicitly asked for one.
+
+**Two race-condition bugs found and fixed along the way**
+- `PlanReview.tsx` evaluated its "select an experience" validation before
+  its `getSafaris()`/`getRegionSafaris()` fetches had resolved — on a slow
+  connection, a user who *had* selected a region safari briefly saw
+  "Select at least one experience before continuing." Fixed by gating the
+  check on a combined `loading` flag from all three fetches involved.
+- `PlanPayment.tsx` had the same class of bug one step further down: its
+  redirect guard checked `primaryPrice === undefined` before its own
+  fetches resolved, immediately bouncing back to `/plan/review` — which
+  looked to the user like the page "just reloading and doing nothing" on
+  clicking Continue.
+
+**A third bug, surfaced by the new referral role**
+- Signing in as a non-tourist account (first hit via the new referral-agent
+  role, but latent for guide/admin too) and then trying to check out
+  produced a raw Django 404 ("No Booking matches the given query.") instead
+  of a real error: `BookingCreateSerializer` blindly attributed the
+  booking to whichever authenticated account was signed in regardless of
+  role, while `BookingViewSet.get_queryset()` only ever scopes bookings to
+  `tourist`/`guide`/`admin` — so a non-tourist-owned booking became
+  invisible to the `pay` endpoint's lookup. Fixed at the source:
+  `BookingCreateSerializer.validate()` now rejects checkout from any
+  signed-in non-tourist account with a clear message, and both
+  `Checkout.tsx`/`PlanReview.tsx` show a friendly "Sign In Required" screen
+  (with a Sign Out button) the moment a wrong-role account lands on
+  checkout, instead of letting them fill out the whole form first.
+
 ## 2026-09-13 — Trip Curator hand-off, a lost error message, and the Invoice document redesign
 
 **Destination → Trip Curator hand-off**

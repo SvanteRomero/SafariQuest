@@ -16,6 +16,7 @@ from accounts.views import _set_auth_cookies
 from audit.utils import log_action
 from config.mail import send_notification
 from config.pagination import StandardPagination
+from referrals.models import ReferralCode, ReferralRedemption, ReferralSettings
 
 from .models import Booking, BookingNote, Invoice, Review, TripMilestone
 from .serializers import (
@@ -58,7 +59,7 @@ class BookingViewSet(
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
-        if self.action in ("list", "retrieve", "milestones", "complete_milestone", "review", "pay"):
+        if self.action in ("list", "retrieve", "milestones", "complete_milestone", "review", "pay", "pay_balance"):
             return [IsAuthenticated()]
         return [IsAdminRole()]
 
@@ -265,18 +266,44 @@ class BookingViewSet(
         serializer = BookingPaySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         amount = serializer.validated_data["amount"]
+        referral_code_value = serializer.validated_data.get("referral_code")
+        trip_total = serializer.validated_data.get("trip_total")
 
         # Stage + invoice have to land together, same reasoning as send_quote above —
         # a crash between them must not leave a "paid" booking with no invoice record.
+        redemption = None
         with transaction.atomic():
             booking.stage = Booking.STAGE_DEPOSIT_PAID
             booking.save(update_fields=["stage"])
             invoice = Invoice.objects.create(
                 booking=booking,
                 amount=amount,
+                trip_total=trip_total,
                 status=Invoice.STATUS_DEPOSIT_PAID,
                 due_date=timezone.localdate(),
             )
+            if referral_code_value and trip_total:
+                # select_for_update + is_used=False in the same atomic block is what makes
+                # "once one person uses it, others can't" race-safe under concurrent redeems.
+                referral_code = (
+                    ReferralCode.objects.select_for_update()
+                    .filter(code=referral_code_value.strip().upper(), is_used=False)
+                    .first()
+                )
+                if referral_code and not referral_code.is_expired:
+                    settings_obj = ReferralSettings.get_solo()
+                    commission_amount = round(trip_total * settings_obj.commission_percent / 100)
+                    redemption = ReferralRedemption.objects.create(
+                        code=referral_code,
+                        booking=booking,
+                        discount_percent=settings_obj.discount_percent,
+                        commission_percent=settings_obj.commission_percent,
+                        trip_total=trip_total,
+                        commission_amount=commission_amount,
+                    )
+                    referral_code.is_used = True
+                    referral_code.used_at = timezone.now()
+                    referral_code.save(update_fields=["is_used", "used_at"])
         send_notification(
             subject=f"Payment received — {booking.package_title}",
             message=(
@@ -291,6 +318,65 @@ class BookingViewSet(
             request.user,
             "booking.payment_recorded",
             f"Mock deposit of ${amount:,} recorded for booking #{booking.id} (invoice #{invoice.id})",
+        )
+        if redemption:
+            send_notification(
+                subject="Your referral code was used!",
+                message=(
+                    f"Hi {redemption.code.agent.name or redemption.code.agent.email},\n\n"
+                    f"Your referral code {redemption.code.code} was just used for a new booking. "
+                    f"You've earned an estimated ${redemption.commission_amount:,} commission "
+                    "(paid out once the customer's trip is complete). You can track this in your "
+                    "referral dashboard."
+                ),
+                recipient_list=[redemption.code.agent.email],
+            )
+            log_action(
+                request.user,
+                "referral.code_redeemed",
+                f"Referral code {redemption.code.code} redeemed on booking #{booking.id} "
+                f"(commission ${redemption.commission_amount:,} owed to {redemption.code.agent.email})",
+            )
+        booking.refresh_from_db()
+        return Response(BookingDetailSerializer(booking).data)
+
+    @action(detail=True, methods=["post"], url_path="pay-balance")
+    def pay_balance(self, request, pk=None):
+        """Pays off whatever remains after the deposit, from the tourist's own dashboard —
+        no re-authentication needed, it's just another authenticated request on the same
+        cookie session. The amount is computed here from the invoice's trip_total rather than
+        trusted from the client, unlike the deposit (there's nothing left to negotiate: it's
+        exactly what's left)."""
+        booking = self.get_object()
+        if request.user.role != User.ROLE_TOURIST or booking.customer_id != request.user.id:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        invoice = getattr(booking, "invoice", None)
+        if not invoice or invoice.trip_total is None:
+            return Response({"detail": "No balance is due on this booking."}, status=status.HTTP_400_BAD_REQUEST)
+        remaining = invoice.remaining_balance
+        if not remaining:
+            return Response({"detail": "This booking is already fully paid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            invoice.amount = invoice.trip_total
+            invoice.status = Invoice.STATUS_PAID
+            invoice.save(update_fields=["amount", "status"])
+            booking.stage = Booking.STAGE_CONFIRMED
+            booking.save(update_fields=["stage"])
+        send_notification(
+            subject=f"Balance paid — {booking.package_title}",
+            message=(
+                f"Hi {booking.customer.name or booking.customer.email},\n\n"
+                f"We've received your remaining balance of ${remaining:,} for {booking.package_title}. "
+                "Your trip is now fully paid and confirmed. This is a mock payment confirmation for "
+                "testing — no real charge was made."
+            ),
+            recipient_list=[booking.customer.email],
+        )
+        log_action(
+            request.user,
+            "booking.balance_paid",
+            f"Remaining balance of ${remaining:,} paid for booking #{booking.id} (invoice #{invoice.id})",
         )
         booking.refresh_from_db()
         return Response(BookingDetailSerializer(booking).data)

@@ -41,28 +41,41 @@ src/
                 per-portal layout shells: components/admin, components/
                 account, components/guide, components/plan
   pages/        one file per route; pages/admin, pages/account, pages/guide,
-                pages/plan mirror the portal split below
+                pages/plan, pages/agent mirror the portal split below
   data/         a couple of small local datasets (FAQs, static "experiences"
                 copy) that aren't backed by a model on purpose — everything
                 else is fetched live via api/
 ```
 
-### The four portals, one router
+### The five portals, one router
 
 `App.tsx` mounts everything under one `react-router` tree:
 
 | Area | Routes | Who |
 |---|---|---|
-| Public site | `/`, `/destinations`, `/destinations/:id`, `/safaris`, `/safaris/:id`, `/about`, `/faqs`, `/experiences` | anyone |
-| Trip planner | `/plan`, `/plan/experiences`, `/plan/details`, `/plan/review` | anyone (see below) |
+| Public site | `/`, `/destinations`, `/destinations/:id`, `/safaris`, `/safaris/:id`, `/region-safaris/:id`, `/about`, `/faqs`, `/experiences`, `/become-agent` | anyone |
+| Trip planner | `/plan`, `/plan/experiences`, `/plan/details`, `/plan/review`, `/plan/account`, `/plan/payment` | anyone (see Checkout below) |
+| Direct checkout | `/safaris/:id/book`, `/region-safaris/:id/book` | anyone |
 | Auth | `/sign-in`, `/set-password` | anyone |
 | Tourist account | `/account`, `/account/trips`, `/account/trips/:tripId`, `/account/invoices`, `/account/complaints`, `/account/profile` | `tourist` |
 | Guide portal | `/guide`, `/guide/trips/:tripId`, `/guide/trips/:tripId/progress`, `/guide/reviews`, `/guide/support`, `/guide/profile` | `guide` |
-| Admin portal | `/admin`, `/admin/inquiries`, `/admin/clients`, `/admin/invoices`, `/admin/invoices/:invoiceId`, `/admin/finance`, `/admin/pricing`, `/admin/guides`, `/admin/complaints`, `/admin/content` (Safaris / Region Safaris / Regions / Parks tabs, each with its own `Admin*Form`), `/admin/analytics`, `/admin/users` (includes the audit-log widget) | `admin` |
+| Referral agent portal | `/agent` | `referral_agent` |
+| Admin portal | `/admin`, `/admin/inquiries`, `/admin/clients`, `/admin/invoices`, `/admin/invoices/:invoiceId`, `/admin/finance`, `/admin/pricing`, `/admin/guides`, `/admin/complaints`, `/admin/referrals`, `/admin/content` (Safaris / Region Safaris / Regions / Parks tabs, each with its own `Admin*Form`), `/admin/analytics`, `/admin/users` (includes the audit-log widget) | `admin` |
 
-`auth/RequireRole` wraps the account/guide/admin route trees and redirects
-to `/sign-in` (or the correct portal home, via `ROLE_HOME`) if the signed-in
-user's role doesn't match.
+`auth/RequireRole` wraps the account/guide/agent/admin route trees and
+redirects to `/sign-in` (or the correct portal home, via the shared
+`ROLE_HOME` map in `api/auth.ts`) if the signed-in user's role doesn't
+match. `/account` additionally self-redirects any signed-in non-tourist
+role to their own `ROLE_HOME` — it isn't wrapped in `RequireRole` like the
+others (a tourist can also reach it signed *out*, mid-checkout), so the
+guard lives inside `AccountLayout` instead.
+
+The header's post-sign-in **Dashboard** button (and every other role→home
+redirect — `SignIn.tsx`, `AccountLayout.tsx`) reads this same `ROLE_HOME`
+map rather than keeping its own copy. A page that used to keep a local
+duplicate is exactly how signing in as a `referral_agent` from the generic
+`/sign-in` page once landed on the tourist `/account` dashboard instead of
+`/agent` — see `CHANGELOG.md`.
 
 ### Region → Park → Safari, mirrored from the backend
 
@@ -74,6 +87,66 @@ picks from the **safaris** that actually visit those parks
 4-step planner's shared state (`TripPlanContext` /
 `tripPlanStore.ts`) that carries the selected region → parks → safaris
 across `/plan/experiences` → `/plan/details` → `/plan/review`.
+
+### Checkout and payment
+
+A booking can't be completed without an account and a (mock) deposit —
+there are two independent checkout flows that both end the same way:
+
+- **Direct checkout** (`pages/Checkout.tsx`, `kind: 'safari' | 'regionSafari'`
+  — one component serving both `/safaris/:id/book` and
+  `/region-safaris/:id/book`) is a single-page wizard with local `step`
+  state: details → account (skipped if already signed in) → review →
+  payment.
+- **Trip Curator checkout** is the routed equivalent —
+  `pages/plan/PlanReview.tsx` → `PlanAccount.tsx` → `PlanPayment.tsx` —
+  sharing `TripPlanContext` state across the extra route boundaries instead
+  of local component state. `components/plan/usePlanSelections.ts` is the
+  one place both `PlanReview` and `PlanPayment` derive "what's actually
+  selected" (destinations/experiences/primary product) from
+  `plan.experienceIds`, so they can't drift out of sync with each other —
+  it also exposes a `loading` flag: evaluating a "select something" guard
+  before its own `getSafaris()`/`getRegionSafaris()` fetches resolve is
+  exactly the bug that used to flash a false validation error on Review.
+
+Both flows share rather than duplicate the account/payment UI:
+`components/checkout/AccountFields.tsx` (register/sign-in toggle),
+`MockCardFields.tsx` (mock card inputs — clearly labeled test mode; nothing
+here ever reaches the backend, only the resulting deposit amount does), and
+`ReferralCodeField.tsx` (see Referral program below). Both end on one
+shared `/booking-confirmed` screen (`state: {title, paidAmount,
+paidToEmail}`) rather than each having their own.
+
+Only a signed-in `tourist` (or nobody, i.e. checkout will create the
+account) can reach the payment step — `Checkout.tsx` and `PlanReview.tsx`
+both check `user.role` and show a "Sign In Required" screen with a sign-out
+button if a guide/admin/referral-agent account is signed in, instead of
+letting them fill out the whole form and hit a 400 at the very end (the
+backend rejects it too — see `backend/README.md`'s accounts section).
+
+**Paying off the rest, later:** once the deposit is paid, `pages/account/
+MyTrips.tsx` shows a "Pay Remaining Balance" button on any trip that still
+has one (`GET /api/invoices/mine/`'s `remainingBalance`), calling
+`payRemainingBalance()` — just another authenticated request on the same
+cookie session, no re-entered credentials or card details.
+
+### Referral program
+
+A field-sales referral system, backed by the `referrals` Django app (see
+`backend/README.md` for the full model). An agent signs up self-serve at
+`/become-agent` (`pages/ReferralSignup.tsx`), then from their own dashboard
+(`pages/agent/AgentDashboard.tsx`, `/agent`) generates single-use codes —
+each shown once with its expiry, plus a running list of their own codes
+with a status badge (active/used/expired) and, once redeemed, the
+resulting booking and commission owed/paid.
+
+At checkout, `components/checkout/ReferralCodeField.tsx` validates a code
+on blur (`POST /api/referrals/codes/validate/`) before submit, discounting
+the deposit live if it's active. `pages/admin/AdminReferrals.tsx` is the
+admin side: a settings card to edit the discount/commission percentages,
+and a table of every redemption with a "Mark Paid" action — same
+`useFetch` + table + status-badge pattern as the rest of the admin portal
+(e.g. `AdminStaffGuides.tsx`).
 
 ### Admin content editing
 

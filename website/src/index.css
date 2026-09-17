@@ -118,11 +118,21 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* A safety net, not the fix: if some page's content is ever wider than
+       the viewport, this clips it instead of letting the whole document
+       grow wider than the viewport — which used to drag position:fixed
+       elements (the mobile nav bars in AdminLayout/AccountLayout) sideways
+       along with it, pushing their menu toggle off-screen. Intentional
+       horizontal scrolling (the Kanban board, data tables) is unaffected —
+       those scroll inside their own overflow-x-auto container, which this
+       doesn't touch. */
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-surface text-on-surface;
     font-family: var(--font-body-md);
+    overflow-x: hidden;
   }
 
   :focus-visible {

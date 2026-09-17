@@ -137,12 +137,12 @@ export function AdminComplaints() {
                 <img src={selected.photo} alt="Attached" className="rounded-lg max-h-48 mb-4 object-cover" />
               )}
 
-              <div className="flex gap-2 mb-6">
+              <div className="flex flex-col sm:flex-row gap-2 mb-6">
                 <button
                   type="button"
                   disabled={updatingStatus || selected.status === 'in_progress'}
                   onClick={() => handleStatusChange('in_progress')}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-sand-stone text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-sand-stone text-sm text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   <Clock size={16} />
                   Mark In Progress
@@ -151,7 +151,7 @@ export function AdminComplaints() {
                   type="button"
                   disabled={updatingStatus || selected.status === 'resolved'}
                   onClick={() => handleStatusChange('resolved')}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-savanna-green text-on-primary text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-savanna-green text-on-primary text-sm hover:opacity-90 transition-opacity disabled:opacity-50 min-h-[44px]"
                 >
                   <CheckCircle size={16} />
                   Mark Resolved

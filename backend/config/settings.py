@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "support",
     "analytics",
     "audit",
+    "referrals",
 ]
 
 MIDDLEWARE = [
