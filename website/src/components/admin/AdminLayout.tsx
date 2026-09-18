@@ -26,6 +26,7 @@ import {
 } from '@phosphor-icons/react'
 import { useAuth } from '../../auth/AuthContext'
 import { useBodyScrollLock } from '../../lib/useBodyScrollLock'
+import { RouteErrorBoundary } from '../RouteErrorBoundary'
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrator',
@@ -250,7 +251,9 @@ export function AdminLayout() {
 
         <main className="flex-1 min-w-0">
           <div className="p-5 md:p-8 max-w-7xl mx-auto">
-            <Outlet />
+            <RouteErrorBoundary>
+              <Outlet />
+            </RouteErrorBoundary>
           </div>
         </main>
 
