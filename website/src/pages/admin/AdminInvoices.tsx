@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Receipt } from '@phosphor-icons/react'
 import { getInvoicesPage, INVOICE_STATUS_LABELS, type InvoiceStatus } from '../../api/invoices'
 import { usePaginatedFetch } from '../../lib/usePaginatedFetch'
@@ -22,6 +22,7 @@ const FILTERS: { label: string; value: InvoiceStatus | 'all' }[] = [
 ]
 
 export function AdminInvoices() {
+  const navigate = useNavigate()
   const [filter, setFilter] = useState<InvoiceStatus | 'all'>('all')
   const { data: allInvoices, loading, error, page, count, hasNext, hasPrevious, nextPage, prevPage } =
     usePaginatedFetch(
@@ -86,12 +87,19 @@ export function AdminInvoices() {
               </thead>
               <tbody className="divide-y divide-sand-stone">
                 {allInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-surface-container-low transition-colors">
+                  <tr
+                    key={invoice.id}
+                    onClick={() => navigate(`/admin/invoices/${invoice.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') navigate(`/admin/invoices/${invoice.id}`)
+                    }}
+                    tabIndex={0}
+                    role="link"
+                    className="cursor-pointer hover:bg-surface-container-low transition-colors focus:outline-none focus:bg-surface-container-low"
+                  >
                     <td className="px-5 py-4">
-                      <Link to={`/admin/invoices/${invoice.id}`} className="block">
-                        <span className="font-label-md text-sm text-on-surface">{invoice.customerName}</span>
-                        <p className="text-xs text-on-surface-variant">{invoice.customerEmail}</p>
-                      </Link>
+                      <span className="font-label-md text-sm text-on-surface">{invoice.customerName}</span>
+                      <p className="text-xs text-on-surface-variant">{invoice.customerEmail}</p>
                     </td>
                     <td className="px-5 py-4 text-sm text-on-surface-variant">{invoice.packageTitle}</td>
                     <td className="px-5 py-4 text-sm text-on-surface">${invoice.amount.toLocaleString()}</td>
