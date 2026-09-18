@@ -107,7 +107,7 @@ export function AdminInvoiceDocument() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 max-w-[210mm] mx-auto print:hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 max-w-[210mm] mx-auto px-4 sm:px-0 print:hidden">
         <Link
           to="/admin/invoices"
           className="flex items-center gap-1.5 text-on-surface-variant hover:text-savanna-green text-sm transition-colors"
@@ -116,8 +116,8 @@ export function AdminInvoiceDocument() {
           Back to Invoices
         </Link>
         {invoice && (
-          <div className="flex items-center gap-3">
-            <label htmlFor="invoice-status" className="text-sm text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <label htmlFor="invoice-status" className="sr-only sm:not-sr-only text-sm text-on-surface-variant">
               Payment status
             </label>
             <select
@@ -125,7 +125,7 @@ export function AdminInvoiceDocument() {
               value={invoice.status === 'overdue' ? 'unpaid' : invoice.status}
               disabled={savingStatus}
               onChange={(e) => handleStatusChange(e.target.value as SettableInvoiceStatus)}
-              className="min-h-[44px] px-3 py-2 bg-surface-container-lowest border border-sand-stone rounded-lg text-sm text-on-surface focus:outline-none focus:border-savanna-green focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
+              className="min-h-[44px] flex-1 sm:flex-initial px-3 py-2 bg-surface-container-lowest border border-sand-stone rounded-lg text-sm text-on-surface focus:outline-none focus:border-savanna-green focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
             >
               {SETTABLE_INVOICE_STATUSES.map((status) => (
                 <option key={status} value={status}>
@@ -136,7 +136,7 @@ export function AdminInvoiceDocument() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-4 py-2 border border-sand-stone text-on-surface-variant rounded-lg font-label-md text-sm hover:border-savanna-green hover:text-savanna-green transition-colors"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2 border border-sand-stone text-on-surface-variant rounded-lg font-label-md text-sm hover:border-savanna-green hover:text-savanna-green transition-colors"
             >
               <Printer size={16} />
               Print
@@ -145,7 +145,7 @@ export function AdminInvoiceDocument() {
               type="button"
               onClick={handleDownloadPdf}
               disabled={downloading}
-              className="flex items-center gap-2 px-4 py-2 bg-savanna-green text-on-primary rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2 bg-savanna-green text-on-primary rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <DownloadSimple size={16} />
               {downloading ? 'Preparing…' : 'Download PDF'}
@@ -155,7 +155,7 @@ export function AdminInvoiceDocument() {
       </div>
 
       {actionError && (
-        <p className="text-center text-error mb-4 max-w-[210mm] mx-auto print:hidden">{actionError}</p>
+        <p className="text-center text-error mb-4 max-w-[210mm] mx-auto px-4 sm:px-0 print:hidden">{actionError}</p>
       )}
 
       {loading && <p className="text-center text-on-surface-variant py-10">Loading…</p>}
@@ -164,9 +164,9 @@ export function AdminInvoiceDocument() {
       {!loading && !error && invoice && (
         <div
           ref={documentRef}
-          className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 p-12 max-w-[210mm] mx-auto print:shadow-none print:border-none"
+          className="bg-surface-container-lowest rounded-xl shadow-sm border border-sand-stone/50 p-5 sm:p-8 md:p-12 max-w-[210mm] mx-4 sm:mx-auto print:shadow-none print:border-none"
         >
-          <div className="flex justify-between items-start mb-8 pb-8 border-b border-sand-stone">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6 mb-8 pb-8 border-b border-sand-stone">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Mountains size={26} weight="fill" className="text-savanna-green" />
@@ -178,7 +178,7 @@ export function AdminInvoiceDocument() {
                 {contact.email && <p>{contact.email}</p>}
               </div>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right">
               <h2 className="font-headline-lg text-[26px] text-savanna-green mb-2">INVOICE</h2>
               <div className="text-xs space-y-1">
                 <p className="text-on-surface-variant">
@@ -194,7 +194,7 @@ export function AdminInvoiceDocument() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <div>
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Bill To</p>
               <p className="font-label-md text-sm text-on-surface font-bold">{invoice.customerName}</p>
@@ -205,7 +205,7 @@ export function AdminInvoiceDocument() {
                 Trip Reference
               </p>
               <p className="font-label-md text-sm text-on-surface mb-1.5">{invoice.packageTitle}</p>
-              <div className="flex items-center gap-4 text-xs text-on-surface-variant">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-surface-variant">
                 <span className="flex items-center gap-1">
                   <CalendarBlank size={13} /> {invoice.startDate} – {invoice.endDate}
                 </span>
@@ -216,28 +216,30 @@ export function AdminInvoiceDocument() {
             </div>
           </div>
 
-          <table className="w-full text-left mb-8">
-            <thead>
-              <tr className="border-b border-sand-stone text-on-surface-variant text-xs uppercase tracking-wider">
-                <th className="py-3 font-medium">Description</th>
-                <th className="py-3 font-medium text-right">Qty</th>
-                <th className="py-3 font-medium text-right">Unit Price</th>
-                <th className="py-3 font-medium text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand-stone">
-              {invoice.lineItems.map((li, i) => (
-                <tr key={i}>
-                  <td className="py-3 text-sm text-on-surface">{li.label}</td>
-                  <td className="py-3 text-sm text-on-surface-variant text-right">{li.quantity}</td>
-                  <td className="py-3 text-sm text-on-surface-variant text-right">${li.unitPrice.toLocaleString()}</td>
-                  <td className="py-3 text-sm text-on-surface text-right">${li.quotePrice.toLocaleString()}</td>
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full min-w-[420px] text-left">
+              <thead>
+                <tr className="border-b border-sand-stone text-on-surface-variant text-xs uppercase tracking-wider">
+                  <th className="py-3 font-medium">Description</th>
+                  <th className="py-3 font-medium text-right">Qty</th>
+                  <th className="py-3 font-medium text-right">Unit Price</th>
+                  <th className="py-3 font-medium text-right">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-sand-stone">
+                {invoice.lineItems.map((li, i) => (
+                  <tr key={i}>
+                    <td className="py-3 text-sm text-on-surface">{li.label}</td>
+                    <td className="py-3 text-sm text-on-surface-variant text-right">{li.quantity}</td>
+                    <td className="py-3 text-sm text-on-surface-variant text-right">${li.unitPrice.toLocaleString()}</td>
+                    <td className="py-3 text-sm text-on-surface text-right">${li.quotePrice.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <div className="bg-surface-container-low rounded-lg p-4 border-l-4 border-golden-sun h-fit">
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">
                 Payment Schedule
