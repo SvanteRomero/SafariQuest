@@ -2,6 +2,7 @@
 at checkout, and amounts in the two are never added together."""
 
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,6 +14,13 @@ from bookings.tests.test_create import make_safari, trip_day
 from bookings.tests.test_pay import SnippeTestMixin, make_booking
 
 User = get_user_model()
+
+NO_SENJAROPAY = {
+    "SENJAROPAY_PAYMENTS_CREATE_KEY": "",
+    "SENJAROPAY_PAYMENTS_CREATE_SECRET": "",
+    "SENJAROPAY_PAYMENTS_READ_KEY": "",
+    "SENJAROPAY_PAYMENTS_READ_SECRET": "",
+}
 
 
 class ProductPriceTests(APITestCase):
@@ -76,13 +84,15 @@ class UsdPaymentTests(SnippeTestMixin, APITestCase):
         self.booking.save(update_fields=["currency"])
         self.client.post(reverse("login"), {"email": self.customer.email, "password": "pw12345"})
 
-    def test_usd_is_refused_until_senjaropay_is_connected(self):
+    @override_settings(**NO_SENJAROPAY)
+    def test_usd_is_refused_while_senjaropay_is_not_configured(self):
         response = self.client.post(reverse("booking-pay", args=[self.booking.id]))
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.data["code"], "provider_unavailable")
         self.assertEqual(self.snippe.requests, [])
         self.assertFalse(Payment.objects.exists())
 
+    @override_settings(**NO_SENJAROPAY)
     def test_availability_reports_which_currencies_can_be_paid(self):
         currencies = self.client.get(reverse("payment-availability")).data["currencies"]
         self.assertEqual(currencies, {"TZS": True, "USD": False})

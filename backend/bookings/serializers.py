@@ -7,12 +7,14 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import serializers
 
-from config.mail import send_notification
+from config.mail import send_email
+from notifications.service import notify, notify_admins
 from region_safaris.models import RegionSafari
 from safaris.models import SafariPackage
 
 from . import currency as currency_module
 from .models import Booking, BookingNote, Invoice, QuoteLineItem, Review, TripMilestone
+from .pricing import deposit_for, quote_terms
 
 User = get_user_model()
 
@@ -24,6 +26,7 @@ class BookingListSerializer(serializers.ModelSerializer):
     region = serializers.CharField(source="region_name", read_only=True)
     assigned_guide_name = serializers.CharField(source="assigned_guide.name", default=None)
     subtotal = serializers.SerializerMethodField()
+    deposit_due = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
@@ -41,10 +44,23 @@ class BookingListSerializer(serializers.ModelSerializer):
             "assigned_guide_name",
             "subtotal",
             "currency",
+            "quote_requested",
+            "deposit_due",
         ]
 
     def get_subtotal(self, obj):
         return obj.subtotal
+
+    def get_deposit_due(self, obj):
+        """The deposit on a sent quote that's still unpaid — what My Trips' "Pay Deposit"
+        will charge (BookingViewSet.pay works it out the same way). None otherwise."""
+        invoice = getattr(obj, "invoice", None)
+        if obj.stage != Booking.STAGE_QUOTED or not invoice or invoice.status != Invoice.STATUS_UNPAID:
+            return None
+        if invoice.trip_total is not None:
+            return None
+        trip_total, _terms = quote_terms(obj)
+        return deposit_for(trip_total)
 
 
 class QuoteLineItemSerializer(serializers.ModelSerializer):
@@ -164,6 +180,13 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Use POST /api/bookings/{id}/quote/send/ to move a booking to the Quoted stage."
             )
+        if value == Booking.STAGE_DEPOSIT_PAID:
+            # Only a real payment moves a booking here (bookings.payments), which also
+            # records it on the invoice. Setting the stage by hand left the invoice unpaid
+            # and stopped the client from paying, since deposits are refused past Quoted.
+            raise serializers.ValidationError(
+                "A booking moves to Deposit Paid automatically when the client pays the deposit."
+            )
         order = Booking.STAGE_ORDER
         if value not in order:
             raise serializers.ValidationError("Unknown stage.")
@@ -176,6 +199,24 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         return value
 
 
+class CardBillingSerializer(serializers.Serializer):
+    """The cardholder details Senjaropay requires on every card payment."""
+
+    phone_number = serializers.RegexField(
+        r"^\+?[\d\s()-]{7,20}$",
+        error_messages={"invalid": "Enter a phone number with its country code, e.g. +1 415 555 0100."},
+    )
+    country = serializers.CharField(max_length=60)
+    city = serializers.CharField(max_length=80)
+    address = serializers.CharField(max_length=200)
+
+    def validate_phone_number(self, value):
+        digits = "".join(ch for ch in value if ch.isdigit())
+        if not 7 <= len(digits) <= 15:
+            raise serializers.ValidationError("Enter a phone number with its country code, e.g. +1 415 555 0100.")
+        return digits
+
+
 class BookingPaySerializer(serializers.Serializer):
     """Starts a Snippe payment for a deposit or balance. No amounts are accepted:
     they're computed server-side (bookings.pricing / the invoice), so a caller can't choose
@@ -186,6 +227,9 @@ class BookingPaySerializer(serializers.Serializer):
     # Direct payments: the number the prompt goes to. Checked and normalized by the view
     # (bookings.mobile_numbers), which also knows whether this mode needs it.
     phone_number = serializers.CharField(required=False, allow_blank=True, max_length=30)
+    # USD card payments: the billing details Senjaropay requires. The view checks they're
+    # all there when the booking is in USD.
+    billing = CardBillingSerializer(required=False)
 
 
 class QuoteLineItemInputSerializer(serializers.Serializer):
@@ -254,6 +298,10 @@ class BookingCreateSerializer(serializers.Serializer):
     message = serializers.CharField(required=False, allow_blank=True)
     # What the trip is priced and paid in. A product only has a USD price if one was set.
     currency = serializers.ChoiceField(choices=currency_module.CURRENCIES, default=currency_module.TZS)
+    # The trip planner asks for a quote instead of paying the package price; a referral
+    # code entered there is kept for when the quote's deposit is paid.
+    quote_requested = serializers.BooleanField(default=False)
+    referral_code = serializers.CharField(required=False, allow_blank=True, max_length=32)
 
     def validate(self, attrs):
         if bool(attrs.get("safari")) == bool(attrs.get("region_safari")):
@@ -312,7 +360,7 @@ class BookingCreateSerializer(serializers.Serializer):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         set_password_url = f"{settings.FRONTEND_URL}/set-password?uid={uid}&token={token}"
-        send_notification(
+        send_email(
             subject="Your SafariQuest account is ready",
             message=(
                 f"Hi {user.name or user.email},\n\n"
@@ -355,8 +403,29 @@ class BookingCreateSerializer(serializers.Serializer):
                 children=validated_data["children"],
                 message=validated_data.get("message", ""),
                 currency=validated_data["currency"],
+                quote_requested=validated_data["quote_requested"],
+                referral_code_entered=(validated_data.get("referral_code") or "").strip().upper(),
             )
             self._create_milestones(booking)
         if is_new:
             self._send_account_created_email(customer)
+        if booking.quote_requested:
+            self._announce_quote_request(booking)
         return booking
+
+    @staticmethod
+    def _announce_quote_request(booking):
+        customer = booking.customer
+        notify(
+            customer,
+            f"We've received your trip request — {booking.package_title}",
+            "We're putting together a quote for the trip you designed. It will appear on this "
+            "trip's page, where you can pay the deposit — we'll let you know when it's ready.",
+            link=f"/account/trips/{booking.id}",
+        )
+        notify_admins(
+            f"New quote request — {booking.package_title}",
+            f"{customer.name or customer.email} sent a trip from the planner for "
+            f"{booking.start_date:%d %b %Y}, {booking.guests} guest(s). Build and send their quote.",
+            link=f"/admin/inquiries/{booking.id}",
+        )

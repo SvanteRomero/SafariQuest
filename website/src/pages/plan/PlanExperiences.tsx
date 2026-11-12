@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Check, Clock, ArrowLeft, ArrowRight } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
 import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { getDestinations } from '../../api/destinations'
 import { getParks } from '../../api/parks'
@@ -10,11 +10,11 @@ import { getRegionSafaris } from '../../api/regionSafaris'
 import { useFetch } from '../../lib/useFetch'
 import { useTripPlan } from '../../components/plan/tripPlanStore'
 import { trackFunnelEvent } from '../../lib/funnelTracking'
-import { formatProductPrice } from '../../lib/money'
 import { useDisplayCurrency } from '../../lib/currencyPreference'
+import { ExperienceCard } from '../../components/plan/ExperienceCard'
 
 export function PlanExperiences() {
-  const { t, i18n } = useTranslation('plan')
+  const { t } = useTranslation('plan')
   const { currency } = useDisplayCurrency()
   const { plan, toggleExperience } = useTripPlan()
   const navigate = useNavigate()
@@ -124,59 +124,15 @@ export function PlanExperiences() {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {regionSafarisForActive.map((safari) => {
-                      const selected = plan.experienceIds.includes(safari.id)
-                      return (
-                        <div
-                          key={safari.id}
-                          className={`relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all duration-300 ${
-                            selected ? 'ring-2 ring-savanna-green shadow-lg' : 'ring-1 ring-sand-stone hover:shadow-lg'
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
-                              selected ? 'bg-savanna-green' : 'bg-surface/90 border border-outline-variant'
-                            }`}
-                          >
-                            {selected && <Check size={16} weight="bold" className="text-on-primary" />}
-                          </div>
-                          <div className="h-40 relative">
-                            <img
-                              src={safari.image}
-                              alt={safari.imageAlt}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-deep-earth/50 to-transparent" />
-                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                              <span className="inline-flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                <Clock size={13} />
-                                {t('experiences.day', { count: safari.days })}
-                              </span>
-                              <span className="bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                {formatProductPrice(safari, currency, i18n.language)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-6">
-                            <h4 className="font-headline-md text-[20px] text-on-surface mb-2">{safari.title}</h4>
-                            <p className="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">
-                              {safari.overview}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => toggleExperience(safari.id)}
-                              className={`w-full text-center py-3 rounded-lg font-label-md text-label-md transition-colors ${
-                                selected
-                                  ? 'bg-surface-container text-on-surface-variant'
-                                  : 'border border-outline-variant text-on-surface hover:border-savanna-green hover:text-savanna-green'
-                              }`}
-                            >
-                              {selected ? t('experiences.selected') : t('experiences.selectExperience')}
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {regionSafarisForActive.map((safari) => (
+                      <ExperienceCard
+                        key={safari.id}
+                        safari={safari}
+                        selected={plan.experienceIds.includes(safari.id)}
+                        currency={currency}
+                        onToggle={() => toggleExperience(safari.id)}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
@@ -197,59 +153,15 @@ export function PlanExperiences() {
                       <p className="text-on-surface-variant text-sm">{t('experiences.noSafarisYet')}</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {parkSafaris.map((safari) => {
-                          const selected = plan.experienceIds.includes(safari.id)
-                          return (
-                            <div
-                              key={safari.id}
-                              className={`relative rounded-xl overflow-hidden bg-surface-container-lowest transition-all duration-300 ${
-                                selected ? 'ring-2 ring-savanna-green shadow-lg' : 'ring-1 ring-sand-stone hover:shadow-lg'
-                              }`}
-                            >
-                              <div
-                                className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
-                                  selected ? 'bg-savanna-green' : 'bg-surface/90 border border-outline-variant'
-                                }`}
-                              >
-                                {selected && <Check size={16} weight="bold" className="text-on-primary" />}
-                              </div>
-                              <div className="h-40 relative">
-                                <img
-                                  src={safari.image}
-                                  alt={safari.imageAlt}
-                                  className="absolute inset-0 w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-deep-earth/50 to-transparent" />
-                                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                                  <span className="inline-flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                    <Clock size={13} />
-                                    {t('experiences.day', { count: safari.days })}
-                                  </span>
-                                  <span className="bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface">
-                                    {formatProductPrice(safari, currency, i18n.language)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="p-6">
-                                <h4 className="font-headline-md text-[20px] text-on-surface mb-2">{safari.title}</h4>
-                                <p className="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">
-                                  {safari.overview}
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={() => toggleExperience(safari.id)}
-                                  className={`w-full text-center py-3 rounded-lg font-label-md text-label-md transition-colors ${
-                                    selected
-                                      ? 'bg-surface-container text-on-surface-variant'
-                                      : 'border border-outline-variant text-on-surface hover:border-savanna-green hover:text-savanna-green'
-                                  }`}
-                                >
-                                  {selected ? t('experiences.selected') : t('experiences.selectExperience')}
-                                </button>
-                              </div>
-                            </div>
-                          )
-                        })}
+                        {parkSafaris.map((safari) => (
+                          <ExperienceCard
+                            key={safari.id}
+                            safari={safari}
+                            selected={plan.experienceIds.includes(safari.id)}
+                            currency={currency}
+                            onToggle={() => toggleExperience(safari.id)}
+                          />
+                        ))}
                       </div>
                     )}
                   </div>

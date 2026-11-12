@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import {
   Check,
   EnvelopeSimple,
+  HourglassMedium,
   Receipt,
   PencilSimple,
   PaperPlaneTilt,
@@ -10,8 +11,6 @@ import {
   CalendarCheck,
   Users,
   IdentificationBadge,
-  Plus,
-  Trash,
 } from '@phosphor-icons/react'
 import {
   addNote,
@@ -21,12 +20,12 @@ import {
   updateQuote,
   STAGE_LABELS,
   type BookingStage,
-  type QuoteLineItemInput,
 } from '../../api/bookings'
 import { getGuides } from '../../api/guides'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
-import { formatMoney } from '../../lib/money'
+import { QuoteBuilder } from '../../components/admin/QuoteBuilder'
+import { draftLine, toLineInputs, type DraftLineItem } from '../../lib/quoteDraft'
 
 const STAGE_DOT: Record<BookingStage, string> = {
   new_inquiry: 'bg-secondary-container',
@@ -36,14 +35,11 @@ const STAGE_DOT: Record<BookingStage, string> = {
   completed: 'bg-terracotta',
 }
 
+// No "Mark Deposit Paid": a booking reaches that stage only when the client's deposit
+// payment lands, which also records it on the invoice (the API refuses it by hand).
 const NEXT_STAGE_ACTION: Partial<Record<BookingStage, { label: string; next: BookingStage }>> = {
-  quoted: { label: 'Mark Deposit Paid', next: 'deposit_paid' },
   deposit_paid: { label: 'Mark Confirmed', next: 'confirmed' },
   confirmed: { label: 'Mark Completed', next: 'completed' },
-}
-
-function quotePrice(item: QuoteLineItemInput) {
-  return item.quantity * item.unitPrice
 }
 
 function tripDurationDays(startDate: string, endDate: string) {
@@ -58,7 +54,7 @@ export function AdminBookingDetail() {
   const { data: booking, loading, error, refetch } = useFetch(() => getBooking(bookingId), [bookingId])
   const { data: guides } = useFetch(getGuides, [])
 
-  const [lineItems, setLineItems] = useState<QuoteLineItemInput[]>([])
+  const [lineItems, setLineItems] = useState<DraftLineItem[]>([])
   const [note, setNote] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
   const [savingQuote, setSavingQuote] = useState(false)
@@ -80,7 +76,7 @@ export function AdminBookingDetail() {
     setPrevBooking(booking)
     if (booking) {
       setLineItems(
-        booking.lineItems.map(({ label, quantity, unitPrice }) => ({ label, quantity, unitPrice })),
+        booking.lineItems.map(({ label, quantity, unitPrice }) => draftLine({ label, quantity, unitPrice })),
       )
     }
   }
@@ -100,7 +96,6 @@ export function AdminBookingDetail() {
     )
   }
 
-  const subtotal = lineItems.reduce((sum, li) => sum + quotePrice(li), 0)
   const quoteSent = booking.stage !== 'new_inquiry'
   // The API refuses quote edits once a deposit is paid (the invoice and the payment are
   // against the current figure), so the builder goes read-only from then on.
@@ -110,23 +105,11 @@ export function AdminBookingDetail() {
     (g) => g.status === 'Available' || g.id === booking.assignedGuideId,
   )
 
-  function updateLineItem(index: number, patch: Partial<QuoteLineItemInput>) {
-    setLineItems((items) => items.map((item, i) => (i === index ? { ...item, ...patch } : item)))
-  }
-
-  function addLineItem() {
-    setLineItems((items) => [...items, { label: '', quantity: 1, unitPrice: 0 }])
-  }
-
-  function removeLineItem(index: number) {
-    setLineItems((items) => items.filter((_, i) => i !== index))
-  }
-
   async function handleSaveDraft() {
     setActionError(null)
     setSavingQuote(true)
     try {
-      await updateQuote(bookingId, lineItems)
+      await updateQuote(bookingId, toLineInputs(lineItems))
       refetch()
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : 'Failed to save the quote.')
@@ -139,7 +122,7 @@ export function AdminBookingDetail() {
     setActionError(null)
     setSendingQuote(true)
     try {
-      await updateQuote(bookingId, lineItems)
+      await updateQuote(bookingId, toLineInputs(lineItems))
       await sendQuote(bookingId)
       refetch()
     } catch (err) {
@@ -205,35 +188,26 @@ export function AdminBookingDetail() {
           <p className="text-on-surface-variant text-sm">Client: {booking.customerName}</p>
         </div>
         <div className="flex flex-col items-end gap-3 shrink-0">
-          {!quoteSent ? (
+          <span className="inline-flex items-center gap-1.5 text-xs font-label-sm bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full">
+            <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[booking.stage]}`} />
+            {STAGE_LABELS[booking.stage]}
+          </span>
+          {booking.stage === 'quoted' && (
+            <span className="inline-flex items-center gap-1.5 text-sm text-on-surface-variant">
+              <HourglassMedium size={16} className="text-golden-sun" />
+              Waiting for the client to pay the deposit
+            </span>
+          )}
+          {nextStageAction && (
             <button
               type="button"
-              onClick={handleSendQuote}
-              disabled={sendingQuote || lineItems.length === 0}
-              title={lineItems.length === 0 ? 'Add at least one line item first' : undefined}
-              className="min-h-[44px] flex items-center gap-2 bg-savanna-green text-on-primary px-5 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+              onClick={() => void handleAdvanceStage()}
+              disabled={updatingStage}
+              className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
             >
               <PaperPlaneTilt size={16} />
-              {sendingQuote ? 'Sending…' : 'Generate & Send Invoice'}
+              {updatingStage ? 'Updating…' : nextStageAction.label}
             </button>
-          ) : (
-            <>
-              <span className="inline-flex items-center gap-1.5 text-xs font-label-sm bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full">
-                <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[booking.stage]}`} />
-                {STAGE_LABELS[booking.stage]}
-              </span>
-              {nextStageAction && (
-                <button
-                  type="button"
-                  onClick={handleAdvanceStage}
-                  disabled={updatingStage}
-                  className="min-h-[40px] flex items-center gap-2 bg-savanna-green text-on-primary px-4 rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
-                >
-                  <PaperPlaneTilt size={16} />
-                  {updatingStage ? 'Updating…' : nextStageAction.label}
-                </button>
-              )}
-            </>
           )}
         </div>
       </div>
@@ -344,7 +318,7 @@ export function AdminBookingDetail() {
               </div>
               <div className="bg-surface-container-low p-4 rounded-lg border-l-4 border-terracotta">
                 <span className="font-label-sm text-xs text-on-surface-variant uppercase tracking-wider block mb-2">Special Requests</span>
-                <p className="text-sm text-on-surface italic">
+                <p className="text-sm text-on-surface italic whitespace-pre-line [overflow-wrap:anywhere]">
                   {booking.message ? `“${booking.message}”` : 'None noted.'}
                 </p>
               </div>
@@ -353,93 +327,17 @@ export function AdminBookingDetail() {
         </div>
 
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50">
-            <h3 className="font-headline-md text-[18px] text-on-surface mb-4 border-b border-sand-stone pb-4">Quote Builder</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left mb-4">
-                <thead>
-                  <tr className="border-b-2 border-sand-stone text-on-surface-variant text-xs uppercase tracking-wider">
-                    <th className="pb-2 font-medium">Description</th>
-                    <th className="pb-2 font-medium text-right">Qty</th>
-                    <th className="pb-2 font-medium text-right">Unit Price</th>
-                    <th className="pb-2 font-medium text-right">Total</th>
-                    <th className="pb-2" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-sand-stone">
-                  {lineItems.map((li, i) => (
-                    <tr key={i}>
-                      <td className="py-2 pr-2">
-                        <input
-                          value={li.label}
-                          disabled={quoteLocked}
-                          onChange={(e) => updateLineItem(i, { label: e.target.value })}
-                          className="w-full bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm"
-                        />
-                      </td>
-                      <td className="py-2 text-right">
-                        <input
-                          type="number"
-                          min={1}
-                          value={li.quantity}
-                          disabled={quoteLocked}
-                          onChange={(e) => updateLineItem(i, { quantity: Math.max(1, Number(e.target.value)) })}
-                          className="w-14 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
-                        />
-                      </td>
-                      <td className="py-2 text-right">
-                        <input
-                          type="number"
-                          min={0}
-                          value={li.unitPrice}
-                          disabled={quoteLocked}
-                          onChange={(e) => updateLineItem(i, { unitPrice: Number(e.target.value) })}
-                          className="w-24 bg-surface border border-sand-stone rounded-md px-2 py-1 text-sm text-right"
-                        />
-                      </td>
-                      <td className="py-3 text-right font-label-md text-sm text-on-surface">{formatMoney(quotePrice(li), undefined, booking.currency)}</td>
-                      <td className="py-2 text-right">
-                        {!quoteLocked && (
-                          <button type="button" onClick={() => removeLineItem(i)} className="text-on-surface-variant hover:text-terracotta">
-                            <Trash size={16} />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {quoteLocked ? (
-                <p className="text-on-surface-variant text-sm mb-4">The quote is locked once a deposit has been paid.</p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={addLineItem}
-                  className="flex items-center gap-1.5 text-savanna-green font-label-md text-sm mb-4"
-                >
-                  <Plus size={16} /> Add Line Item
-                </button>
-              )}
-            </div>
-            <div className="flex justify-end border-t-2 border-sand-stone pt-4">
-              <div className="w-56 flex justify-between items-center">
-                <span className="font-headline-md text-[18px] text-on-surface">Total</span>
-                <span className="font-headline-md text-[18px] text-savanna-green">{formatMoney(Math.round(subtotal), undefined, booking.currency)}</span>
-              </div>
-            </div>
-            {!quoteLocked && (
-              <div className="flex gap-3 mt-6 justify-end">
-                <button
-                  type="button"
-                  onClick={() => void handleSaveDraft()}
-                  disabled={savingQuote}
-                  className="min-h-[40px] border border-sand-stone px-5 rounded-lg font-label-md text-sm hover:bg-surface-container-low transition-colors disabled:opacity-60"
-                >
-                  {savingQuote ? 'Saving…' : 'Save Draft'}
-                </button>
-              </div>
-            )}
-          </div>
+          <QuoteBuilder
+            items={lineItems}
+            currency={booking.currency}
+            locked={quoteLocked}
+            sent={quoteSent}
+            saving={savingQuote}
+            sending={sendingQuote}
+            onChange={setLineItems}
+            onSave={() => void handleSaveDraft()}
+            onSend={() => void handleSendQuote()}
+          />
 
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-sand-stone/50">
             <h3 className="font-label-md text-xs text-on-surface uppercase tracking-wider mb-4 border-b border-sand-stone pb-3">

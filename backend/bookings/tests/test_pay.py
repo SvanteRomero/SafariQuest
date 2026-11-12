@@ -8,7 +8,6 @@ from itertools import count
 from unittest import mock
 
 from django.contrib.auth import get_user_model
-from django.core import mail
 from django.core.management import call_command
 from django.test import override_settings
 from django.urls import reverse
@@ -18,6 +17,7 @@ from rest_framework.test import APITestCase
 
 from bookings import snippe
 from bookings.models import Booking, Invoice, Payment
+from notifications.models import Notification
 from pricing.models import Season
 from safaris.models import SafariPackage
 
@@ -202,7 +202,7 @@ class BookingPayTests(SnippeTestMixin, APITestCase):
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.stage, Booking.STAGE_NEW_INQUIRY)
         self.assertFalse(Invoice.objects.filter(booking=self.booking).exists())
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertFalse(Notification.objects.filter(user=self.customer).exists())
 
     def test_clicking_pay_twice_reuses_the_open_session(self):
         self._login_as(self.customer)
@@ -221,15 +221,16 @@ class BookingPayTests(SnippeTestMixin, APITestCase):
         self.assertEqual(invoice.trip_total, 68000)
         self.assertEqual(invoice.amount, 20400)
         self.assertEqual(invoice.status, Invoice.STATUS_DEPOSIT_PAID)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, ["mark@example.com"])
+        [notice] = Notification.objects.filter(user=self.customer)
+        self.assertIn("Payment received", notice.title)
+        self.assertEqual(notice.link, f"/account/trips/{self.booking.id}")
 
     def test_duplicate_webhook_is_applied_once(self):
         self._login_as(self.customer)
         response = self.pay_and_confirm(self.pay_url)
         self.assertEqual(self.confirm(response.data["payment_id"]).status_code, status.HTTP_200_OK)
         self.assertEqual(Invoice.objects.filter(booking=self.booking).count(), 1)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Notification.objects.filter(user=self.customer).count(), 1)
 
     def test_cannot_pay_after_deposit_is_recorded(self):
         self._login_as(self.customer)

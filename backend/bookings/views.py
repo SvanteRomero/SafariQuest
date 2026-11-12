@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.db.models import Case, Count, F, IntegerField, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
+from django.http import HttpResponseRedirect
+from django.views.decorators.http import require_GET
 from django.utils import timezone
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -17,24 +19,25 @@ from rest_framework.views import APIView
 
 from accounts.permissions import IsAdminRole
 from audit.utils import log_action
-from config.mail import send_notification
+from notifications.service import notify
 from config.pagination import StandardPagination
-from referrals.models import ReferralCode, ReferralSettings
 
-from . import snippe
+from . import senjaropay, snippe
 from .models import Booking, BookingNote, Invoice, Payment, Review, TripMilestone
 from . import currency as currency_module
 from . import mobile_numbers
 from .outages import network_outage_message, payment_availability, record_attempt
 from .payments import (
+    CARD_CHECKOUT_STALE_AFTER,
     close_payment,
     complete_payment,
+    open_card_payment,
     open_direct_payment,
     open_session,
-    refresh_from_snippe,
+    refresh_payment,
     resend_prompt,
 )
-from .pricing import deposit_for, trip_total_for
+from .pricing import NO_REFERRAL, deposit_for, quote_terms, referral_terms, trip_total_for
 from .serializers import (
     AdminBookingDetailSerializer,
     BookingCreateSerializer,
@@ -61,10 +64,15 @@ EVENT_PAYMENT_COMPLETED = "payment.completed"
 EVENT_PAYMENT_FAILED = "payment.failed"
 
 
-NO_REFERRAL = (None, None, None)
 # A second click on Pay within this long reuses the prompt already sent to that phone
 # (the tourist can ask for it again with "Resend") instead of sending another payment.
 DIRECT_PAYMENT_REUSE_MINUTES = 10
+# A second click on Pay in USD within this long reopens the same Senjaropay card page
+# (which stays payable for about 30 minutes) rather than opening another.
+CARD_PAYMENT_REUSE_MINUTES = 20
+# Either provider failing to open a payment.
+INVALID_JSON = "Invalid JSON."
+PROVIDER_ERRORS = (snippe.SnippeError, senjaropay.SenjaropayError)
 
 
 def _provider_unreachable():
@@ -72,20 +80,6 @@ def _provider_unreachable():
         {"detail": "We couldn't reach the payment provider. Please try again in a moment."},
         status=status.HTTP_502_BAD_GATEWAY,
     )
-
-
-def _referral_terms(code_value, user):
-    """(code, discount %, commission %) for a code entered at checkout, at today's
-    referral settings; None if it can't be used. exclude(agent=...): an agent can also
-    book, and must not collect commission on their own trip — the validate endpoint
-    refuses that at checkout, this is the backstop. The code is only marked used once
-    the payment completes (complete_payment re-checks it under a lock), so an abandoned
-    checkout doesn't burn it."""
-    code = ReferralCode.objects.filter(code=code_value, is_used=False).exclude(agent=user).first()
-    if code is None or code.is_expired:
-        return None
-    settings_obj = ReferralSettings.get_solo()
-    return code, settings_obj.discount_percent, settings_obj.commission_percent
 
 
 def _carried_over_referral_terms(booking, user):
@@ -248,15 +242,13 @@ class BookingViewSet(
             if not created and invoice.status == Invoice.STATUS_UNPAID and invoice.amount != booking.subtotal:
                 invoice.amount = booking.subtotal
                 invoice.save(update_fields=["amount"])
-        send_notification(
-            subject=f"Your SafariQuest quote — {booking.package_title}",
-            message=(
-                f"Hi {booking.customer.name or booking.customer.email},\n\n"
-                f"Your quote for {booking.package_title} is ready: "
-                f"{currency_module.format_amount(booking.subtotal, booking.currency)}. "
-                "Please reply to confirm or ask any questions."
-            ),
-            recipient_list=[booking.customer.email],
+        # The quote itself — line items, total and the deposit to pay — is on the trip's
+        # page in the tourist's account, where they pay it.
+        notify(
+            booking.customer,
+            f"Your quote is ready — {booking.package_title}",
+            "See the full quote and pay the deposit to confirm your booking.",
+            link=f"/account/trips/{booking.id}",
         )
         log_action(request.user, "booking.quote_sent", f"Sent quote for booking #{booking.id} ({currency_module.format_amount(booking.subtotal, booking.currency)})")
         return Response(self._detail(booking))
@@ -342,17 +334,26 @@ class BookingViewSet(
         booking.refresh_from_db()
         return Response(self._detail(booking), status=status.HTTP_201_CREATED)
 
-    def _open_payment(self, booking, locale, phone_number, **fields):
-        """Returns a pending Payment on Snippe for these exact terms: the one already open
-        if the tourist clicked pay twice (or, hosted, came back from Snippe's page without
-        paying), otherwise a new one — a fresh phone prompt (direct) or checkout session
-        (hosted). A direct payment is reused only briefly: after that a click means the
-        tourist wants a new prompt."""
+    @staticmethod
+    def _payment_mode(booking):
+        """(mode, how long an open payment of that mode is reused for). USD is always a
+        Senjaropay card page; TZS follows SNIPPE_CHECKOUT_MODE."""
+        if booking.currency == currency_module.USD:
+            return Payment.MODE_CARD, timedelta(minutes=CARD_PAYMENT_REUSE_MINUTES)
         if settings.SNIPPE_CHECKOUT_MODE == "direct":
-            mode, fresh_for = Payment.MODE_DIRECT, timedelta(minutes=DIRECT_PAYMENT_REUSE_MINUTES)
-            fields["phone_number"] = phone_number
-        else:
-            mode, fresh_for = Payment.MODE_HOSTED, timedelta(seconds=settings.SNIPPE_SESSION_EXPIRES_IN - 300)
+            return Payment.MODE_DIRECT, timedelta(minutes=DIRECT_PAYMENT_REUSE_MINUTES)
+        return Payment.MODE_HOSTED, timedelta(seconds=settings.SNIPPE_SESSION_EXPIRES_IN - 300)
+
+    def _open_payment(self, booking, locale, payer, **fields):
+        """Returns a pending Payment for these exact terms: the one already open if the
+        tourist clicked pay twice (or came back from a checkout page without paying),
+        otherwise a new one — a phone prompt (Snippe direct), a Snippe checkout session
+        (hosted) or a Senjaropay card page (USD). A direct payment is reused only briefly:
+        after that a click means the tourist wants a new prompt. `payer` is what
+        _payment_gate checked: the phone number (direct) or billing details (card)."""
+        mode, fresh_for = self._payment_mode(booking)
+        if mode == Payment.MODE_DIRECT:
+            fields["phone_number"] = payer["phone_number"]
         existing = (
             Payment.objects.filter(
                 booking=booking,
@@ -373,6 +374,8 @@ class BookingViewSet(
             provider=currency_module.PROVIDER_FOR[booking.currency],
             **fields,
         )
+        if mode == Payment.MODE_CARD:
+            return open_card_payment(payment, payer["billing"])
         if mode == Payment.MODE_DIRECT:
             return open_direct_payment(payment)
         return open_session(payment, locale)
@@ -426,19 +429,40 @@ class BookingViewSet(
         )
 
     def _payment_gate(self, request, booking):
-        """Everything a pay request must pass before a provider is called — the booking's
-        currency payable online, Snippe configured and not down entirely, a valid body, and
-        (direct) a usable phone number. Returns (validated data, normalized phone or None,
-        None), or (None, None, a refusal)."""
-        if booking.currency != currency_module.TZS:
-            # USD goes to Senjaropay, which isn't connected yet.
+        """Everything a pay request must pass before a provider is called. Returns
+        (validated data, payer, None) — `payer` being what _open_payment needs to reach
+        the tourist — or (None, None, a refusal)."""
+        if booking.currency == currency_module.USD:
+            return self._card_gate(request)
+        return self._mobile_money_gate(request, booking)
+
+    @staticmethod
+    def _card_gate(request):
+        """USD: Senjaropay configured, and the billing details it requires."""
+        if not senjaropay.is_configured():
             return None, None, Response(
                 {
-                    "detail": "USD card payments will be enabled soon. To pay now, book in TZS (mobile money) or contact us.",
+                    "detail": "Card payment isn't available right now. Pay in TZS by mobile money, or contact us to pay.",
                     "code": "provider_unavailable",
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+        serializer = BookingPaySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        billing = serializer.validated_data.get("billing")
+        if not billing:
+            return None, None, Response(
+                {
+                    "detail": "Enter your phone number, country, city and address to pay by card.",
+                    "code": "billing_required",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return serializer.validated_data, {"billing": dict(billing)}, None
+
+    def _mobile_money_gate(self, request, booking):
+        """TZS: Snippe configured and not down entirely, a valid body, and (direct) a
+        usable phone number."""
         if not snippe.is_configured():
             return None, None, Response(
                 {"detail": "Online payment isn't available right now. Please contact us to pay."},
@@ -452,7 +476,7 @@ class BookingViewSet(
         phone_number, refusal = self._direct_phone(request, booking, serializer.validated_data.get("phone_number"))
         if refusal:
             return None, None, refusal
-        return serializer.validated_data, phone_number, None
+        return serializer.validated_data, {"phone_number": phone_number}, None
 
     def _checkout_response(self, payment):
         """Direct: the page shows "approve the prompt on 0754 *** 456" and polls. Hosted: the
@@ -469,6 +493,48 @@ class BookingViewSet(
             status=status.HTTP_201_CREATED,
         )
 
+    @staticmethod
+    def _deposit_refusal(booking):
+        """Why this booking's deposit can't be paid now, or None. Payable: a checkout
+        booking not yet paid, or a quoted one whose quote invoice is still unpaid. A
+        trip-planner request waits for its quote."""
+        already_paid = Response(
+            {"detail": "This booking has already been paid."}, status=status.HTTP_400_BAD_REQUEST
+        )
+        invoices = Invoice.objects.filter(booking=booking)
+        if booking.stage == Booking.STAGE_QUOTED:
+            # send_quote's invoice: the quoted total, nothing paid yet.
+            quote_unpaid = invoices.filter(status=Invoice.STATUS_UNPAID, trip_total__isnull=True).exists()
+            return None if quote_unpaid else already_paid
+        if booking.stage != Booking.STAGE_NEW_INQUIRY or invoices.exists():
+            return already_paid
+        if booking.quote_requested:
+            return Response(
+                {
+                    "detail": "We're still preparing your quote. We'll email you as soon as it's ready to pay.",
+                    "code": "quote_pending",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return None
+
+    @staticmethod
+    def _deposit_terms(booking, user, data):
+        """(trip total, referral terms) the deposit is 30% of, or None when the referral
+        code sent can't be used. A quote's total comes from its line items and the code
+        entered with the request; a checkout booking's from the package price and the code
+        sent now (or the one an earlier attempt used)."""
+        if booking.stage == Booking.STAGE_QUOTED:
+            return quote_terms(booking)
+        code_value = (data.get("referral_code") or "").strip().upper()
+        if code_value:
+            terms = referral_terms(code_value, user)
+            if terms is None:
+                return None
+        else:
+            terms = _carried_over_referral_terms(booking, user)
+        return trip_total_for(booking, terms[1]), terms
+
     @action(detail=True, methods=["post"], url_path="pay")
     def pay(self, request, pk=None):
         """Starts the deposit payment (1.3): a prompt to the tourist's phone (direct) or a
@@ -478,38 +544,37 @@ class BookingViewSet(
         The trip total and deposit are computed here (bookings.pricing), from the same
         package price, season and guest counts the checkout page priced from — never
         taken from the request, or anyone could set their own price and an agent's
-        commission along with it."""
+        commission along with it. A quoted booking (from the trip planner, or any booking
+        an admin quoted) pays 30% of the quote instead (bookings.pricing.quote_terms)."""
         booking = self.get_object()
         if request.user.role != User.ROLE_TOURIST or booking.customer_id != request.user.id:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        if booking.stage != Booking.STAGE_NEW_INQUIRY or Invoice.objects.filter(booking=booking).exists():
-            return Response(
-                {"detail": "This booking has already been paid."}, status=status.HTTP_400_BAD_REQUEST
-            )
-        data, phone_number, refusal = self._payment_gate(request, booking)
+        refusal = self._deposit_refusal(booking)
         if refusal:
             return refusal
-        referral_code_value = (data.get("referral_code") or "").strip().upper()
-        if referral_code_value:
-            terms = _referral_terms(referral_code_value, request.user)
-            if terms is None:
-                # The page priced the trip with this code's discount. Charging full
-                # price instead would record a different amount than the tourist
-                # agreed to, so refuse and let them pay again without the code.
-                return Response(
-                    {"detail": "This referral code can no longer be used. Remove it and try again."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        else:
-            terms = _carried_over_referral_terms(booking, request.user)
-        referral_code, discount_percent, commission_percent = terms
-
-        trip_total = trip_total_for(booking, discount_percent)
+        data, payer, refusal = self._payment_gate(request, booking)
+        if refusal:
+            return refusal
+        priced = self._deposit_terms(booking, request.user, data)
+        if priced is None:
+            # The page priced the trip with this code's discount. Charging full
+            # price instead would record a different amount than the tourist
+            # agreed to, so refuse and let them pay again without the code.
+            return Response(
+                {"detail": "This referral code can no longer be used. Remove it and try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        trip_total, (referral_code, discount_percent, commission_percent) = priced
+        if deposit_for(trip_total) <= 0:
+            return Response(
+                {"detail": "There's nothing to pay on this booking yet. Please contact us."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
             payment = self._open_payment(
                 booking,
                 data.get("locale"),
-                phone_number,
+                payer,
                 kind=Payment.KIND_DEPOSIT,
                 amount=deposit_for(trip_total),
                 trip_total=trip_total,
@@ -517,8 +582,8 @@ class BookingViewSet(
                 discount_percent=discount_percent,
                 commission_percent=commission_percent,
             )
-        except snippe.SnippeError:
-            logger.exception("Could not open a Snippe deposit payment for booking %s", booking.id)
+        except PROVIDER_ERRORS:
+            logger.exception("Could not open a deposit payment for booking %s", booking.id)
             return _provider_unreachable()
         return self._checkout_response(payment)
 
@@ -536,15 +601,15 @@ class BookingViewSet(
         remaining = invoice.remaining_balance
         if not remaining:
             return Response({"detail": "This booking is already fully paid."}, status=status.HTTP_400_BAD_REQUEST)
-        data, phone_number, refusal = self._payment_gate(request, booking)
+        data, payer, refusal = self._payment_gate(request, booking)
         if refusal:
             return refusal
         try:
             payment = self._open_payment(
-                booking, data.get("locale"), phone_number, kind=Payment.KIND_BALANCE, amount=remaining
+                booking, data.get("locale"), payer, kind=Payment.KIND_BALANCE, amount=remaining
             )
-        except snippe.SnippeError:
-            logger.exception("Could not open a Snippe balance payment for booking %s", booking.id)
+        except PROVIDER_ERRORS:
+            logger.exception("Could not open a balance payment for booking %s", booking.id)
             return _provider_unreachable()
         return self._checkout_response(payment)
 
@@ -559,7 +624,7 @@ class BookingViewSet(
         payment = Payment.objects.filter(booking=booking, pk=payment_id).first()
         if payment is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        payment = refresh_from_snippe(payment)
+        payment = refresh_payment(payment)
         return Response(
             {
                 "payment_id": payment.id,
@@ -610,9 +675,12 @@ class PaymentAvailabilityView(APIView):
             {
                 **payment_availability(),
                 "mode": settings.SNIPPE_CHECKOUT_MODE,
-                # Which currencies can be paid online right now. USD needs Senjaropay,
-                # which isn't connected yet.
-                "currencies": {currency_module.TZS: snippe.is_configured(), currency_module.USD: False},
+                # Which currencies can be paid online right now: TZS through Snippe,
+                # USD by card through Senjaropay.
+                "currencies": {
+                    currency_module.TZS: snippe.is_configured(),
+                    currency_module.USD: senjaropay.is_configured(),
+                },
             }
         )
 
@@ -640,7 +708,7 @@ class SnippeWebhookView(APIView):
         try:
             event = json.loads(raw_body)
         except ValueError:
-            return Response({"detail": "Invalid JSON."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
 
         event_type = event.get("type") or event.get("event")
         data = event.get("data") or {}
@@ -692,6 +760,102 @@ class SnippeWebhookView(APIView):
         if payment_id.isdigit():
             return Payment.objects.filter(pk=int(payment_id)).first()
         return None
+
+
+CARD_RETURN_OUTCOMES = ("success", "fail", "cancel")
+
+
+@require_GET
+def card_return_redirect(request, outcome):
+    """Senjaropay's Success / Fail / Cancel redirect URLs, when they point at this API's
+    host (handy locally, through ngrok): pass the tourist on to the website's page of the
+    same name, which finishes the journey. The destination is fixed; only the query
+    string is carried over."""
+    query = request.META.get("QUERY_STRING", "")
+    target = f"{settings.FRONTEND_URL.rstrip('/')}/{outcome}"
+    return HttpResponseRedirect(f"{target}?{query}" if query else target)
+
+
+class CardPaymentReturnView(APIView):
+    """Where Senjaropay's card page sends the tourist afterwards (the site's /success,
+    /fail or /cancel page, with the payment's reference): finds that payment among the
+    signed-in tourist's own, checks it with Senjaropay, and says which booking and payment
+    it is so the page can show the right outcome.
+
+    Nothing in the URL is trusted for money: a payment is only ever completed by
+    Senjaropay's status API. `outcome=fail|cancel` only closes a payment Senjaropay still
+    calls pending, so the next "Pay" opens a fresh checkout instead of reusing the
+    abandoned one — and a closed card payment is still checked, so if it was paid after
+    all, it still completes."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        reference = (request.query_params.get("reference") or "").strip()
+        own_card_payments = Payment.objects.filter(
+            provider=currency_module.PROVIDER_SENJAROPAY, booking__customer=request.user
+        )
+        payment = own_card_payments.filter(session_reference=reference).first() if reference else None
+        if payment is None:
+            # Senjaropay's redirect names the payment by its own internal id (?ref=<uuid>),
+            # not the CARD-… reference it gave us, so it usually can't be matched. The
+            # tourist has just come back from a checkout: take their latest one still young
+            # enough to have been on that page.
+            payment = (
+                own_card_payments.filter(created_at__gte=timezone.now() - CARD_CHECKOUT_STALE_AFTER)
+                .order_by("-created_at")
+                .first()
+            )
+        if payment is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        payment = refresh_payment(payment)
+        if request.query_params.get("outcome") in ("fail", "cancel") and payment.status == Payment.STATUS_PENDING:
+            payment = close_payment(payment, Payment.STATUS_FAILED)
+        return Response(
+            {"booking_id": payment.booking_id, "payment_id": payment.id, "kind": payment.kind, "status": payment.status}
+        )
+
+
+class SenjaropayWebhookView(APIView):
+    """Receives Senjaropay's card payment events. Senjaropay doesn't document how its
+    webhooks are signed, so nothing in the body is believed: it only says which payment
+    to look at, and the outcome comes from Senjaropay's own status API (refresh_payment),
+    called with our read key. A forged request can at most make us check a real payment.
+
+    Always a 200 for a well-formed request, so Senjaropay doesn't retry one that can't
+    succeed; the scheduled reconcile covers anything missed."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            event = json.loads(request.body)
+        except ValueError:
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(event, dict):
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
+        data = event.get("data") if isinstance(event.get("data"), dict) else event
+        # The body's shape and signature scheme aren't documented yet: log the body's keys
+        # and the header names (never values — the body holds the cardholder's details,
+        # a header the signature) so both can be confirmed from the logs.
+        logger.warning(
+            "Senjaropay webhook keys: %s; data keys: %s; headers: %s",
+            sorted(event),
+            sorted(data),
+            sorted(request.headers.keys()),
+        )
+        reference = str(data.get("reference") or "")
+        payment = (
+            Payment.objects.filter(provider=currency_module.PROVIDER_SENJAROPAY, session_reference=reference).first()
+            if reference
+            else None
+        )
+        if payment is None:
+            logger.warning("Senjaropay webhook for reference %r matched no payment", reference[:100])
+            return Response({"received": True})
+        refresh_payment(payment)
+        return Response({"received": True})
 
 
 class InvoiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -751,16 +915,12 @@ class InvoiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     def remind(self, request, pk=None):
         invoice = self.get_object()
         log_action(request.user, "invoice.reminder_sent", f"Sent a payment reminder for invoice #{invoice.id}")
-        send_notification(
-            subject=f"Payment reminder — {invoice.booking.package_title}",
-            message=(
-                f"Hi {invoice.booking.customer.name or invoice.booking.customer.email},\n\n"
-                f"This is a reminder that {currency_module.format_amount(invoice.amount, invoice.booking.currency)} "
-                f"is due by {invoice.due_date} for "
-                f"your {invoice.booking.package_title} booking. Please reply if you have any "
-                "questions."
-            ),
-            recipient_list=[invoice.booking.customer.email],
+        notify(
+            invoice.booking.customer,
+            f"Payment reminder — {invoice.booking.package_title}",
+            f"{currency_module.format_amount(invoice.amount, invoice.booking.currency)} is due by "
+            f"{invoice.due_date:%d %b %Y}.",
+            link=f"/account/trips/{invoice.booking_id}",
         )
         return Response(InvoiceSerializer(invoice).data)
 

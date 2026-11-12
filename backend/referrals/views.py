@@ -9,12 +9,15 @@ from rest_framework.views import APIView
 from accounts.permissions import IsAdminRole
 from accounts.views import _set_auth_cookies, auth_payload
 from audit.utils import log_action
-from bookings.currency import format_amount
 
-from .models import ReferralCode, ReferralRedemption, ReferralSettings
+from .models import AgentPayoutDetails, ReferralCode, ReferralRedemption, ReferralSettings
+from .payouts import agent_summaries, record_payout
 from .permissions import IsReferralAgentRole
 from .serializers import (
     AdminReferralRedemptionSerializer,
+    AgentPayoutDetailsSerializer,
+    AgentPayoutInputSerializer,
+    PayoutInputSerializer,
     ReferralAgentRegisterSerializer,
     ReferralCodeCreateSerializer,
     ReferralCodeSerializer,
@@ -128,22 +131,104 @@ class ReferralSettingsAdminView(generics.RetrieveUpdateAPIView):
         )
 
 
+class AgentPayoutDetailsView(APIView):
+    """The signed-in agent's payout details: where their commission should be sent."""
+
+    permission_classes = [IsReferralAgentRole]
+
+    def get(self, request):
+        details = AgentPayoutDetails.objects.filter(agent=request.user).first()
+        return Response(AgentPayoutDetailsSerializer(details).data if details else None)
+
+    def patch(self, request):
+        details = AgentPayoutDetails.objects.filter(agent=request.user).first()
+        serializer = AgentPayoutDetailsSerializer(details, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(agent=request.user)
+        return Response(serializer.data)
+
+
 class AdminReferralRedemptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAdminRole]
     serializer_class = AdminReferralRedemptionSerializer
-    queryset = ReferralRedemption.objects.select_related("code__agent", "booking__customer").order_by("-created_at")
+    queryset = ReferralRedemption.objects.select_related("code__agent", "booking__customer", "paid_by").order_by(
+        "-created_at"
+    )
 
     @action(detail=True, methods=["post"], url_path="mark-paid")
     def mark_paid(self, request, pk=None):
+        """Records that this one commission was paid. Only once the referred trip is
+        completed — before that the commission isn't earned yet."""
         redemption = self.get_object()
-        if redemption.commission_status != ReferralRedemption.STATUS_PAID:
-            redemption.commission_status = ReferralRedemption.STATUS_PAID
-            redemption.save(update_fields=["commission_status"])
-            log_action(
-                request.user,
-                "referral.commission_paid",
-                f"Marked {format_amount(redemption.commission_amount, redemption.booking.currency)} commission paid to "
-                f"{redemption.code.agent.email} "
-                f"(code {redemption.code.code}, booking #{redemption.booking_id})",
+        if redemption.commission_status == ReferralRedemption.STATUS_PAID:
+            return Response({"detail": "This commission has already been paid."}, status=status.HTTP_400_BAD_REQUEST)
+        if not redemption.is_payable:
+            return Response(
+                {"detail": "Commission is paid once the referred trip is completed."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        serializer = PayoutInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        record_payout(
+            ReferralRedemption.objects.filter(pk=redemption.pk),
+            admin=request.user,
+            method=serializer.validated_data["method"],
+            reference=serializer.validated_data["reference"].strip(),
+        )
+        redemption.refresh_from_db()
         return Response(AdminReferralRedemptionSerializer(redemption).data)
+
+
+class AdminAgentPayoutsView(APIView):
+    """Per agent: what's payable now, what waits on a trip finishing, what's been paid —
+    so the admin can pay each agent everything they're owed in one go."""
+
+    permission_classes = [IsAdminRole]
+
+    def get(self, request):
+        by_agent, details = agent_summaries()
+        agents = User.objects.filter(pk__in=by_agent).order_by("name", "email")
+        return Response(
+            [
+                {
+                    "agent_id": agent.id,
+                    "name": agent.name,
+                    "email": agent.email,
+                    "referrals": by_agent[agent.id]["referrals"],
+                    "totals": by_agent[agent.id]["totals"],
+                    "payout_details": (
+                        AgentPayoutDetailsSerializer(details[agent.id]).data if agent.id in details else None
+                    ),
+                }
+                for agent in agents
+            ]
+        )
+
+
+class AdminAgentPayView(APIView):
+    """Records one payout covering everything payable to an agent in one currency."""
+
+    permission_classes = [IsAdminRole]
+
+    def post(self, request, agent_id):
+        serializer = AgentPayoutInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        rows = record_payout(
+            ReferralRedemption.objects.filter(code__agent_id=agent_id, booking__currency=data["currency"]),
+            admin=request.user,
+            method=data["method"],
+            reference=data["reference"].strip(),
+        )
+        if not rows:
+            return Response(
+                {"detail": f"Nothing is payable to this agent in {data['currency']} right now."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            {
+                "paid": len(rows),
+                "currency": data["currency"],
+                "total": sum(row.commission_amount for row in rows),
+            }
+        )

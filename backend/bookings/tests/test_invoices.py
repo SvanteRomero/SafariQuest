@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model
-from django.core import mail
+from notifications.models import Notification
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -205,12 +205,13 @@ class InvoiceAPITests(APITestCase):
         self.overdue_invoice.save()
         self.assertFalse(self.overdue_invoice.is_overdue)
 
-    def test_send_reminder_emails_customer(self):
+    def test_send_reminder_notifies_customer(self):
         self._login_as(self.admin)
         response = self.client.post(reverse("invoice-remind", args=[self.overdue_invoice.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, ["mark@example.com"])
+        [notice] = Notification.objects.all()
+        self.assertEqual(notice.user.email, "mark@example.com")
+        self.assertIn("Payment reminder", notice.title)
 
 
 class FinanceSummaryTests(APITestCase):

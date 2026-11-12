@@ -62,6 +62,10 @@ export interface Booking {
   subtotal: number
   /** What the booking is priced, invoiced and paid in. */
   currency: Currency
+  /** From the trip planner: waiting for (or paid against) a quote, not a package price. */
+  quoteRequested: boolean
+  /** The deposit on a sent quote that's still unpaid; null otherwise. */
+  depositDue: number | null
 }
 
 export interface Review {
@@ -103,6 +107,8 @@ export interface BookingApiShape {
   assigned_guide_name: string | null
   subtotal: number
   currency: Currency
+  quote_requested: boolean
+  deposit_due: number | null
 }
 
 interface TripMilestoneApiShape {
@@ -249,7 +255,9 @@ export async function sendQuote(id: number): Promise<BookingDetail> {
 /** How Snippe takes the money (backend SNIPPE_CHECKOUT_MODE). "direct": a prompt is sent
  * to the tourist's phone and they approve it without leaving the site. "hosted": the
  * browser goes to Snippe's checkout page and comes back with `?booking=&payment=`. */
-export type PaymentMode = 'direct' | 'hosted'
+/** direct: a mobile money prompt to the tourist's phone. hosted: Snippe's checkout page.
+ * card: Senjaropay's card page (USD), opened in a new tab. */
+export type PaymentMode = 'direct' | 'hosted' | 'card'
 
 /** A payment just started for a deposit or balance. Direct: show "approve the prompt on
  * `phoneMasked`" and poll. Hosted: send the browser to `checkoutUrl`. */
@@ -282,17 +290,37 @@ function mapPaymentCheckout(raw: PaymentCheckoutApiShape): PaymentCheckout {
   }
 }
 
+/** The cardholder details Senjaropay requires for a USD card payment. */
+export interface CardBilling {
+  phoneNumber: string
+  country: string
+  city: string
+  address: string
+}
+
 export interface PayOptions {
   referralCode?: string
   /** Direct mode only: the number the payment prompt goes to. */
   phoneNumber?: string
+  /** USD only: the cardholder's details. */
+  billing?: CardBilling
 }
 
-function payBody(locale: string, { referralCode, phoneNumber }: PayOptions) {
+function payBody(locale: string, { referralCode, phoneNumber, billing }: PayOptions) {
   return {
     locale,
     ...(referralCode ? { referral_code: referralCode } : {}),
     ...(phoneNumber ? { phone_number: phoneNumber } : {}),
+    ...(billing
+      ? {
+          billing: {
+            phone_number: billing.phoneNumber,
+            country: billing.country,
+            city: billing.city,
+            address: billing.address,
+          },
+        }
+      : {}),
   }
 }
 
@@ -310,7 +338,7 @@ export async function payForBooking(id: number, locale: string, options: PayOpti
 export async function payRemainingBalance(
   id: number,
   locale: string,
-  options: Pick<PayOptions, 'phoneNumber'> = {},
+  options: Pick<PayOptions, 'phoneNumber' | 'billing'> = {},
 ): Promise<PaymentCheckout> {
   const raw = await apiPost<PaymentCheckoutApiShape>(`/api/bookings/${id}/pay-balance/`, payBody(locale, options))
   return mapPaymentCheckout(raw)
@@ -349,6 +377,28 @@ interface PaymentStatusApiShape {
 
 /** Where a payment stands. A pending one is checked against Snippe server-side, so this
  * settles even if Snippe's webhook hasn't arrived. */
+export interface CardPaymentReturn {
+  bookingId: number
+  paymentId: number
+  kind: 'deposit' | 'balance'
+  status: PaymentStatusValue
+}
+
+/** Which of Senjaropay's redirect URLs brought the tourist back. */
+export type CardReturnOutcome = 'success' | 'fail' | 'cancel'
+
+/** The signed-in tourist's card payment with this Senjaropay reference (the `order_id`
+ * Senjaropay's page returns with), checked against Senjaropay by the server. Coming back
+ * from Fail or Cancel, a payment Senjaropay still calls pending is closed, so the next
+ * attempt opens a fresh checkout. */
+export async function findCardPayment(reference: string, outcome: CardReturnOutcome): Promise<CardPaymentReturn> {
+  const params = new URLSearchParams({ reference, outcome })
+  const raw = await apiGet<{ booking_id: number; payment_id: number; kind: 'deposit' | 'balance'; status: PaymentStatusValue }>(
+    `/api/payments/senjaropay/return/?${params.toString()}`,
+  )
+  return { bookingId: raw.booking_id, paymentId: raw.payment_id, kind: raw.kind, status: raw.status }
+}
+
 export async function getPaymentStatus(bookingId: number, paymentId: number): Promise<PaymentStatus> {
   const raw = await apiGet<PaymentStatusApiShape>(`/api/bookings/${bookingId}/payments/${paymentId}/`)
   return {
@@ -406,6 +456,10 @@ export interface BookingCreateInput {
   message?: string
   /** What the trip is priced and paid in; defaults to TZS. */
   currency?: Currency
+  /** Trip planner: ask for a quote rather than paying the package price now. */
+  quoteRequested?: boolean
+  /** A referral code to apply when the quote's deposit is paid. */
+  referralCode?: string
 }
 
 export async function createBooking(input: BookingCreateInput): Promise<BookingDetail> {
@@ -421,6 +475,8 @@ export async function createBooking(input: BookingCreateInput): Promise<BookingD
   if (input.children) payload.children = input.children
   if (input.message) payload.message = input.message
   if (input.currency) payload.currency = input.currency
+  if (input.quoteRequested) payload.quote_requested = true
+  if (input.referralCode) payload.referral_code = input.referralCode
   const raw = await apiPost<BookingDetailApiShape>('/api/bookings/', payload)
   return mapBookingDetail(raw)
 }

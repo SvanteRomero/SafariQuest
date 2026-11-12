@@ -70,7 +70,7 @@
     "subtitle": "Pague o sinal por mobile money — M-Pesa, Airtel Money, Mixx by Yas ou Halotel — para garantir a sua reserva.",
     "back": "Voltar",
     "mobileMoneyNotice": "Será levado para o checkout seguro da Snippe para aprovar o pagamento no seu telemóvel e depois regressará aqui.",
-    "subtitleUsd": "A sua reserva é em dólares americanos (USD)."
+    "subtitleUsd": "A sua reserva é em dólares americanos (USD). Vai pagar com cartão na página segura da Senjaropay."
   },
   "trustBadges": {
     "certifiedOperator": "Operador certificado",
@@ -109,7 +109,7 @@
     "thankYouGeneric": "Obrigado por reservar com a Pande Wilderness Safari.",
     "subtitle": "Os nossos guias e planeadores especializados receberam a sua reserva e já estão a preparar a sua autêntica aventura tanzaniana.",
     "depositReceived": "Depósito de {{amount}} recebido",
-    "confirmationSentTo": "Foi enviada uma confirmação de pagamento para {{email}}.",
+    "confirmationSentTo": "Encontra este pagamento na sua conta, em As minhas viagens.",
     "yourRegistrationEmail": "o seu e-mail de registo",
     "goToDashboard": "Ir para o meu painel",
     "browseMoreSafaris": "Ver mais safáris",
@@ -170,7 +170,8 @@
     "pending": {
       "heading": "A confirmar o seu pagamento…",
       "body": "Aprove o pedido no seu telemóvel, se ainda não o fez. Esta página atualiza-se automaticamente.",
-      "stillWaiting": "Ainda não recebemos confirmação. Se aprovou o pagamento, ele aparecerá em breve no seu painel e enviaremos um e-mail."
+      "stillWaiting": "Ainda não temos confirmação. Se aprovou o pagamento, aparecerá em breve em As minhas viagens e receberá uma notificação.",
+      "bodyCard": "Estamos à espera que o processador do cartão confirme o pagamento. Esta página atualiza-se sozinha."
     },
     "failed": {
       "heading": "Pagamento não concluído",
@@ -197,7 +198,7 @@
     "waitingHeading": "Verifique o seu telemóvel",
     "waitingBody": "Enviámos um pedido de {{amount}} para {{phone}}. Introduza o seu PIN de mobile money para o aprovar.",
     "waitingNote": "Mantenha esta página aberta — ela atualiza-se assim que aprovar.",
-    "stillWaiting": "Ainda não recebemos confirmação. Se aprovou o pagamento, ele aparecerá em breve no seu painel e enviaremos um e-mail.",
+    "stillWaiting": "Ainda não temos confirmação. Se aprovou o pagamento, aparecerá em breve em As minhas viagens e receberá uma notificação.",
     "resend": "Reenviar o pedido",
     "resent": "Reenviado — verifique o seu telemóvel.",
     "resendFailed": "Não foi possível reenviar. Tente novamente daqui a pouco.",
@@ -223,5 +224,39 @@
     "body": "Ainda não é possível pagar em dólares americanos online. Mude para xelins tanzanianos para pagar o seu sinal agora por mobile money, ou ligue-nos e combinamos o pagamento consigo.",
     "switchToTzs": "Pagar em TZS",
     "callUs": "Ligar para {{phone}}"
+  },
+  "cardPay": {
+    "billingHeading": "Dados de faturação do cartão",
+    "billingNote": "Exigidos pelo nosso processador de pagamentos. Vai introduzir o cartão na página segura da Senjaropay — nós nunca o vemos.",
+    "fields": {
+      "phoneNumber": "Número de telefone",
+      "country": "País",
+      "city": "Cidade",
+      "address": "Morada de faturação"
+    },
+    "placeholders": {
+      "phoneNumber": "+351 912 345 678",
+      "country": "Portugal",
+      "city": "Lisboa",
+      "address": "Rua Augusta 1"
+    },
+    "waitingHeading": "Pague na página segura do cartão",
+    "waitingBody": "Abra a página do cartão para pagar {{amount}}. Abre num novo separador — volte aqui quando terminar.",
+    "openPage": "Abrir página segura do cartão",
+    "waitingNote": "Mantenha esta página aberta — atualiza-se sozinha assim que o pagamento for aprovado.",
+    "stillWaiting": "Ainda não temos confirmação. Se pagou, aparecerá em breve em As minhas viagens e receberá uma notificação.",
+    "cancel": "Alterar dados de faturação",
+    "failedHeading": "O pagamento com cartão não foi concluído",
+    "failedBody": "O pagamento foi recusado ou a página expirou, por isso nada foi cobrado. Pode tentar novamente.",
+    "tryAgain": "Tentar novamente"
+  },
+  "cardReturn": {
+    "checkingHeading": "A confirmar o seu pagamento com cartão…",
+    "checkingBody": "Um momento — estamos a verificar o pagamento e a levá-lo de volta à sua reserva.",
+    "failedHeading": "O pagamento com cartão não foi concluído",
+    "failedBody": "O pagamento foi recusado ou algo correu mal, por isso nada foi cobrado. Pode tentar novamente em As minhas viagens.",
+    "cancelledHeading": "Pagamento cancelado",
+    "cancelledBody": "Saiu da página do cartão antes de pagar, por isso nada foi cobrado. A sua reserva está guardada — pague em As minhas viagens quando quiser.",
+    "tryAgain": "Ir para As minhas viagens"
   }
 }

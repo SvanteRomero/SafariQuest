@@ -130,5 +130,22 @@
     "submitting": "Submitting…",
     "submitReport": "Submit Report",
     "failedToSubmit": "Failed to submit your report."
+  },
+  "quote": {
+    "preparingHeading": "We're preparing your quote",
+    "preparingBody": "Our team is pricing the trip you designed. Your quote will appear here, and you'll be able to pay the deposit from this page.",
+    "preparingShort": "We're preparing your quote. It will appear in this trip's details, where you can pay the deposit.",
+    "heading": "Your quote",
+    "readyBody": "Here is the price for the trip you designed. Pay the deposit to confirm your booking.",
+    "item": "Item",
+    "qty": "Qty",
+    "amount": "Amount",
+    "total": "Total",
+    "depositDue": "Deposit due now (30%)",
+    "depositDueDiscounted": "Deposit due now (30%, referral discount applied)",
+    "balanceLater": "The rest is paid later from My Trips, before the trip starts.",
+    "payDeposit": "Pay Deposit ({{amount}})",
+    "readyShort": "Your quote is ready — deposit {{amount}}.",
+    "viewAndPay": "View Quote & Pay"
   }
 }

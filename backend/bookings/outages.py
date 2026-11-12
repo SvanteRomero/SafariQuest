@@ -28,12 +28,11 @@ from email.utils import parseaddr, parsedate_to_datetime
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from audit.utils import log_action
-from config.mail import send_notification
+from notifications.service import notify_admins
 
 from .models import PaymentAttempt, PaymentOutage, SnippeNotice
 
@@ -199,16 +198,8 @@ def _is_from_snippe(message):
 # --- acting on a notice ----------------------------------------------------------------
 
 
-def _admin_emails():
-    return list(
-        get_user_model().objects.filter(role="admin", is_active=True).exclude(email="").values_list("email", flat=True)
-    )
-
-
 def _alert_admins(subject, message):
-    recipients = _admin_emails()
-    if recipients:
-        send_notification(subject=subject, message=message, recipient_list=recipients)
+    notify_admins(subject, message, link="/admin")
 
 
 def _local(dt):

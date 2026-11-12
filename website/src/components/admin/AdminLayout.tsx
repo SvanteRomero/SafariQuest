@@ -19,7 +19,6 @@ import {
   SignOut,
   Plus,
   MagnifyingGlass,
-  Bell,
   Gear,
   Question,
   List,
@@ -28,6 +27,7 @@ import {
 import { useAuth } from '../../auth/AuthContext'
 import { useBodyScrollLock } from '../../lib/useBodyScrollLock'
 import { RouteErrorBoundary } from '../RouteErrorBoundary'
+import { NotificationBell } from '../NotificationBell'
 
 const ROLE_LABEL: Record<string, string> = {
   admin: 'Administrator',
@@ -224,13 +224,7 @@ export function AdminLayout() {
             />
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              title="Notifications"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
-            >
-              <Bell size={20} />
-            </button>
+            <NotificationBell />
             <button
               type="button"
               title="Settings"

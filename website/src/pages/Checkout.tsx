@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Link } from '../i18n/routing'
 import { useCurrentLocale, useLocalizedNavigate as useNavigate } from '../i18n/useLocale'
 import {
+  CreditCard,
   DeviceMobile,
   CalendarBlank,
   Users,
@@ -19,7 +20,7 @@ import {
 import { getSafari, type SafariPackage } from '../api/safaris'
 import { getRegionSafari, type RegionSafari } from '../api/regionSafaris'
 import { getDestinations } from '../api/destinations'
-import { createBooking, getPaymentAvailability, payForBooking } from '../api/bookings'
+import { createBooking, getPaymentAvailability, payForBooking, type PaymentMode } from '../api/bookings'
 import { getSeasons } from '../api/pricing'
 import { useFetch } from '../lib/useFetch'
 import { useAuth } from '../auth/AuthContext'
@@ -39,14 +40,20 @@ import { formatMoney, productPrice, type Currency } from '../lib/money'
 import { useDisplayCurrency } from '../lib/currencyPreference'
 import { CurrencyChoice } from '../components/checkout/CurrencyChoice'
 import { UsdComingSoonNotice } from '../components/checkout/UsdComingSoonNotice'
+import { CardBillingFields } from '../components/checkout/CardBillingFields'
+import { CardPaymentWaiting } from '../components/checkout/CardPaymentWaiting'
+import { EMPTY_CARD_BILLING, isCardBillingComplete } from '../lib/cardBilling'
 
 type CheckoutStep = 'details' | 'review' | 'account' | 'payment'
 
-/** A direct payment whose prompt is on the tourist's phone, waiting for their PIN. */
+/** A payment waiting on the tourist: a prompt on their phone (direct), or Senjaropay's
+ * card page open in another tab (card). */
 interface WaitingPayment {
   bookingId: number
   paymentId: number
+  mode: PaymentMode
   phoneMasked: string
+  checkoutUrl: string
   amount: number
   currency: Currency
 }
@@ -118,6 +125,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
   const [referralCode, setReferralCode] = useState('')
   // Direct payments: the number the prompt goes to, and the prompt now waiting for a PIN.
   const [phone, setPhone] = useState('')
+  // USD card payments: the cardholder details Senjaropay requires.
+  const [billing, setBilling] = useState(EMPTY_CARD_BILLING)
   // What this booking is priced and paid in: the visitor's currency, shared with the
   // header toggle — choosing here switches the whole site, and vice versa.
   const { currency: chosenCurrency, setCurrency: setChosenCurrency } = useDisplayCurrency()
@@ -263,6 +272,7 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
       const checkout = await payForBooking(bookingId, locale, {
         referralCode: referralDiscountPercent ? referralCode.trim() : undefined,
         phoneNumber: payingByPhone ? phone : undefined,
+        billing: payingByCard ? billing : undefined,
       })
       if (checkout.mode === 'hosted') {
         // Off to Snippe's checkout page; it sends the tourist back to /booking-confirmed.
@@ -273,7 +283,9 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
       setWaiting({
         bookingId,
         paymentId: checkout.paymentId,
+        mode: checkout.mode,
         phoneMasked: checkout.phoneMasked,
+        checkoutUrl: checkout.checkoutUrl,
         amount: checkout.amount,
         currency,
       })
@@ -286,16 +298,25 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
 
   // Direct unless the server says hosted; it's the server that decides either way.
   const directMode = paymentAvailability?.mode !== 'hosted'
-  // TZS goes to Snippe (a phone prompt in direct mode); USD to Senjaropay, once connected.
+  // TZS goes to Snippe (a phone prompt in direct mode); USD to Senjaropay's card page.
   const payingByPhone = currency === 'TZS' && directMode
   const usdUnavailable = currency === 'USD' && !paymentAvailability?.currencies?.USD
+  const payingByCard = currency === 'USD' && !usdUnavailable
   const snippeBlocked = currency === 'TZS' && Boolean(paymentAvailability?.blocked)
   const payDisabled =
     step === 'payment' &&
-    (snippeBlocked || usdUnavailable || waiting !== null || (payingByPhone && !canPayWith(phone)))
+    (snippeBlocked ||
+      usdUnavailable ||
+      waiting !== null ||
+      (payingByPhone && !canPayWith(phone)) ||
+      (payingByCard && !isCardBillingComplete(billing)))
 
   let paymentMethodField: ReactNode = <MobileMoneyNotice />
-  if (currency === 'USD') {
+  if (payingByCard) {
+    paymentMethodField = (
+      <CardBillingFields idPrefix="checkout-billing" value={billing} onChange={setBilling} disabled={submitting} />
+    )
+  } else if (currency === 'USD') {
     // While USD can't be paid, the coming-soon callout at the top of the step says so.
     paymentMethodField = null
   } else if (directMode) {
@@ -542,7 +563,20 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                     {currency === 'USD' ? t('payment.subtitleUsd') : t('payment.subtitle')}
                   </p>
 
-                  {waiting ? (
+                  {waiting?.mode === 'card' && (
+                    <CardPaymentWaiting
+                      bookingId={waiting.bookingId}
+                      paymentId={waiting.paymentId}
+                      checkoutUrl={waiting.checkoutUrl}
+                      amount={waiting.amount}
+                      currency={waiting.currency}
+                      onCompleted={() =>
+                        void navigate(`/booking-confirmed?booking=${waiting.bookingId}&payment=${waiting.paymentId}`)
+                      }
+                      onTryAgain={() => setWaiting(null)}
+                    />
+                  )}
+                  {waiting && waiting.mode !== 'card' && (
                     <PaymentWaiting
                       bookingId={waiting.bookingId}
                       paymentId={waiting.paymentId}
@@ -554,7 +588,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                       }
                       onTryAgain={() => setWaiting(null)}
                     />
-                  ) : (
+                  )}
+                  {!waiting && (
                     <>
                       {usdUnavailable && (
                         <div className="mb-6">
@@ -676,7 +711,8 @@ export function Checkout({ kind }: { kind: 'safari' | 'regionSafari' }) {
                   className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 bg-savanna-green text-on-primary py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity shadow-lg shadow-savanna-green/20 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {ctaLabel}
-                  {step === 'payment' && <DeviceMobile size={18} weight="bold" />}
+                  {step === 'payment' && currency === 'USD' && <CreditCard size={18} weight="bold" />}
+                  {step === 'payment' && currency === 'TZS' && <DeviceMobile size={18} weight="bold" />}
                   {step !== 'payment' && <ArrowRight size={18} weight="bold" />}
                 </button>
                 <p className="text-center text-label-sm text-on-surface-variant px-2">

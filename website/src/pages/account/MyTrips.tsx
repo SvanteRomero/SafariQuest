@@ -1,7 +1,7 @@
 import { useEffect, type ComponentType } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { CalendarBlank, CheckCircle, Clock, ClockCounterClockwise, MapPin } from '@phosphor-icons/react'
+import { CalendarBlank, CheckCircle, Clock, ClockCounterClockwise, MapPin, Receipt } from '@phosphor-icons/react'
 import { Link } from '../../i18n/routing'
 import { getBookings, getPaymentAvailability, payForBooking, payRemainingBalance, type Booking, type BookingStage, type PaymentStatusValue } from '../../api/bookings'
 import { getMyInvoices } from '../../api/invoices'
@@ -11,6 +11,7 @@ import { paymentReturnParams, usePaymentStatus } from '../../lib/usePaymentStatu
 import { PaymentOutageNotice } from '../../components/checkout/PaymentOutageNotice'
 import { TripPayButton } from '../../components/checkout/TripPayButton'
 import { formatMoney } from '../../lib/money'
+import { useTripPayButtonProps } from '../../lib/useTripPayButtonProps'
 
 const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ size?: number; weight?: 'fill' }> }> = {
   new_inquiry: { className: 'bg-surface-tint text-on-primary', icon: CheckCircle },
@@ -21,24 +22,28 @@ const BADGE: Record<BookingStage, { className: string; icon: ComponentType<{ siz
 }
 
 /** What to tell a tourist who has just come back from Snippe's checkout after paying a balance. */
-function returnBannerText(status: PaymentStatusValue | undefined, gaveUp: boolean): string {
+function returnBannerText(status: PaymentStatusValue | undefined, gaveUp: boolean, card: boolean): string {
   if (status === 'completed') return 'Payment received — thank you! Your trip has been updated.'
   if (status === 'failed' || status === 'expired') {
     return "That payment didn't go through, so nothing was charged. You can try again below."
   }
   if (gaveUp) return "We haven't had confirmation yet. If you approved the payment it will show here shortly."
+  if (card) return 'Confirming your card payment…'
   return "Confirming your payment… approve the prompt on your phone if you haven't yet."
 }
 
+/** Whether a trip card offers "Pay Deposit" straight away: a checkout booking whose
+ * payment never completed. A sent quote is paid from the trip page, where the quote is
+ * shown; a trip-planner request still being quoted has nothing to pay. */
+function checkoutDepositDue(trip: Booking, hasInvoice: boolean, invoicesLoaded: boolean): boolean {
+  return trip.stage === 'new_inquiry' && invoicesLoaded && !hasInvoice && !trip.quoteRequested
+}
+
 export function MyTrips() {
-  const { t } = useTranslation('account')
-  const { t: tBooking } = useTranslation('booking')
+  const { t, i18n } = useTranslation('account')
   const { data: bookings, loading, error, refetch: refetchBookings } = useFetch<Booking[]>(() => getBookings(), [])
   const { data: invoices, refetch: refetchInvoices } = useFetch(getMyInvoices, [])
   const { data: paymentAvailability } = useFetch(getPaymentAvailability, [])
-  const paymentsBlocked = Boolean(paymentAvailability?.blocked)
-  // Direct unless the server says hosted; it's the server that decides either way.
-  const directMode = paymentAvailability?.mode !== 'hosted'
   const trips = bookings ?? []
   const locale = useCurrentLocale()
   // Snippe's checkout sends the tourist back here with ?booking=&payment= after a balance payment.
@@ -55,23 +60,15 @@ export function MyTrips() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [returnedStatus])
 
-  /** What a trip's pay buttons need from its currency: TZS pays through Snippe (a phone
-   * prompt in direct mode, stopped while Snippe is down); USD through Senjaropay. */
-  function payButtonProps(trip: Booking) {
-    const usdUnavailable = trip.currency === 'USD' && !paymentAvailability?.currencies?.USD
-    return {
-      directMode: directMode && trip.currency === 'TZS',
-      disabled: (trip.currency === 'TZS' && paymentsBlocked) || usdUnavailable,
-      note: usdUnavailable ? tBooking('currencyChoice.usdComingSoon') : null,
-    }
-  }
+  const tripPayButtonProps = useTripPayButtonProps(paymentAvailability)
+  const payButtonProps = (trip: Booking) => tripPayButtonProps(trip.currency)
 
   function handlePaid() {
     refetchInvoices()
     refetchBookings()
   }
 
-  const returnBanner = returnedPaymentId === null ? null : returnBannerText(returnedStatus, gaveUp)
+  const returnBanner = returnedPaymentId === null ? null : returnBannerText(returnedStatus, gaveUp, returnedPayment?.mode === 'card')
 
   return (
     <div>
@@ -89,7 +86,7 @@ export function MyTrips() {
           {returnBanner}
         </p>
       )}
-      {trips.some((trip) => trip.stage === 'new_inquiry' || trip.stage === 'deposit_paid') && (
+      {trips.some((trip) => trip.stage === 'new_inquiry' || trip.stage === 'quoted' || trip.stage === 'deposit_paid') && (
         <div className="mb-6">
           <PaymentOutageNotice availability={paymentAvailability} />
         </div>
@@ -107,8 +104,8 @@ export function MyTrips() {
                 const isCompleted = trip.stage === 'completed'
                 const invoice = (invoices ?? []).find((i) => i.bookingId === trip.id)
                 const remainingBalance = invoice?.remainingBalance
-                // A checkout booking whose deposit payment never completed.
-                const depositDue = trip.stage === 'new_inquiry' && invoices !== null && !invoice
+                const depositDue = checkoutDepositDue(trip, Boolean(invoice), invoices !== null)
+                const awaitingQuote = trip.stage === 'new_inquiry' && trip.quoteRequested
                 return (
                   <div
                     key={trip.id}
@@ -136,12 +133,31 @@ export function MyTrips() {
                       <p className="font-body-md text-on-surface-variant/80 text-sm mb-4 flex-1">
                         {trip.assignedGuideName ? t('myTrips.guideAssigned', { name: trip.assignedGuideName }) : t('myTrips.guideNotAssigned')}
                       </p>
+                      {awaitingQuote && (
+                        <p className="text-sm text-on-surface bg-golden-sun/15 border border-golden-sun/40 rounded-lg p-3 mb-3">
+                          {t('quote.preparingShort')}
+                        </p>
+                      )}
+                      {trip.depositDue !== null && (
+                        <div className="mb-2 space-y-2">
+                          <p className="text-sm text-on-surface bg-savanna-green/10 border border-savanna-green/20 rounded-lg p-3">
+                            {t('quote.readyShort', { amount: formatMoney(trip.depositDue, i18n.language, trip.currency) })}
+                          </p>
+                          <Link
+                            to={`/account/trips/${trip.id}`}
+                            className="w-full inline-flex items-center justify-center gap-2 bg-golden-sun text-on-primary py-3 rounded-lg font-label-md hover:opacity-90 transition-opacity"
+                          >
+                            <Receipt size={18} weight="bold" />
+                            {t('quote.viewAndPay')}
+                          </Link>
+                        </div>
+                      )}
                       {depositDue && (
                         <TripPayButton
                           bookingId={trip.id}
                           label="Pay Deposit"
                           {...payButtonProps(trip)}
-                          start={(phoneNumber) => payForBooking(trip.id, locale, { phoneNumber })}
+                          start={(options) => payForBooking(trip.id, locale, options)}
                           onPaid={handlePaid}
                         />
                       )}
@@ -150,7 +166,7 @@ export function MyTrips() {
                           bookingId={trip.id}
                           label={`Pay Remaining Balance (${formatMoney(remainingBalance!, undefined, trip.currency)})`}
                           {...payButtonProps(trip)}
-                          start={(phoneNumber) => payRemainingBalance(trip.id, locale, { phoneNumber })}
+                          start={(options) => payRemainingBalance(trip.id, locale, options)}
                           onPaid={handlePaid}
                         />
                       )}

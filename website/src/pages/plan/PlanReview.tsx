@@ -1,4 +1,4 @@
-import { type FormEvent } from 'react'
+import { useEffect, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MapPin, CalendarBlank, NotePencil, ShieldCheck, PencilSimple, ArrowRight } from '@phosphor-icons/react'
 import { useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
@@ -20,12 +20,19 @@ export function PlanReview() {
 
   const travelers = plan.adults + plan.children
 
+  // Signed in, the request is made by this account (the server ignores any other email),
+  // so the email field shows the account's address and can't be changed here.
+  useEffect(() => {
+    if (user && plan.contactEmail !== user.email) setContactEmail(user.email)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email])
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    // The actual booking (with its one primary product — everything else selected folds
-    // into the message) is only created once payment succeeds, on the Payment step —
-    // this step just confirms the trip details and collects contact info for it.
-    navigate(user ? '/plan/payment' : '/plan/account')
+    // The quote request (with its one primary product — everything else selected folds
+    // into the message) is only sent on the Request step — this step just confirms the
+    // trip details and collects contact info for it.
+    void navigate(user ? '/plan/request' : '/plan/account')
   }
 
   const canContinue = hasPrimaryProduct && Boolean(plan.travelDates)
@@ -68,7 +75,7 @@ export function PlanReview() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-        <div className="lg:col-span-3 flex flex-col gap-6">
+        <div className="lg:col-span-3 min-w-0 flex flex-col gap-6">
           <section className="bg-surface-container-lowest rounded-xl p-6 md:p-8 shadow-sm border border-sand-stone">
             <h3 className="font-headline-md text-[20px] text-on-surface mb-5 flex items-center gap-3">
               <MapPin size={22} className="text-savanna-green" />
@@ -140,7 +147,7 @@ export function PlanReview() {
                 <NotePencil size={22} className="text-savanna-green" />
                 {t('review.yourNotes')}
               </h3>
-              <p className="font-body-md text-body-md text-on-surface-variant italic border-l-2 border-savanna-green pl-4">
+              <p className="font-body-md text-body-md text-on-surface-variant italic border-l-2 border-savanna-green pl-4 whitespace-pre-line [overflow-wrap:anywhere]">
                 &ldquo;{plan.notes}&rdquo;
               </p>
             </section>
@@ -187,11 +194,25 @@ export function PlanReview() {
                 id="review-email"
                 type="email"
                 required
-                value={plan.contactEmail}
+                value={user?.email ?? plan.contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
                 placeholder="jane@example.com"
-                className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green"
+                disabled={Boolean(user)}
+                aria-describedby={user ? 'review-email-account' : undefined}
+                className="w-full min-h-[44px] bg-ivory-base border border-sand-stone rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-savanna-green disabled:opacity-60"
               />
+              {user && (
+                <p id="review-email-account" className="text-sm text-on-surface-variant mt-2">
+                  {t('review.signedInAs', { email: user.email })}{' '}
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="text-savanna-green font-label-md hover:underline"
+                  >
+                    {t('review.useAnotherEmail')}
+                  </button>
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="review-phone" className="block font-label-sm text-label-sm text-on-surface mb-2">
@@ -222,8 +243,8 @@ export function PlanReview() {
             <div className="flex items-start gap-3 bg-surface-container-low p-4 rounded-lg">
               <ShieldCheck size={20} className="text-golden-sun shrink-0 mt-0.5" />
               <p className="font-body-md text-[13px] text-on-surface-variant">
-                <strong className="text-on-surface">{t('review.depositSecures')}</strong>{' '}
-                {user ? t('review.nextPayDeposit') : t('review.nextCreateAccountPayDeposit')}
+                <strong className="text-on-surface">{t('review.quoteFirst')}</strong>{' '}
+                {user ? t('review.nextSendRequest') : t('review.nextCreateAccountSendRequest')}
               </p>
             </div>
 

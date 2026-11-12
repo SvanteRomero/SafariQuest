@@ -5,8 +5,10 @@ from django.core.mail import send_mail as django_send_mail
 logger = logging.getLogger(__name__)
 
 
-def send_notification(subject, message, recipient_list):
-    """Send a transactional email, logging rather than raising on failure.
+def send_email(subject, message, recipient_list):
+    """Send an email, logging rather than raising on failure. Only for account access —
+    invites and set-password links, which have to reach someone who can't sign in yet.
+    Everything else is a portal notification (notifications.service.notify).
 
     Every caller here mutates state before sending: a booking stage moves to
     QUOTED and an invoice is issued, an account is created, a password-set token

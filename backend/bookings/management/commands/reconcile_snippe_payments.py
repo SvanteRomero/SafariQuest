@@ -5,8 +5,9 @@ from bookings.payments import reconcile_open_payments
 
 class Command(BaseCommand):
     help = (
-        "Confirms open Snippe payments by asking Snippe directly — the safety net for a "
-        "webhook that never arrives. Safe to run repeatedly; schedule it every ~5 minutes."
+        "Confirms open payments by asking Snippe (TZS) or Senjaropay (USD card) directly — "
+        "the safety net for a webhook that never arrives. Safe to run repeatedly; schedule "
+        "it every ~5 minutes."
     )
 
     def add_arguments(self, parser):

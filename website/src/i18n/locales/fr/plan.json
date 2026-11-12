@@ -9,7 +9,7 @@
     "details": "Détails",
     "review": "Vérification",
     "account": "Compte",
-    "payment": "Paiement"
+    "request": "Demande"
   },
   "travelers": {
     "adults_one": "{{count}} adulte",
@@ -82,7 +82,7 @@
   },
   "review": {
     "heading": "Vérifiez votre voyage",
-    "subtitle": "Prenez un moment pour vérifier les détails de votre safari, puis continuez pour sécuriser votre réservation avec un compte et un acompte.",
+    "subtitle": "Vérifiez les détails de votre safari, puis envoyez-les-nous — nous vous répondrons avec un devis.",
     "selectAtLeastOne": "Sélectionnez au moins une expérience avant de continuer.",
     "chooseStartDate": "Choisissez une date de départ estimée avant de continuer.",
     "destinationsExperiences": "Destinations et expériences",
@@ -97,16 +97,18 @@
     "yourNotes": "Vos notes",
     "editSelections": "Modifier les sélections",
     "yourDetails": "Vos informations",
-    "whereToSend": "Où devons-nous envoyer votre confirmation de réservation ?",
+    "whereToSend": "Comment vous joindre au sujet de votre voyage.",
     "fullName": "Nom complet",
     "fullNamePlaceholder": "ex. Jeanne Dupont",
     "email": "E-mail",
     "phoneWhatsApp": "Téléphone / WhatsApp",
     "countryCode": "Indicatif du pays",
-    "depositSecures": "Un acompte sécurise votre réservation.",
-    "nextPayDeposit": "Vous devrez ensuite payer un acompte pour la confirmer.",
-    "nextCreateAccountPayDeposit": "Vous devrez ensuite créer un compte et payer un acompte pour la confirmer.",
-    "continue": "Continuer"
+    "continue": "Continuer",
+    "quoteFirst": "Aucun paiement pour l'instant — nous établissons d'abord votre devis.",
+    "nextSendRequest": "Vous envoyez ensuite votre demande, et votre devis apparaîtra dans Mes voyages.",
+    "nextCreateAccountSendRequest": "Vous créez ensuite un compte et envoyez votre demande, et votre devis apparaîtra dans Mes voyages.",
+    "signedInAs": "Connecté en tant que {{email}} — votre devis sera envoyé à ce compte.",
+    "useAnotherEmail": "Utiliser un autre e-mail"
   },
   "account": {
     "createHeading": "Créez votre compte",
@@ -119,15 +121,19 @@
     "signInAndContinue": "Se connecter et continuer",
     "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
   },
-  "payment": {
-    "heading": "Paiement",
-    "subtitle": "Payez l'acompte par mobile money — M-Pesa, Airtel Money, Mixx by Yas ou Halotel — pour sécuriser votre réservation.",
-    "depositDueNow": "Acompte dû maintenant (30 %)",
+  "request": {
+    "heading": "Envoyez votre demande de voyage",
+    "subtitle": "Notre équipe chiffrera le voyage que vous avez conçu — chaque expérience, votre style d'hébergement et vos notes — et vous enverra un devis.",
+    "stepQuote": "Nous préparons un devis pour tout votre voyage.",
+    "stepEmail": "Il apparaît dans votre compte, sous Mes voyages — nous vous prévenons dès qu’il est prêt, généralement sous un jour ouvré.",
+    "stepDeposit": "Vous payez un acompte de 30 % depuis Mes voyages pour confirmer la réservation.",
+    "send": "Envoyer la demande",
+    "sending": "Envoi…",
     "back": "Retour",
-    "processing": "Traitement en cours…",
-    "payAndBook": "Payer {{amount}} et réserver",
     "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer.",
-    "subtitleUsd": "Votre réservation est en dollars américains (USD)."
+    "sentHeading": "Demande envoyée !",
+    "sentBody": "Nous avons bien reçu votre voyage. Votre devis apparaîtra dans Mes voyages — vous recevrez une notification dès qu’il sera prêt — et vous pourrez y payer l’acompte.",
+    "goToMyTrips": "Aller à Mes voyages"
   },
   "message": {
     "destinations": "Destinations : {{list}}",
