@@ -8,6 +8,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Case, Count, F, IntegerField, Q, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
+from django.views.decorators.http import require_GET
 from django.utils import timezone
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -70,6 +71,7 @@ DIRECT_PAYMENT_REUSE_MINUTES = 10
 # (which stays payable for about 30 minutes) rather than opening another.
 CARD_PAYMENT_REUSE_MINUTES = 20
 # Either provider failing to open a payment.
+INVALID_JSON = "Invalid JSON."
 PROVIDER_ERRORS = (snippe.SnippeError, senjaropay.SenjaropayError)
 
 
@@ -706,7 +708,7 @@ class SnippeWebhookView(APIView):
         try:
             event = json.loads(raw_body)
         except ValueError:
-            return Response({"detail": "Invalid JSON."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
 
         event_type = event.get("type") or event.get("event")
         data = event.get("data") or {}
@@ -763,6 +765,7 @@ class SnippeWebhookView(APIView):
 CARD_RETURN_OUTCOMES = ("success", "fail", "cancel")
 
 
+@require_GET
 def card_return_redirect(request, outcome):
     """Senjaropay's Success / Fail / Cancel redirect URLs, when they point at this API's
     host (handy locally, through ngrok): pass the tourist on to the website's page of the
@@ -829,9 +832,9 @@ class SenjaropayWebhookView(APIView):
         try:
             event = json.loads(request.body)
         except ValueError:
-            return Response({"detail": "Invalid JSON."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(event, dict):
-            return Response({"detail": "Invalid JSON."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": INVALID_JSON}, status=status.HTTP_400_BAD_REQUEST)
         data = event.get("data") if isinstance(event.get("data"), dict) else event
         # The body's shape and signature scheme aren't documented yet: log the body's keys
         # and the header names (never values — the body holds the cardholder's details,

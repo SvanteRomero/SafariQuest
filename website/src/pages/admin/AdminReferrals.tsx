@@ -65,8 +65,8 @@ function SettingField({
 
 /** Keeps digits and, for decimals, one point with at most two places (the API's limit). */
 function clean(raw: string, decimals: boolean): string {
-  if (!decimals) return raw.replace(/\D/g, '').slice(0, 3)
-  const [whole, ...rest] = raw.replace(/,/g, '.').replace(/[^\d.]/g, '').split('.')
+  if (!decimals) return raw.replaceAll(/\D/g, '').slice(0, 3)
+  const [whole, ...rest] = raw.replaceAll(',', '.').replaceAll(/[^\d.]/g, '').split('.')
   return rest.length ? `${whole.slice(0, 3)}.${rest.join('').slice(0, 2)}` : whole.slice(0, 3)
 }
 

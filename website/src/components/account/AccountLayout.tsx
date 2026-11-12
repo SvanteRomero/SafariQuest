@@ -44,7 +44,7 @@ export function AccountLayout() {
   async function handleSignOut() {
     await logout()
     setMobileMenuOpen(false)
-    navigate('/')
+    void navigate('/')
   }
 
   if (role && role !== 'tourist') {

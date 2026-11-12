@@ -20,12 +20,12 @@ import {
   updateQuote,
   STAGE_LABELS,
   type BookingStage,
-  type QuoteLineItemInput,
 } from '../../api/bookings'
 import { getGuides } from '../../api/guides'
 import { useFetch } from '../../lib/useFetch'
 import { ApiError } from '../../lib/api'
 import { QuoteBuilder } from '../../components/admin/QuoteBuilder'
+import { draftLine, toLineInputs, type DraftLineItem } from '../../lib/quoteDraft'
 
 const STAGE_DOT: Record<BookingStage, string> = {
   new_inquiry: 'bg-secondary-container',
@@ -54,7 +54,7 @@ export function AdminBookingDetail() {
   const { data: booking, loading, error, refetch } = useFetch(() => getBooking(bookingId), [bookingId])
   const { data: guides } = useFetch(getGuides, [])
 
-  const [lineItems, setLineItems] = useState<QuoteLineItemInput[]>([])
+  const [lineItems, setLineItems] = useState<DraftLineItem[]>([])
   const [note, setNote] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
   const [savingQuote, setSavingQuote] = useState(false)
@@ -76,7 +76,7 @@ export function AdminBookingDetail() {
     setPrevBooking(booking)
     if (booking) {
       setLineItems(
-        booking.lineItems.map(({ label, quantity, unitPrice }) => ({ label, quantity, unitPrice })),
+        booking.lineItems.map(({ label, quantity, unitPrice }) => draftLine({ label, quantity, unitPrice })),
       )
     }
   }
@@ -109,7 +109,7 @@ export function AdminBookingDetail() {
     setActionError(null)
     setSavingQuote(true)
     try {
-      await updateQuote(bookingId, lineItems)
+      await updateQuote(bookingId, toLineInputs(lineItems))
       refetch()
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : 'Failed to save the quote.')
@@ -122,7 +122,7 @@ export function AdminBookingDetail() {
     setActionError(null)
     setSendingQuote(true)
     try {
-      await updateQuote(bookingId, lineItems)
+      await updateQuote(bookingId, toLineInputs(lineItems))
       await sendQuote(bookingId)
       refetch()
     } catch (err) {

@@ -99,10 +99,11 @@ export function NotificationBell({ className = '' }: Readonly<{ className?: stri
       </button>
 
       {open && (
-        <div
-          role="dialog"
+        // A non-modal <dialog open>: positioned under the bell, closed by outside click or Escape.
+        <dialog
+          open
           aria-label="Notifications"
-          className="absolute right-0 mt-2 w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] overflow-hidden flex flex-col rounded-xl border border-sand-stone bg-surface-container-lowest shadow-xl z-50"
+          className="absolute left-auto right-0 top-full m-0 mt-2 p-0 w-[min(22rem,calc(100vw-2rem))] max-h-[70vh] overflow-hidden flex flex-col rounded-xl border border-sand-stone bg-surface-container-lowest text-on-surface shadow-xl z-50"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-sand-stone">
             <p className="font-label-md text-on-surface">Notifications</p>
@@ -150,7 +151,7 @@ export function NotificationBell({ className = '' }: Readonly<{ className?: stri
               ))}
             </ul>
           )}
-        </div>
+        </dialog>
       )}
     </div>
   )

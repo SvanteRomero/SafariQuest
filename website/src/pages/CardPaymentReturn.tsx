@@ -41,7 +41,8 @@ export function CardPaymentReturn({ outcome }: Readonly<{ outcome: CardReturnOut
     if (!user) {
       // Signed out in this tab: sign in, then come straight back here.
       // `next` is unprefixed: sign-in adds the locale itself.
-      void navigate(`/sign-in?next=${encodeURIComponent(`/${outcome}${search}`)}`, { replace: true })
+      const next = encodeURIComponent(`/${outcome}${search}`)
+      void navigate(`/sign-in?next=${next}`, { replace: true })
       return
     }
     let cancelled = false

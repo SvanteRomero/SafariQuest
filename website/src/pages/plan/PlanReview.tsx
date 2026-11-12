@@ -32,7 +32,7 @@ export function PlanReview() {
     // The quote request (with its one primary product — everything else selected folds
     // into the message) is only sent on the Request step — this step just confirms the
     // trip details and collects contact info for it.
-    navigate(user ? '/plan/request' : '/plan/account')
+    void navigate(user ? '/plan/request' : '/plan/account')
   }
 
   const canContinue = hasPrimaryProduct && Boolean(plan.travelDates)

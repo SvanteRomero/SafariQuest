@@ -1,5 +1,6 @@
 import { Lock, PaperPlaneTilt, Plus, Receipt, Trash } from '@phosphor-icons/react'
 import type { QuoteLineItemInput } from '../../api/bookings'
+import { draftLine, type DraftLineItem } from '../../lib/quoteDraft'
 import { formatMoney, type Currency } from '../../lib/money'
 import { AmountInput } from './AmountInput'
 
@@ -30,13 +31,13 @@ export function QuoteBuilder({
   onSave,
   onSend,
 }: Readonly<{
-  items: QuoteLineItemInput[]
+  items: DraftLineItem[]
   currency: Currency
   locked: boolean
   sent: boolean
   saving: boolean
   sending: boolean
-  onChange: (items: QuoteLineItemInput[]) => void
+  onChange: (items: DraftLineItem[]) => void
   onSave: () => void
   onSend: () => void
 }>) {
@@ -48,7 +49,7 @@ export function QuoteBuilder({
 
   const update = (index: number, patch: Partial<QuoteLineItemInput>) =>
     onChange(items.map((item, i) => (i === index ? { ...item, ...patch } : item)))
-  const add = () => onChange([...items, { label: '', quantity: 1, unitPrice: 0 }])
+  const add = () => onChange([...items, draftLine()])
   const remove = (index: number) => onChange(items.filter((_, i) => i !== index))
 
   return (
@@ -100,7 +101,7 @@ export function QuoteBuilder({
                 const missingPrice = !locked && item.unitPrice <= 0
                 return (
                   <li
-                    key={i}
+                    key={item.key}
                     className="grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(0,1fr)_5rem_9rem_7.5rem_2rem] gap-3 items-center rounded-lg sm:rounded-none bg-surface-container-low sm:bg-transparent p-3 sm:p-0"
                   >
                     <input

@@ -137,7 +137,8 @@ export function AdminBookingsPipeline() {
             )}
           </p>
         </div>
-        <div className="flex bg-surface-container rounded-lg p-1 w-fit" role="group" aria-label="View">
+        <fieldset className="flex bg-surface-container rounded-lg p-1 w-fit">
+          <legend className="sr-only">View</legend>
           {(
             [
               ['board', 'Board', Kanban],
@@ -158,7 +159,7 @@ export function AdminBookingsPipeline() {
               <Icon size={18} /> {label}
             </button>
           ))}
-        </div>
+        </fieldset>
       </div>
 
       {/* Stage summary: also a filter in the table view. */}

@@ -14,7 +14,8 @@ def notify(recipients, title, body="", link=""):
     iterable of users. Best-effort, like the emails it replaces: a failure is logged and
     never fails the request that triggered it (the booking or payment has already been
     saved by then)."""
-    users = [recipients] if isinstance(recipients, get_user_model()) else list(recipients)
+    user_model = get_user_model()
+    users = [recipients] if isinstance(recipients, user_model) else list(recipients)
     try:
         Notification.objects.bulk_create(
             Notification(user=user, title=title[:200], body=body, link=link[:300]) for user in users
@@ -25,5 +26,5 @@ def notify(recipients, title, body="", link=""):
 
 def notify_admins(title, body="", link=""):
     """Every active administrator."""
-    User = get_user_model()
-    notify(User.objects.filter(role=User.ROLE_ADMIN, is_active=True), title, body, link)
+    user_model = get_user_model()
+    notify(user_model.objects.filter(role=user_model.ROLE_ADMIN, is_active=True), title, body, link)

@@ -41,6 +41,11 @@ function totalsOf(totals: TotalsByCurrency, pick: (t: CommissionTotals) => numbe
   return sum
 }
 
+/** "1 agent", "3 agents". */
+function plural(count: number, noun: string) {
+  return `${count} ${noun}${count === 1 ? '' : 's'}`
+}
+
 function hasAny(totals: MoneyTotals) {
   return totals.TZS > 0 || totals.USD > 0
 }
@@ -71,7 +76,7 @@ export function ReferralStats({ agents }: Readonly<{ agents: AgentPayoutSummary[
         tone="green"
         label="Payable now"
         value={hasAny(payable) ? formatTotals(payable) : 'Nothing due'}
-        note={agentsDue ? `${agentsDue} agent${agentsDue === 1 ? '' : 's'} to pay` : 'All agents are paid up'}
+        note={agentsDue ? `${plural(agentsDue, 'agent')} to pay` : 'All agents are paid up'}
       />
       <Stat
         icon={Clock}
@@ -92,7 +97,7 @@ export function ReferralStats({ agents }: Readonly<{ agents: AgentPayoutSummary[
         tone="neutral"
         label="Referred bookings"
         value={String(referrals)}
-        note={`From ${agents.length} agent${agents.length === 1 ? '' : 's'}`}
+        note={`From ${plural(agents.length, 'agent')}`}
       />
     </div>
   )
@@ -163,7 +168,7 @@ export function AgentPayoutsCard({
               onChange={(e) => setOnlyDue(e.target.checked)}
               className="accent-savanna-green w-4 h-4"
             />
-            Only agents with money due
+            <span>Only agents with money due</span>
           </label>
         )}
       </header>
@@ -223,7 +228,7 @@ function AgentRow({
           <div className="min-w-0">
             <p className="font-label-md text-on-surface truncate">{agent.name || agent.email}</p>
             <p className="text-xs text-on-surface-variant truncate">
-              {agent.email} · {agent.referrals} referral{agent.referrals === 1 ? '' : 's'}
+              {agent.email} · {plural(agent.referrals, 'referral')}
             </p>
             {details ? (
               <p className="mt-2 inline-flex items-start gap-1.5 text-xs text-on-surface bg-surface-container-low rounded-md px-2 py-1 max-w-full">
@@ -341,7 +346,8 @@ export function RedemptionsCard({
             />
           </label>
         </div>
-        <div role="group" aria-label="Filter redemptions" className="flex flex-wrap gap-2">
+        <fieldset className="flex flex-wrap gap-2">
+          <legend className="sr-only">Filter redemptions</legend>
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -358,7 +364,7 @@ export function RedemptionsCard({
               <span className={`ml-1.5 text-xs ${filter === f.key ? 'opacity-80' : 'opacity-60'}`}>{counts[f.key]}</span>
             </button>
           ))}
-        </div>
+        </fieldset>
       </header>
 
       {shown.length === 0 ? (

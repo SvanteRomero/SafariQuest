@@ -61,7 +61,7 @@ export function PlanRequest() {
 
   if (sent) {
     return (
-      <div className="max-w-lg mx-auto text-center" role="status">
+      <output className="block max-w-lg mx-auto text-center">
         <CheckCircle size={56} weight="fill" className="mx-auto text-savanna-green mb-6" />
         <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3">
           {t('request.sentHeading')}
@@ -75,7 +75,7 @@ export function PlanRequest() {
         >
           {t('request.goToMyTrips')}
         </Link>
-      </div>
+      </output>
     )
   }
 
