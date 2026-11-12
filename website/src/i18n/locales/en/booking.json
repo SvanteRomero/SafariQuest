@@ -248,7 +248,8 @@
     "cancel": "Change billing details",
     "failedHeading": "Card payment didn't go through",
     "failedBody": "The payment was declined or the card page expired, so nothing was charged. You can try again.",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "completeHint": "Fill in all four details above to continue."
   },
   "cardReturn": {
     "checkingHeading": "Confirming your card payment…",

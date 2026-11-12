@@ -248,7 +248,8 @@
     "cancel": "Alterar dados de faturação",
     "failedHeading": "O pagamento com cartão não foi concluído",
     "failedBody": "O pagamento foi recusado ou a página expirou, por isso nada foi cobrado. Pode tentar novamente.",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "completeHint": "Preencha os quatro campos acima para continuar."
   },
   "cardReturn": {
     "checkingHeading": "A confirmar o seu pagamento com cartão…",

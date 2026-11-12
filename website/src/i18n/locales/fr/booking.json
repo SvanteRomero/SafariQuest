@@ -248,7 +248,8 @@
     "cancel": "Modifier la facturation",
     "failedHeading": "Le paiement par carte n'a pas abouti",
     "failedBody": "Le paiement a été refusé ou la page a expiré : rien n’a été débité. Vous pouvez réessayer.",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "completeHint": "Remplissez les quatre champs ci-dessus pour continuer."
   },
   "cardReturn": {
     "checkingHeading": "Confirmation de votre paiement par carte…",
