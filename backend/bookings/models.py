@@ -49,6 +49,13 @@ class Booking(models.Model):
         "guides.Guide", related_name="bookings", null=True, blank=True, on_delete=models.SET_NULL
     )
     message = models.TextField(blank=True)
+    # From the trip planner: the tourist asked for a quote rather than paying a fixed
+    # price. Nothing can be paid until an admin sends one (BookingViewSet.send_quote);
+    # the deposit is then 30% of the quote (bookings.pricing.quote_terms).
+    quote_requested = models.BooleanField(default=False)
+    # A referral code entered with a quote request, applied when the quote's deposit is
+    # paid — checked again then, since it may have been used or expired meanwhile.
+    referral_code_entered = models.CharField(max_length=32, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -188,9 +195,15 @@ class Payment(models.Model):
 
     # "direct": a prompt sent straight to `phone_number`, paid without leaving the site.
     # "hosted": a session on Snippe's checkout page (`checkout_url`).
+    # "card": a USD card payment on Senjaropay's hosted page (`checkout_url`).
     MODE_DIRECT = "direct"
     MODE_HOSTED = "hosted"
-    MODE_CHOICES = [(MODE_DIRECT, "Direct (phone prompt)"), (MODE_HOSTED, "Hosted checkout page")]
+    MODE_CARD = "card"
+    MODE_CHOICES = [
+        (MODE_DIRECT, "Direct (phone prompt)"),
+        (MODE_HOSTED, "Hosted checkout page"),
+        (MODE_CARD, "Card checkout page"),
+    ]
 
     booking = models.ForeignKey(Booking, related_name="payments", on_delete=models.CASCADE)
     kind = models.CharField(max_length=10, choices=KIND_CHOICES)

@@ -5,10 +5,24 @@ import { getPaymentStatus, type PaymentStatus } from '../api/bookings'
 // says so; the payment still lands on the dashboard once Snippe's webhook arrives.
 const POLL_INTERVAL_MS = 3000
 const MAX_POLLS = 40
+const MAX_BACKOFF_MS = 15000
+
+/** How long to wait before poll number `polls + 1`: steady, or (with `backoff`) growing
+ * by a quarter each time up to `MAX_BACKOFF_MS`, as Senjaropay's docs ask. */
+function pollDelay(polls: number, backoff: boolean): number {
+  if (!backoff) return POLL_INTERVAL_MS
+  return Math.min(POLL_INTERVAL_MS * 1.25 ** (polls - 1), MAX_BACKOFF_MS)
+}
 
 /** Polls a payment the tourist has just come back from Snippe's checkout for, until it
- * settles. Pass nulls (no `?booking=&payment=` in the URL) and it does nothing. */
-export function usePaymentStatus(bookingId: number | null, paymentId: number | null) {
+ * settles. Pass nulls (no `?booking=&payment=` in the URL) and it does nothing.
+ * A card payment polls for longer (typing card details takes a while) and backs off, so
+ * each wait doesn't mean another request to Senjaropay every 3 seconds. */
+export function usePaymentStatus(
+  bookingId: number | null,
+  paymentId: number | null,
+  { maxPolls = MAX_POLLS, backoff = false }: { maxPolls?: number; backoff?: boolean } = {},
+) {
   const [payment, setPayment] = useState<PaymentStatus | null>(null)
   const [gaveUp, setGaveUp] = useState(false)
 
@@ -29,11 +43,11 @@ export function usePaymentStatus(bookingId: number | null, paymentId: number | n
         // A transient error is just another pending poll.
       }
       if (cancelled) return
-      if (polls >= MAX_POLLS) {
+      if (polls >= maxPolls) {
         setGaveUp(true)
         return
       }
-      timer = setTimeout(() => void poll(), POLL_INTERVAL_MS)
+      timer = setTimeout(() => void poll(), pollDelay(polls, backoff))
     }
 
     void poll()
@@ -41,7 +55,7 @@ export function usePaymentStatus(bookingId: number | null, paymentId: number | n
       cancelled = true
       if (timer) clearTimeout(timer)
     }
-  }, [bookingId, paymentId])
+  }, [bookingId, paymentId, maxPolls, backoff])
 
   return { payment, gaveUp }
 }

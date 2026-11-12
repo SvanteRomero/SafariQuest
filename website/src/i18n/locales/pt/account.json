@@ -130,5 +130,22 @@
     "submitting": "A enviar…",
     "submitReport": "Enviar relato",
     "failedToSubmit": "Falha ao enviar o seu relato."
+  },
+  "quote": {
+    "preparingHeading": "Estamos a preparar o seu orçamento",
+    "preparingBody": "A nossa equipa está a orçamentar a viagem que criou. O orçamento aparecerá aqui e poderá pagar o sinal nesta página.",
+    "preparingShort": "Estamos a preparar o seu orçamento. Aparecerá nos detalhes desta viagem, onde poderá pagar o sinal.",
+    "heading": "O seu orçamento",
+    "readyBody": "Aqui está o preço da viagem que criou. Pague o sinal para confirmar a reserva.",
+    "item": "Item",
+    "qty": "Qtd",
+    "amount": "Valor",
+    "total": "Total",
+    "depositDue": "Sinal a pagar agora (30%)",
+    "depositDueDiscounted": "Sinal a pagar agora (30%, desconto de referência aplicado)",
+    "balanceLater": "O restante é pago mais tarde em As minhas viagens, antes do início da viagem.",
+    "payDeposit": "Pagar sinal ({{amount}})",
+    "readyShort": "O seu orçamento está pronto — sinal de {{amount}}.",
+    "viewAndPay": "Ver orçamento e pagar"
   }
 }

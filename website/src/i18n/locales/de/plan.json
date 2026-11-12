@@ -9,7 +9,7 @@
     "details": "Details",
     "review": "Überprüfung",
     "account": "Konto",
-    "payment": "Zahlung"
+    "request": "Anfrage"
   },
   "travelers": {
     "adults_one": "{{count}} Erwachsener",
@@ -82,7 +82,7 @@
   },
   "review": {
     "heading": "Überprüfen Sie Ihre Reise",
-    "subtitle": "Nehmen Sie sich einen Moment Zeit, um Ihre Safaridetails zu prüfen, und fahren Sie dann fort, um Ihre Buchung mit einem Konto und einer Anzahlung zu sichern.",
+    "subtitle": "Prüfen Sie Ihre Safari-Details und senden Sie sie uns — wir antworten mit einem Angebot für Ihre Reise.",
     "selectAtLeastOne": "Wählen Sie mindestens ein Erlebnis aus, bevor Sie fortfahren.",
     "chooseStartDate": "Wählen Sie ein voraussichtliches Startdatum, bevor Sie fortfahren.",
     "destinationsExperiences": "Reiseziele & Erlebnisse",
@@ -97,16 +97,18 @@
     "yourNotes": "Ihre Notizen",
     "editSelections": "Auswahl bearbeiten",
     "yourDetails": "Ihre Angaben",
-    "whereToSend": "Wohin sollen wir Ihre Buchungsbestätigung senden?",
+    "whereToSend": "Wie wir Sie wegen Ihrer Reise erreichen.",
     "fullName": "Vollständiger Name",
     "fullNamePlaceholder": "z. B. Jana Muster",
     "email": "E-Mail",
     "phoneWhatsApp": "Telefon / WhatsApp",
     "countryCode": "Ländervorwahl",
-    "depositSecures": "Eine Anzahlung sichert Ihre Buchung.",
-    "nextPayDeposit": "Als Nächstes zahlen Sie eine Anzahlung, um sie zu bestätigen.",
-    "nextCreateAccountPayDeposit": "Als Nächstes erstellen Sie ein Konto und zahlen eine Anzahlung, um sie zu bestätigen.",
-    "continue": "Weiter"
+    "continue": "Weiter",
+    "quoteFirst": "Noch keine Zahlung — zuerst erstellen wir Ihr Angebot.",
+    "nextSendRequest": "Als Nächstes senden Sie Ihre Anfrage, und Ihr Angebot erscheint unter „Meine Reisen“.",
+    "nextCreateAccountSendRequest": "Als Nächstes erstellen Sie ein Konto und senden Ihre Anfrage, und Ihr Angebot erscheint unter „Meine Reisen“.",
+    "signedInAs": "Angemeldet als {{email}} — Ihr Angebot geht an dieses Konto.",
+    "useAnotherEmail": "Andere E-Mail verwenden"
   },
   "account": {
     "createHeading": "Konto erstellen",
@@ -119,15 +121,19 @@
     "signInAndContinue": "Anmelden & fortfahren",
     "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
   },
-  "payment": {
-    "heading": "Zahlung",
-    "subtitle": "Zahlen Sie die Anzahlung per Mobile Money — M-Pesa, Airtel Money, Mixx by Yas oder Halotel —, um Ihre Buchung zu sichern.",
-    "depositDueNow": "Anzahlung jetzt fällig (30 %)",
+  "request": {
+    "heading": "Reiseanfrage senden",
+    "subtitle": "Unser Team kalkuliert die Reise, die Sie zusammengestellt haben — jedes Erlebnis, Ihren Unterkunftsstil und Ihre Notizen — und schickt Ihnen ein Angebot.",
+    "stepQuote": "Wir erstellen ein Angebot für Ihre gesamte Reise.",
+    "stepEmail": "Es erscheint in Ihrem Konto unter „Meine Reisen“ — wir benachrichtigen Sie, sobald es fertig ist, meist innerhalb eines Werktags.",
+    "stepDeposit": "Sie zahlen eine Anzahlung von 30 % unter „Meine Reisen“, um die Buchung zu bestätigen.",
+    "send": "Anfrage senden",
+    "sending": "Wird gesendet…",
     "back": "Zurück",
-    "processing": "Wird verarbeitet…",
-    "payAndBook": "{{amount}} zahlen & buchen",
     "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
-    "subtitleUsd": "Ihre Buchung ist in US-Dollar (USD) berechnet."
+    "sentHeading": "Anfrage gesendet!",
+    "sentBody": "Wir haben Ihre Reise erhalten. Ihr Angebot erscheint unter „Meine Reisen“ — Sie erhalten eine Benachrichtigung, sobald es fertig ist — und Sie können dort die Anzahlung leisten.",
+    "goToMyTrips": "Zu Meine Reisen"
   },
   "message": {
     "destinations": "Reiseziele: {{list}}",

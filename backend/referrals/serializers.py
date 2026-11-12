@@ -3,7 +3,17 @@ from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import MAX_CODE_EXPIRY_DAYS, MIN_CODE_EXPIRY_DAYS, ReferralCode, ReferralRedemption, ReferralSettings
+from bookings.currency import CURRENCIES
+
+from .models import (
+    MAX_CODE_EXPIRY_DAYS,
+    MIN_CODE_EXPIRY_DAYS,
+    PAYOUT_METHOD_CHOICES,
+    AgentPayoutDetails,
+    ReferralCode,
+    ReferralRedemption,
+    ReferralSettings,
+)
 
 User = get_user_model()
 
@@ -44,10 +54,25 @@ class ReferralRedemptionSummarySerializer(serializers.ModelSerializer):
     bookingId = serializers.IntegerField(source="booking_id")
     # Commission is in the booking's currency (TZS or USD).
     currency = serializers.CharField(source="booking.currency", read_only=True)
+    # Commission is paid once the trip is done; until then the agent sees it waiting.
+    trip_completed = serializers.SerializerMethodField()
 
     class Meta:
         model = ReferralRedemption
-        fields = ["bookingId", "commission_amount", "currency", "commission_status", "created_at"]
+        fields = [
+            "bookingId",
+            "commission_amount",
+            "currency",
+            "commission_status",
+            "created_at",
+            "trip_completed",
+            "paid_at",
+            "payout_method",
+            "payout_reference",
+        ]
+
+    def get_trip_completed(self, obj):
+        return obj.booking.stage == "completed"
 
 
 class ReferralCodeSerializer(serializers.ModelSerializer):
@@ -148,6 +173,11 @@ class AdminReferralRedemptionSerializer(serializers.ModelSerializer):
     customerName = serializers.CharField(source="booking.customer.name")
     customerEmail = serializers.CharField(source="booking.customer.email")
     currency = serializers.CharField(source="booking.currency", read_only=True)
+    agentId = serializers.IntegerField(source="code.agent_id")
+    trip_stage = serializers.CharField(source="booking.stage")
+    trip_end_date = serializers.DateField(source="booking.end_date")
+    payable = serializers.BooleanField(source="is_payable")
+    paid_by = serializers.CharField(source="paid_by.email", default=None)
 
     class Meta:
         model = ReferralRedemption
@@ -166,4 +196,32 @@ class AdminReferralRedemptionSerializer(serializers.ModelSerializer):
             "currency",
             "commission_status",
             "created_at",
+            "agentId",
+            "trip_stage",
+            "trip_end_date",
+            "payable",
+            "paid_at",
+            "paid_by",
+            "payout_method",
+            "payout_reference",
         ]
+
+
+class AgentPayoutDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentPayoutDetails
+        fields = ["method", "account_name", "account_details", "updated_at"]
+        read_only_fields = ["updated_at"]
+
+
+class PayoutInputSerializer(serializers.Serializer):
+    """How the admin sent the money. The reference (a mobile money transaction id, a bank
+    reference) is what lets the agent match it on their side."""
+
+    method = serializers.ChoiceField(choices=PAYOUT_METHOD_CHOICES)
+    reference = serializers.CharField(required=False, allow_blank=True, max_length=100, default="")
+
+
+class AgentPayoutInputSerializer(PayoutInputSerializer):
+    # One payout is in one currency: TZS and USD commissions are paid separately.
+    currency = serializers.ChoiceField(choices=CURRENCIES)

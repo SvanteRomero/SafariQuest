@@ -15,6 +15,7 @@ import { SetPassword } from './pages/SetPassword'
 import { Faqs } from './pages/Faqs'
 import { Checkout } from './pages/Checkout'
 import { BookingConfirmed } from './pages/BookingConfirmed'
+import { CardPaymentReturn } from './pages/CardPaymentReturn'
 import { ReferralSignup } from './pages/ReferralSignup'
 import { AgentDashboard } from './pages/agent/AgentDashboard'
 import { PlanLayout } from './components/plan/PlanLayout'
@@ -23,7 +24,7 @@ import { PlanExperiences } from './pages/plan/PlanExperiences'
 import { PlanDetails } from './pages/plan/PlanDetails'
 import { PlanReview } from './pages/plan/PlanReview'
 import { PlanAccount } from './pages/plan/PlanAccount'
-import { PlanPayment } from './pages/plan/PlanPayment'
+import { PlanRequest } from './pages/plan/PlanRequest'
 import { AccountLayout } from './components/account/AccountLayout'
 import { MyTrips } from './pages/account/MyTrips'
 import { AccountInvoices } from './pages/account/AccountInvoices'
@@ -77,6 +78,10 @@ function LocaleRedirect() {
   return <Navigate to={target} replace />
 }
 
+function AgentRedirect() {
+  return <Navigate to={`/${detectPreferredLocale()}/account/agent`} replace />
+}
+
 function MarketingLayout() {
   return (
     <>
@@ -125,6 +130,10 @@ function App() {
               <Route path="region-safaris/:id" element={<RegionSafariDetail />} />
               <Route path="region-safaris/:id/book" element={<Checkout kind="regionSafari" />} />
               <Route path="booking-confirmed" element={<BookingConfirmed />} />
+              {/* Senjaropay's card page returns to these: /success?order_id=CARD-… etc. */}
+              <Route path="success" element={<CardPaymentReturn outcome="success" />} />
+              <Route path="fail" element={<CardPaymentReturn outcome="fail" />} />
+              <Route path="cancel" element={<CardPaymentReturn outcome="cancel" />} />
               <Route path="become-agent" element={<ReferralSignup />} />
               <Route element={<PlanLayout />}>
                 <Route path="plan" element={<PlanDestinations />} />
@@ -132,7 +141,9 @@ function App() {
                 <Route path="plan/details" element={<PlanDetails />} />
                 <Route path="plan/review" element={<PlanReview />} />
                 <Route path="plan/account" element={<PlanAccount />} />
-                <Route path="plan/payment" element={<PlanPayment />} />
+                <Route path="plan/request" element={<PlanRequest />} />
+                {/* The planner used to end in a payment step; old links land on the request. */}
+                <Route path="plan/payment" element={<Navigate to="../plan/request" replace />} />
               </Route>
             </Route>
 
@@ -145,6 +156,11 @@ function App() {
               <Route path="account/trips/:tripId" element={<TripProgress />} />
               <Route path="account/trips/:tripId/rate" element={<RateExperience />} />
               <Route path="account/trips/:tripId/report-issue" element={<ReportIssue />} />
+              {/* Referral agent is a profile on the same tourist login, so its dashboard
+                  sits in the customer area, with the same sidebar. */}
+              <Route path="account/agent" element={<RequireAgent />}>
+                <Route index element={<AgentDashboard />} />
+              </Route>
             </Route>
           </Route>
         ))}
@@ -158,9 +174,8 @@ function App() {
           <Route path="support" element={<GuideSupport />} />
         </Route>
 
-        <Route path="/agent" element={<RequireAgent />}>
-          <Route index element={<AgentDashboard />} />
-        </Route>
+        {/* The agent dashboard's old address, still used by sign-in (home "/agent") and links. */}
+        <Route path="/agent" element={<AgentRedirect />} />
 
         <Route element={<RequireRole allow={['admin']} />}>
           <Route path="/admin" element={<AdminLayout />}>

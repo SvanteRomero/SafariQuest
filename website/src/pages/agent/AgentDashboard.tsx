@@ -1,11 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowSquareOut, Compass, Copy, HandCoins, SignOut } from '@phosphor-icons/react'
-import { generateReferralCode, getMyReferralCodes, type ReferralCode } from '../../api/referrals'
+import { ArrowSquareOut, Copy, HandCoins } from '@phosphor-icons/react'
+import {
+  generateReferralCode,
+  getMyReferralCodes,
+  PAYOUT_METHOD_LABELS,
+  type ReferralCode,
+  type ReferralRedemptionSummary,
+} from '../../api/referrals'
+import { PayoutDetailsCard } from '../../components/agent/PayoutDetailsCard'
 import { useFetch } from '../../lib/useFetch'
 import { useAuth } from '../../auth/AuthContext'
 import { ApiError } from '../../lib/api'
-import { DEFAULT_LOCALE } from '../../i18n/locales'
 import { formatMoney, formatTotals, sumByCurrency } from '../../lib/money'
 
 const STATUS_BADGE: Record<ReferralCode['status'], string> = {
@@ -19,12 +24,22 @@ const COMMISSION_BADGE: Record<'pending' | 'paid', string> = {
   paid: 'bg-savanna-green/10 text-savanna-green border border-savanna-green/20',
 }
 
+/** Where a commission stands, in a few words under its amount. */
+function commissionNote(r: ReferralRedemptionSummary): string {
+  if (r.commissionStatus === 'paid') {
+    const how = r.payoutMethod ? ` by ${PAYOUT_METHOD_LABELS[r.payoutMethod].toLowerCase()}` : ''
+    const ref = r.payoutReference ? ` · ref ${r.payoutReference}` : ''
+    return r.paidAt ? `Paid ${formatDate(r.paidAt)}${how}${ref}` : 'Paid'
+  }
+  return r.tripCompleted ? 'Trip completed — in our next payout' : 'Earned once the trip is completed'
+}
+
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export function AgentDashboard() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { data: codes, loading, error, refetch } = useFetch(getMyReferralCodes, [])
   const [contactName, setContactName] = useState('')
   const [generating, setGenerating] = useState(false)
@@ -59,44 +74,15 @@ export function AgentDashboard() {
   const list = codes ?? []
   // Commission is in each booking's currency, so it's totalled per currency.
   const redemptions = list.flatMap((c) => (c.redemption ? [c.redemption] : []))
-  const commissionTotal = (status: 'pending' | 'paid') =>
-    sumByCurrency(
-      redemptions.filter((r) => r.commissionStatus === status),
-      (r) => r.commissionAmount,
-      (r) => r.currency,
-    )
-  const pendingCommission = commissionTotal('pending')
-  const paidCommission = commissionTotal('paid')
+  const commissionTotal = (keep: (r: ReferralRedemptionSummary) => boolean) =>
+    sumByCurrency(redemptions.filter(keep), (r) => r.commissionAmount, (r) => r.currency)
+  // Earned once the referred trip is completed; until then it waits on the trip.
+  const readyCommission = commissionTotal((r) => r.commissionStatus === 'pending' && r.tripCompleted)
+  const awaitingCommission = commissionTotal((r) => r.commissionStatus === 'pending' && !r.tripCompleted)
+  const paidCommission = commissionTotal((r) => r.commissionStatus === 'paid')
 
   return (
-    <div className="min-h-screen bg-surface-container-low">
-      <header className="bg-ivory-base border-b border-sand-stone px-5 md:px-margin-desktop py-5 flex items-center justify-between">
-        <div>
-          <span className="font-headline-md text-[20px] font-bold text-savanna-green">Pande Wilderness Safari</span>
-          <p className="font-label-sm text-label-sm text-on-surface-variant -mt-0.5">Referral Agent Portal</p>
-        </div>
-        <div className="flex items-center gap-5">
-          {/* The same login is also a traveller account — trips live in the (localized)
-              tourist area. The agent portal itself is unprefixed and English-only. */}
-          <Link
-            to={`/${DEFAULT_LOCALE}/account`}
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-savanna-green transition-colors font-label-md text-label-md"
-          >
-            <Compass size={18} />
-            My Trips
-          </Link>
-          <button
-            type="button"
-            onClick={() => logout()}
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-terracotta transition-colors font-label-md text-label-md"
-          >
-            <SignOut size={18} />
-            Sign Out
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-5 md:px-margin-desktop py-10 space-y-8">
+    <div className="space-y-8">
         <div>
           <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">
             Welcome, {user?.name || user?.email}
@@ -107,20 +93,30 @@ export function AgentDashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-ivory-base rounded-xl p-6 shadow-sm border border-sand-stone">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-              Pending Commission
+              Awaiting Trip
             </p>
-            <p className="font-headline-md text-[28px] text-golden-sun">{formatTotals(pendingCommission)}</p>
+            <p className="font-headline-md text-[24px] text-on-surface">{formatTotals(awaitingCommission)}</p>
+            <p className="text-xs text-on-surface-variant mt-1">Earned once the trip is completed</p>
+          </div>
+          <div className="bg-ivory-base rounded-xl p-6 shadow-sm border border-sand-stone">
+            <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
+              Ready to Be Paid
+            </p>
+            <p className="font-headline-md text-[24px] text-golden-sun">{formatTotals(readyCommission)}</p>
+            <p className="text-xs text-on-surface-variant mt-1">Included in our next payout</p>
           </div>
           <div className="bg-ivory-base rounded-xl p-6 shadow-sm border border-sand-stone">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
               Paid Out
             </p>
-            <p className="font-headline-md text-[28px] text-savanna-green">{formatTotals(paidCommission)}</p>
+            <p className="font-headline-md text-[24px] text-savanna-green">{formatTotals(paidCommission)}</p>
           </div>
         </div>
+
+        <PayoutDetailsCard />
 
         <section className="bg-ivory-base rounded-xl p-6 md:p-8 shadow-sm border border-sand-stone">
           <h2 className="font-headline-md text-[20px] text-on-surface mb-4 flex items-center gap-2">
@@ -213,14 +209,17 @@ export function AgentDashboard() {
                       </td>
                       <td className="py-3 pr-4">
                         {c.redemption ? (
-                          <span className="inline-flex items-center gap-2">
-                            {formatMoney(c.redemption.commissionAmount, undefined, c.redemption.currency)}
-                            <span
-                              className={`inline-flex items-center py-0.5 px-2 rounded-md text-xs ${COMMISSION_BADGE[c.redemption.commissionStatus]}`}
-                            >
-                              {c.redemption.commissionStatus}
+                          <div>
+                            <span className="inline-flex items-center gap-2">
+                              {formatMoney(c.redemption.commissionAmount, undefined, c.redemption.currency)}
+                              <span
+                                className={`inline-flex items-center py-0.5 px-2 rounded-md text-xs ${COMMISSION_BADGE[c.redemption.commissionStatus]}`}
+                              >
+                                {c.redemption.commissionStatus}
+                              </span>
                             </span>
-                          </span>
+                            <p className="text-xs text-on-surface-variant mt-1">{commissionNote(c.redemption)}</p>
+                          </div>
                         ) : (
                           '—'
                         )}
@@ -232,7 +231,6 @@ export function AgentDashboard() {
             </div>
           )}
         </section>
-      </main>
     </div>
   )
 }

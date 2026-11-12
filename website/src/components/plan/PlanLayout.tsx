@@ -10,7 +10,7 @@ const ALL_STEP_KEYS = [
   { path: '/plan/details', key: 'details' },
   { path: '/plan/review', key: 'review' },
   { path: '/plan/account', key: 'account' },
-  { path: '/plan/payment', key: 'payment' },
+  { path: '/plan/request', key: 'request' },
 ] as const
 
 function PlanSteps() {

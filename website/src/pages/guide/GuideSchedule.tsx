@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bell, CalendarBlank, CalendarCheck, CaretRight, CheckCircle } from '@phosphor-icons/react'
+import { CalendarBlank, CalendarCheck, CaretRight, CheckCircle } from '@phosphor-icons/react'
 import { GuideBottomNav } from '../../components/guide/GuideBottomNav'
+import { NotificationBell } from '../../components/NotificationBell'
 import { getBookings, type Booking } from '../../api/bookings'
 import { useFetch } from '../../lib/useFetch'
 import { useAuth } from '../../auth/AuthContext'
@@ -49,13 +50,7 @@ export function GuideSchedule() {
           <span className="font-headline-md text-[20px] font-bold text-savanna-green">Pande Wilderness Safari</span>
           <p className="font-label-sm text-label-sm text-on-surface-variant -mt-0.5">Guide Portal</p>
         </div>
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
-        >
-          <Bell size={22} />
-        </button>
+        <NotificationBell />
       </header>
 
       <main className="pt-20 pb-28 px-5 max-w-lg mx-auto min-h-screen">

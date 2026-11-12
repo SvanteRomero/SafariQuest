@@ -130,5 +130,22 @@
     "submitting": "Wird gesendet…",
     "submitReport": "Meldung absenden",
     "failedToSubmit": "Ihre Meldung konnte nicht gesendet werden."
+  },
+  "quote": {
+    "preparingHeading": "Wir erstellen Ihr Angebot",
+    "preparingBody": "Unser Team kalkuliert die Reise, die Sie zusammengestellt haben. Ihr Angebot erscheint hier, und Sie können die Anzahlung auf dieser Seite leisten.",
+    "preparingShort": "Wir erstellen Ihr Angebot. Es erscheint in den Details dieser Reise, wo Sie die Anzahlung leisten können.",
+    "heading": "Ihr Angebot",
+    "readyBody": "Hier ist der Preis für die Reise, die Sie zusammengestellt haben. Leisten Sie die Anzahlung, um Ihre Buchung zu bestätigen.",
+    "item": "Leistung",
+    "qty": "Menge",
+    "amount": "Betrag",
+    "total": "Gesamt",
+    "depositDue": "Jetzt fällige Anzahlung (30 %)",
+    "depositDueDiscounted": "Jetzt fällige Anzahlung (30 %, Empfehlungsrabatt angewendet)",
+    "balanceLater": "Der Rest wird später unter „Meine Reisen“ bezahlt, vor Reisebeginn.",
+    "payDeposit": "Anzahlung leisten ({{amount}})",
+    "readyShort": "Ihr Angebot ist fertig — Anzahlung {{amount}}.",
+    "viewAndPay": "Angebot ansehen & bezahlen"
   }
 }

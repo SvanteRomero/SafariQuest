@@ -70,7 +70,7 @@
     "subtitle": "Pay the deposit with mobile money — M-Pesa, Airtel Money, Mixx by Yas or Halotel — to secure your booking.",
     "back": "Back",
     "mobileMoneyNotice": "You'll be taken to Snippe's secure checkout to approve the payment on your phone, then brought back here.",
-    "subtitleUsd": "Your booking is priced in US dollars (USD)."
+    "subtitleUsd": "Your booking is priced in US dollars (USD). You'll pay by card on Senjaropay's secure page."
   },
   "trustBadges": {
     "certifiedOperator": "Certified Operator",
@@ -109,7 +109,7 @@
     "thankYouGeneric": "Thank you for booking with Pande Wilderness Safari.",
     "subtitle": "Our master guides and planners have received your reservation and are already mapping out your authentic Tanzanian adventure.",
     "depositReceived": "Deposit of {{amount}} received",
-    "confirmationSentTo": "A payment confirmation was sent to {{email}}.",
+    "confirmationSentTo": "You'll find this payment in your account under My Trips.",
     "yourRegistrationEmail": "your registration email",
     "goToDashboard": "Go to My Dashboard",
     "browseMoreSafaris": "Browse More Safaris",
@@ -170,7 +170,8 @@
     "pending": {
       "heading": "Confirming your payment…",
       "body": "Approve the prompt on your phone if you haven't yet. This page updates on its own.",
-      "stillWaiting": "We haven't had confirmation yet. If you approved the payment it will appear on your dashboard shortly, and we'll email you."
+      "stillWaiting": "We haven't had confirmation yet. If you approved the payment, it will appear in My Trips shortly and you'll get a notification.",
+      "bodyCard": "We’re waiting for the card processor to confirm your payment. This page updates on its own."
     },
     "failed": {
       "heading": "Payment not completed",
@@ -197,7 +198,7 @@
     "waitingHeading": "Check your phone",
     "waitingBody": "We've sent a request for {{amount}} to {{phone}}. Enter your mobile money PIN to approve it.",
     "waitingNote": "Keep this page open — it updates on its own once you approve.",
-    "stillWaiting": "We haven't had confirmation yet. If you approved the payment, it will show on your dashboard shortly and we'll email you.",
+    "stillWaiting": "We haven't had confirmation yet. If you approved the payment, it will show in My Trips shortly and you'll get a notification.",
     "resend": "Resend the request",
     "resent": "Sent again — check your phone.",
     "resendFailed": "Couldn't resend. Try again in a moment.",
@@ -223,5 +224,39 @@
     "body": "You can't pay in US dollars online just yet. Switch to Tanzanian shillings to pay your deposit now by mobile money, or call us and we'll arrange payment with you.",
     "switchToTzs": "Pay in TZS instead",
     "callUs": "Call {{phone}}"
+  },
+  "cardPay": {
+    "billingHeading": "Card billing details",
+    "billingNote": "Required by our card processor. You'll enter your card on Senjaropay's secure page — we never see it.",
+    "fields": {
+      "phoneNumber": "Phone number",
+      "country": "Country",
+      "city": "City",
+      "address": "Billing address"
+    },
+    "placeholders": {
+      "phoneNumber": "+1 415 555 0100",
+      "country": "United States",
+      "city": "Austin",
+      "address": "123 Main Street"
+    },
+    "waitingHeading": "Pay on the secure card page",
+    "waitingBody": "Open the card page to pay {{amount}}. It opens in a new tab — come back here when you’re done.",
+    "openPage": "Open secure card page",
+    "waitingNote": "Keep this page open — it updates on its own once your payment goes through.",
+    "stillWaiting": "We haven't had confirmation yet. If you paid, it will show in My Trips shortly and you'll get a notification.",
+    "cancel": "Change billing details",
+    "failedHeading": "Card payment didn't go through",
+    "failedBody": "The payment was declined or the card page expired, so nothing was charged. You can try again.",
+    "tryAgain": "Try again"
+  },
+  "cardReturn": {
+    "checkingHeading": "Confirming your card payment…",
+    "checkingBody": "One moment — we’re checking your payment and taking you back to your booking.",
+    "failedHeading": "Card payment didn't go through",
+    "failedBody": "The payment was declined or something went wrong, so nothing was charged. You can try again from My Trips.",
+    "cancelledHeading": "Payment cancelled",
+    "cancelledBody": "You left the card page before paying, so nothing was charged. Your booking is saved — pay from My Trips whenever you are ready.",
+    "tryAgain": "Go to My Trips"
   }
 }

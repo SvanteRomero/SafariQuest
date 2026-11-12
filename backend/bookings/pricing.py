@@ -11,11 +11,13 @@ Change one side and the other has to change with it.
 import math
 
 from pricing.models import Season
+from referrals.models import ReferralCode, ReferralSettings
 
 from .currency import product_price
 
 CHILD_RATE = 0.5
 DEPOSIT_RATE = 0.3
+NO_REFERRAL = (None, None, None)
 
 
 def _js_round(value: float) -> int:
@@ -46,3 +48,32 @@ def trip_total_for(booking, discount_percent=None) -> int:
 
 def deposit_for(trip_total: int) -> int:
     return _js_round(trip_total * DEPOSIT_RATE)
+
+
+def referral_terms(code_value, user):
+    """(code, discount %, commission %) for a referral code, at today's referral
+    settings; None if it can't be used. exclude(agent=...): an agent can also book, and
+    must not collect commission on their own trip — the validate endpoint refuses that at
+    checkout, this is the backstop. The code is only marked used once the payment
+    completes (complete_payment re-checks it under a lock), so an abandoned checkout
+    doesn't burn it."""
+    code = ReferralCode.objects.filter(code=code_value, is_used=False).exclude(agent=user).first()
+    if code is None or code.is_expired:
+        return None
+    settings_obj = ReferralSettings.get_solo()
+    return code, settings_obj.discount_percent, settings_obj.commission_percent
+
+
+def quote_terms(booking):
+    """(trip total, referral terms) for paying the deposit on a quote an admin has sent:
+    the quote's total, less the discount of the referral code entered with the request
+    while that code can still be used. Used both to show the deposit on My Trips and to
+    charge it, so the two agree."""
+    terms = NO_REFERRAL
+    if booking.referral_code_entered:
+        terms = referral_terms(booking.referral_code_entered, booking.customer) or NO_REFERRAL
+    total = booking.subtotal
+    discount_percent = terms[1]
+    if discount_percent:
+        total = _js_round(total * (1 - float(discount_percent) / 100))
+    return total, terms

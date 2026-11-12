@@ -13,7 +13,7 @@ export function RequireAgent() {
   }
 
   if (!user) {
-    return <Navigate to={`/${DEFAULT_LOCALE}/sign-in?next=/agent`} replace />
+    return <Navigate to={`/${DEFAULT_LOCALE}/sign-in?next=/account/agent`} replace />
   }
 
   if (user.role !== 'tourist' || !user.isReferralAgent) {

@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from audit.utils import log_action
 from config.pagination import StandardPagination
-from config.mail import send_notification
+from config.mail import send_email
 
 from .permissions import IsAdminRole
 from .serializers import (
@@ -154,7 +154,7 @@ class UserInviteView(generics.ListCreateAPIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         set_password_url = f"{settings.FRONTEND_URL}/set-password?uid={uid}&token={token}"
-        send_notification(
+        send_email(
             subject="You've been invited to SafariQuest",
             message=(
                 f"Hi {user.name or user.email},\n\n"

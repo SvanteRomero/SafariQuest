@@ -65,12 +65,21 @@ class BookingUpdateTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_valid_forward_transition_succeeds(self):
+        self.booking.stage = Booking.STAGE_DEPOSIT_PAID
+        self.booking.save()
+        self._login_as(self.admin)
+        response = self.client.patch(self.detail_url, {"stage": "confirmed"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["stage"], "confirmed")
+
+    def test_deposit_paid_is_set_by_payment_not_by_hand(self):
         self.booking.stage = Booking.STAGE_QUOTED
         self.booking.save()
         self._login_as(self.admin)
         response = self.client.patch(self.detail_url, {"stage": "deposit_paid"}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["stage"], "deposit_paid")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.stage, Booking.STAGE_QUOTED)
 
     def test_non_staff_cannot_update(self):
         tourist = User.objects.create_user(email="tourist@example.com", password="pw12345", role="tourist")

@@ -9,7 +9,7 @@
     "details": "Details",
     "review": "Review",
     "account": "Account",
-    "payment": "Payment"
+    "request": "Request"
   },
   "travelers": {
     "adults_one": "{{count}} adult",
@@ -82,7 +82,7 @@
   },
   "review": {
     "heading": "Review your journey",
-    "subtitle": "Take a moment to check your safari details, then continue to secure your booking with an account and a deposit.",
+    "subtitle": "Take a moment to check your safari details, then send them to us — we'll reply with a quote for your trip.",
     "selectAtLeastOne": "Select at least one experience before continuing.",
     "chooseStartDate": "Choose an estimated start date before continuing.",
     "destinationsExperiences": "Destinations & Experiences",
@@ -97,16 +97,18 @@
     "yourNotes": "Your Notes",
     "editSelections": "Edit Selections",
     "yourDetails": "Your Details",
-    "whereToSend": "Where should we send your booking confirmation?",
+    "whereToSend": "How we can reach you about your trip.",
     "fullName": "Full Name",
     "fullNamePlaceholder": "e.g. Jane Doe",
     "email": "Email",
     "phoneWhatsApp": "Phone / WhatsApp",
     "countryCode": "Country code",
-    "depositSecures": "A deposit secures your booking.",
-    "nextPayDeposit": "Next you'll pay a deposit to confirm it.",
-    "nextCreateAccountPayDeposit": "Next you'll create an account and pay a deposit to confirm it.",
-    "continue": "Continue"
+    "continue": "Continue",
+    "quoteFirst": "No payment yet — we'll quote your trip first.",
+    "nextSendRequest": "Next you send your request, and your quote will appear in My Trips.",
+    "nextCreateAccountSendRequest": "Next you create an account and send your request, and your quote will appear in My Trips.",
+    "signedInAs": "Signed in as {{email}} — your quote goes to this account.",
+    "useAnotherEmail": "Use another email"
   },
   "account": {
     "createHeading": "Create Your Account",
@@ -119,15 +121,19 @@
     "signInAndContinue": "Sign In & Continue",
     "somethingWentWrong": "Something went wrong. Please try again."
   },
-  "payment": {
-    "heading": "Payment",
-    "subtitle": "Pay the deposit with mobile money — M-Pesa, Airtel Money, Mixx by Yas or Halotel — to secure your booking.",
-    "depositDueNow": "Deposit due now (30%)",
+  "request": {
+    "heading": "Send your trip request",
+    "subtitle": "Our team will price the trip you designed — every experience, your accommodation style and your notes — and send you a quote.",
+    "stepQuote": "We prepare a quote for your whole trip.",
+    "stepEmail": "It appears in your account under My Trips — we will let you know when it is ready, usually within one working day.",
+    "stepDeposit": "You pay a 30% deposit from My Trips to confirm the booking.",
+    "send": "Send Request",
+    "sending": "Sending…",
     "back": "Back",
-    "processing": "Processing…",
-    "payAndBook": "Pay {{amount}} & Book",
     "somethingWentWrong": "Something went wrong. Please try again.",
-    "subtitleUsd": "Your booking is priced in US dollars (USD)."
+    "sentHeading": "Request sent!",
+    "sentBody": "We've received your trip. Your quote will appear in My Trips — you'll get a notification when it's ready — and you can pay the deposit there.",
+    "goToMyTrips": "Go to My Trips"
   },
   "message": {
     "destinations": "Destinations: {{list}}",

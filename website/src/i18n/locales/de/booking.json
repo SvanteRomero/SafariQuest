@@ -70,7 +70,7 @@
     "subtitle": "Zahlen Sie die Anzahlung per Mobile Money — M-Pesa, Airtel Money, Mixx by Yas oder Halotel —, um Ihre Buchung zu sichern.",
     "back": "Zurück",
     "mobileMoneyNotice": "Sie werden zur sicheren Snippe-Kasse weitergeleitet, bestätigen die Zahlung auf Ihrem Telefon und kehren dann hierher zurück.",
-    "subtitleUsd": "Ihre Buchung ist in US-Dollar (USD) berechnet."
+    "subtitleUsd": "Ihre Buchung ist in US-Dollar (USD). Sie bezahlen per Karte auf der sicheren Seite von Senjaropay."
   },
   "trustBadges": {
     "certifiedOperator": "Zertifizierter Veranstalter",
@@ -109,7 +109,7 @@
     "thankYouGeneric": "Vielen Dank für Ihre Buchung bei Pande Wilderness Safari.",
     "subtitle": "Unsere erfahrenen Guides und Planer haben Ihre Reservierung erhalten und gestalten bereits Ihr authentisches tansanisches Abenteuer.",
     "depositReceived": "Anzahlung von {{amount}} erhalten",
-    "confirmationSentTo": "Eine Zahlungsbestätigung wurde an {{email}} gesendet.",
+    "confirmationSentTo": "Sie finden diese Zahlung in Ihrem Konto unter „Meine Reisen“.",
     "yourRegistrationEmail": "Ihre Registrierungs-E-Mail",
     "goToDashboard": "Zu meinem Dashboard",
     "browseMoreSafaris": "Weitere Safaris entdecken",
@@ -170,7 +170,8 @@
     "pending": {
       "heading": "Ihre Zahlung wird bestätigt…",
       "body": "Bestätigen Sie die Anfrage auf Ihrem Telefon, falls noch nicht geschehen. Diese Seite aktualisiert sich automatisch.",
-      "stillWaiting": "Wir haben noch keine Bestätigung erhalten. Wenn Sie die Zahlung bestätigt haben, erscheint sie in Kürze in Ihrem Dashboard, und wir senden Ihnen eine E-Mail."
+      "stillWaiting": "Noch keine Bestätigung. Wenn Sie die Zahlung freigegeben haben, erscheint sie in Kürze unter „Meine Reisen“ und Sie erhalten eine Benachrichtigung.",
+      "bodyCard": "Wir warten auf die Bestätigung Ihrer Zahlung durch den Kartenanbieter. Diese Seite aktualisiert sich von selbst."
     },
     "failed": {
       "heading": "Zahlung nicht abgeschlossen",
@@ -197,7 +198,7 @@
     "waitingHeading": "Prüfen Sie Ihr Telefon",
     "waitingBody": "Wir haben eine Anfrage über {{amount}} an {{phone}} gesendet. Geben Sie Ihre Mobile-Money-PIN ein, um sie zu bestätigen.",
     "waitingNote": "Lassen Sie diese Seite geöffnet — sie aktualisiert sich, sobald Sie bestätigen.",
-    "stillWaiting": "Wir haben noch keine Bestätigung erhalten. Wenn Sie die Zahlung bestätigt haben, erscheint sie in Kürze in Ihrem Dashboard, und wir senden Ihnen eine E-Mail.",
+    "stillWaiting": "Noch keine Bestätigung. Wenn Sie die Zahlung freigegeben haben, erscheint sie in Kürze unter „Meine Reisen“ und Sie erhalten eine Benachrichtigung.",
     "resend": "Anfrage erneut senden",
     "resent": "Erneut gesendet — prüfen Sie Ihr Telefon.",
     "resendFailed": "Erneutes Senden fehlgeschlagen. Versuchen Sie es gleich noch einmal.",
@@ -223,5 +224,39 @@
     "body": "Online in US-Dollar zu zahlen ist noch nicht möglich. Wechseln Sie zu Tansania-Schilling, um Ihre Anzahlung jetzt per Mobile Money zu leisten, oder rufen Sie uns an, und wir vereinbaren die Zahlung mit Ihnen.",
     "switchToTzs": "Stattdessen in TZS zahlen",
     "callUs": "{{phone}} anrufen"
+  },
+  "cardPay": {
+    "billingHeading": "Rechnungsdaten für die Karte",
+    "billingNote": "Von unserem Kartenanbieter verlangt. Ihre Karte geben Sie auf der sicheren Seite von Senjaropay ein — wir sehen sie nie.",
+    "fields": {
+      "phoneNumber": "Telefonnummer",
+      "country": "Land",
+      "city": "Stadt",
+      "address": "Rechnungsadresse"
+    },
+    "placeholders": {
+      "phoneNumber": "+49 151 23456789",
+      "country": "Deutschland",
+      "city": "Berlin",
+      "address": "Hauptstraße 1"
+    },
+    "waitingHeading": "Auf der sicheren Kartenseite bezahlen",
+    "waitingBody": "Öffnen Sie die Kartenseite, um {{amount}} zu bezahlen. Sie öffnet sich in einem neuen Tab — kommen Sie danach hierher zurück.",
+    "openPage": "Sichere Kartenseite öffnen",
+    "waitingNote": "Lassen Sie diese Seite offen — sie aktualisiert sich von selbst, sobald die Zahlung durch ist.",
+    "stillWaiting": "Noch keine Bestätigung. Wenn Sie bezahlt haben, erscheint es in Kürze unter „Meine Reisen“ und Sie erhalten eine Benachrichtigung.",
+    "cancel": "Rechnungsdaten ändern",
+    "failedHeading": "Kartenzahlung fehlgeschlagen",
+    "failedBody": "Die Zahlung wurde abgelehnt oder die Kartenseite ist abgelaufen, es wurde nichts belastet. Sie können es erneut versuchen.",
+    "tryAgain": "Erneut versuchen"
+  },
+  "cardReturn": {
+    "checkingHeading": "Ihre Kartenzahlung wird bestätigt…",
+    "checkingBody": "Einen Moment — wir prüfen Ihre Zahlung und bringen Sie zurück zu Ihrer Buchung.",
+    "failedHeading": "Kartenzahlung fehlgeschlagen",
+    "failedBody": "Die Zahlung wurde abgelehnt oder es ist ein Fehler aufgetreten, es wurde nichts belastet. Sie können es unter „Meine Reisen“ erneut versuchen.",
+    "cancelledHeading": "Zahlung abgebrochen",
+    "cancelledBody": "Sie haben die Kartenseite vor dem Bezahlen verlassen, es wurde nichts belastet. Ihre Buchung ist gespeichert — bezahlen Sie unter „Meine Reisen“, wann immer Sie möchten.",
+    "tryAgain": "Zu Meine Reisen"
   }
 }

@@ -121,10 +121,14 @@ function ReferAndEarnCard() {
 
 /** Shown in place of the confirmation while Snippe's payment is still settling, or when it
  * didn't go through — the booking isn't confirmed until the deposit is. */
-function PaymentNotYetConfirmed({ failed, gaveUp }: Readonly<{ failed: boolean; gaveUp: boolean }>) {
+function PaymentNotYetConfirmed({
+  failed,
+  gaveUp,
+  card,
+}: Readonly<{ failed: boolean; gaveUp: boolean; card: boolean }>) {
   const { t } = useTranslation('booking')
   const Icon = failed ? WarningCircle : HourglassMedium
-  let body = t('confirmed.pending.body')
+  let body = card ? t('confirmed.pending.bodyCard') : t('confirmed.pending.body')
   if (failed) body = t('confirmed.failed.body')
   else if (gaveUp) body = t('confirmed.pending.stillWaiting')
   return (
@@ -160,7 +164,13 @@ export function BookingConfirmed() {
   const { payment, gaveUp } = usePaymentStatus(bookingId, paymentId)
 
   if (paymentId !== null && payment?.status !== 'completed') {
-    return <PaymentNotYetConfirmed failed={payment?.status === 'failed' || payment?.status === 'expired'} gaveUp={gaveUp} />
+    return (
+      <PaymentNotYetConfirmed
+        failed={payment?.status === 'failed' || payment?.status === 'expired'}
+        gaveUp={gaveUp}
+        card={payment?.mode === 'card'}
+      />
+    )
   }
 
   const title = payment?.packageTitle

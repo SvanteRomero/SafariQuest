@@ -70,7 +70,7 @@
     "subtitle": "Payez l'acompte par mobile money — M-Pesa, Airtel Money, Mixx by Yas ou Halotel — pour sécuriser votre réservation.",
     "back": "Retour",
     "mobileMoneyNotice": "Vous serez redirigé vers le paiement sécurisé de Snippe pour valider le paiement sur votre téléphone, puis ramené ici.",
-    "subtitleUsd": "Votre réservation est en dollars américains (USD)."
+    "subtitleUsd": "Votre réservation est en dollars américains (USD). Vous paierez par carte sur la page sécurisée de Senjaropay."
   },
   "trustBadges": {
     "certifiedOperator": "Opérateur certifié",
@@ -109,7 +109,7 @@
     "thankYouGeneric": "Merci pour votre réservation chez Pande Wilderness Safari.",
     "subtitle": "Nos guides et planificateurs experts ont bien reçu votre réservation et préparent déjà votre authentique aventure tanzanienne.",
     "depositReceived": "Acompte de {{amount}} reçu",
-    "confirmationSentTo": "Une confirmation de paiement a été envoyée à {{email}}.",
+    "confirmationSentTo": "Vous retrouverez ce paiement dans votre compte, sous Mes voyages.",
     "yourRegistrationEmail": "votre e-mail d'inscription",
     "goToDashboard": "Accéder à mon tableau de bord",
     "browseMoreSafaris": "Découvrir d'autres safaris",
@@ -170,7 +170,8 @@
     "pending": {
       "heading": "Confirmation de votre paiement…",
       "body": "Validez la demande sur votre téléphone si ce n'est pas encore fait. Cette page se met à jour automatiquement.",
-      "stillWaiting": "Nous n'avons pas encore reçu de confirmation. Si vous avez validé le paiement, il apparaîtra bientôt dans votre tableau de bord et nous vous enverrons un e-mail."
+      "stillWaiting": "Nous n'avons pas encore de confirmation. Si vous avez approuvé le paiement, il apparaîtra bientôt dans Mes voyages et vous recevrez une notification.",
+      "bodyCard": "Nous attendons la confirmation du paiement par le prestataire de carte. Cette page se met à jour toute seule."
     },
     "failed": {
       "heading": "Paiement non effectué",
@@ -197,7 +198,7 @@
     "waitingHeading": "Vérifiez votre téléphone",
     "waitingBody": "Nous avons envoyé une demande de {{amount}} au {{phone}}. Saisissez votre code PIN mobile money pour l'approuver.",
     "waitingNote": "Gardez cette page ouverte — elle se met à jour dès que vous approuvez.",
-    "stillWaiting": "Nous n'avons pas encore reçu de confirmation. Si vous avez approuvé le paiement, il apparaîtra bientôt dans votre tableau de bord et nous vous enverrons un e-mail.",
+    "stillWaiting": "Nous n'avons pas encore de confirmation. Si vous avez approuvé le paiement, il apparaîtra bientôt dans Mes voyages et vous recevrez une notification.",
     "resend": "Renvoyer la demande",
     "resent": "Renvoyée — vérifiez votre téléphone.",
     "resendFailed": "Impossible de renvoyer. Réessayez dans un instant.",
@@ -223,5 +224,39 @@
     "body": "Le paiement en dollars américains n'est pas encore possible en ligne. Passez aux shillings tanzaniens pour payer votre acompte dès maintenant par mobile money, ou appelez-nous et nous organiserons le paiement avec vous.",
     "switchToTzs": "Payer en TZS",
     "callUs": "Appeler le {{phone}}"
+  },
+  "cardPay": {
+    "billingHeading": "Coordonnées de facturation",
+    "billingNote": "Exigées par notre prestataire de paiement. Vous saisirez votre carte sur la page sécurisée de Senjaropay — nous ne la voyons jamais.",
+    "fields": {
+      "phoneNumber": "Numéro de téléphone",
+      "country": "Pays",
+      "city": "Ville",
+      "address": "Adresse de facturation"
+    },
+    "placeholders": {
+      "phoneNumber": "+33 6 12 34 56 78",
+      "country": "France",
+      "city": "Paris",
+      "address": "12 rue de la Paix"
+    },
+    "waitingHeading": "Payez sur la page carte sécurisée",
+    "waitingBody": "Ouvrez la page carte pour payer {{amount}}. Elle s’ouvre dans un nouvel onglet — revenez ici une fois terminé.",
+    "openPage": "Ouvrir la page carte sécurisée",
+    "waitingNote": "Gardez cette page ouverte — elle se met à jour toute seule une fois le paiement validé.",
+    "stillWaiting": "Nous n'avons pas encore de confirmation. Si vous avez payé, cela apparaîtra bientôt dans Mes voyages et vous recevrez une notification.",
+    "cancel": "Modifier la facturation",
+    "failedHeading": "Le paiement par carte n'a pas abouti",
+    "failedBody": "Le paiement a été refusé ou la page a expiré : rien n’a été débité. Vous pouvez réessayer.",
+    "tryAgain": "Réessayer"
+  },
+  "cardReturn": {
+    "checkingHeading": "Confirmation de votre paiement par carte…",
+    "checkingBody": "Un instant — nous vérifions votre paiement et vous ramenons à votre réservation.",
+    "failedHeading": "Le paiement par carte n'a pas abouti",
+    "failedBody": "Le paiement a été refusé ou une erreur s'est produite : rien n'a été débité. Vous pouvez réessayer depuis Mes voyages.",
+    "cancelledHeading": "Paiement annulé",
+    "cancelledBody": "Vous avez quitté la page de paiement sans payer : rien n'a été débité. Votre réservation est enregistrée — payez depuis Mes voyages quand vous le souhaitez.",
+    "tryAgain": "Aller à Mes voyages"
   }
 }

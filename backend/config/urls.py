@@ -1,10 +1,18 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+
+from bookings.views import CARD_RETURN_OUTCOMES, card_return_redirect
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Senjaropay's card page returns here when its redirect URLs use this API's host.
+    re_path(
+        rf"^(?P<outcome>{'|'.join(CARD_RETURN_OUTCOMES)})/?$",
+        card_return_redirect,
+        name="senjaropay-card-return-redirect",
+    ),
     path("api/auth/", include("accounts.urls")),
     path("api/users/", include("accounts.user_urls")),
     path("api/customers/", include("accounts.customer_urls")),
@@ -26,6 +34,7 @@ urlpatterns = [
     path("api/analytics/", include("analytics.urls")),
     path("api/audit-log/", include("audit.urls")),
     path("api/referrals/", include("referrals.urls")),
+    path("api/notifications/", include("notifications.urls")),
 ]
 
 if settings.DEBUG:

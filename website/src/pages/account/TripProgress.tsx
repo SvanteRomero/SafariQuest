@@ -1,32 +1,67 @@
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { Star, SealCheck, MapPin, Check } from '@phosphor-icons/react'
 import { Link } from '../../i18n/routing'
-import { getBooking } from '../../api/bookings'
+import { getBooking, getBookings, type Booking } from '../../api/bookings'
 import { useFetch } from '../../lib/useFetch'
+import { TripQuote } from '../../components/account/TripQuote'
+import { todayISO } from '../../lib/date'
+
+/** The trip "Trip Progress" opens when none is chosen: the one under way today, else
+ * the next to start, else the most recently booked (the list comes newest first). */
+function currentTrip(trips: Booking[]): Booking | undefined {
+  const today = todayISO()
+  const open = trips.filter((trip) => trip.stage !== 'completed')
+  const underWay = open.find((trip) => trip.startDate <= today && today <= trip.endDate)
+  const upcoming = open
+    .filter((trip) => trip.startDate > today)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate))[0]
+  return underWay ?? upcoming ?? trips[0]
+}
 
 export function TripProgress() {
-  const { t } = useTranslation('account')
   const { tripId } = useParams<{ tripId: string }>()
-  const { data: trip, loading, error } = useFetch(() => getBooking(Number(tripId)), [tripId])
+  return tripId ? <TripDetail tripId={Number(tripId)} /> : <CurrentTripRedirect />
+}
+
+/** /account/trips (the sidebar's Trip Progress): on to the trip that matters now. */
+function CurrentTripRedirect() {
+  const { t } = useTranslation('account')
+  const { data: trips, loading, error } = useFetch<Booking[]>(() => getBookings(), [])
+  if (loading) {
+    return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">{t('tripProgress.loading')}</div>
+  }
+  const trip = trips ? currentTrip(trips) : undefined
+  if (trip && !error) return <Navigate to={String(trip.id)} replace />
+  return <NoTrip />
+}
+
+function NoTrip() {
+  const { t } = useTranslation('account')
+  return (
+    <div className="text-center py-20">
+      <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">{t('tripProgress.noActiveTrip')}</h1>
+      <p className="text-on-surface-variant mb-8">{t('tripProgress.noActiveTripBody')}</p>
+      <Link
+        to="/account"
+        className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
+      >
+        {t('tripProgress.backToMyTrips')}
+      </Link>
+    </div>
+  )
+}
+
+function TripDetail({ tripId }: Readonly<{ tripId: number }>) {
+  const { t } = useTranslation('account')
+  const { data: trip, loading, error, refetch } = useFetch(() => getBooking(tripId), [tripId])
 
   if (loading) {
     return <div className="min-h-[40vh] flex items-center justify-center text-on-surface-variant">{t('tripProgress.loading')}</div>
   }
 
   if (error || !trip) {
-    return (
-      <div className="text-center py-20">
-        <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface mb-4">{t('tripProgress.noActiveTrip')}</h1>
-        <p className="text-on-surface-variant mb-8">{t('tripProgress.noActiveTripBody')}</p>
-        <Link
-          to="/account"
-          className="min-h-[44px] inline-flex items-center justify-center bg-savanna-green text-on-primary px-8 py-3.5 rounded-full font-label-md hover:opacity-90 transition-opacity"
-        >
-          {t('tripProgress.backToMyTrips')}
-        </Link>
-      </div>
-    )
+    return <NoTrip />
   }
 
   return (
@@ -37,6 +72,8 @@ export function TripProgress() {
         </h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant">{trip.packageTitle}</p>
       </div>
+
+      <TripQuote trip={trip} onPaid={refetch} />
 
       {/* Assigned Guide Card */}
       <div className="bg-surface-container-lowest rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 shadow-[0_4px_20px_rgba(45,45,45,0.06)] border border-surface-variant">

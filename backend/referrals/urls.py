@@ -2,7 +2,10 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    AdminAgentPayoutsView,
+    AdminAgentPayView,
     AdminReferralRedemptionViewSet,
+    AgentPayoutDetailsView,
     ReferralAgentActivateView,
     ReferralAgentRegisterView,
     ReferralCodeValidateView,
@@ -21,4 +24,7 @@ urlpatterns = [
     path("codes/validate/", ReferralCodeValidateView.as_view(), name="referral-code-validate"),
     path("settings/public/", ReferralSettingsPublicView.as_view(), name="referral-settings-public"),
     path("settings/", ReferralSettingsAdminView.as_view(), name="referral-settings-admin"),
+    path("payout-details/", AgentPayoutDetailsView.as_view(), name="referral-payout-details"),
+    path("admin/agents/", AdminAgentPayoutsView.as_view(), name="admin-referral-agents"),
+    path("admin/agents/<int:agent_id>/pay/", AdminAgentPayView.as_view(), name="admin-referral-agent-pay"),
 ] + router.urls

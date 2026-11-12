@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Outlet, Link as PlainLink } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Bell, Compass, CreditCard, TrendUp, Warning, User, SignOut, List, X, HandCoins } from '@phosphor-icons/react'
+import { Compass, CreditCard, TrendUp, Warning, User, SignOut, List, X, HandCoins } from '@phosphor-icons/react'
 import { Link, NavLink } from '../../i18n/routing'
 import { useHomeNavigate, useLocalizedNavigate as useNavigate } from '../../i18n/useLocale'
 import { useAuth } from '../../auth/AuthContext'
 import { useBodyScrollLock } from '../../lib/useBodyScrollLock'
+import { NotificationBell } from '../NotificationBell'
 
 function initials(nameOrEmail: string) {
   const parts = nameOrEmail.trim().split(/\s+/)
@@ -75,18 +76,22 @@ export function AccountLayout() {
             </NavLink>
           </li>
         ))}
-        {/* Same login, separate data: the agent dashboard lives at the unprefixed /agent
-            portal, so it needs the plain router Link rather than the locale-aware one. */}
+        {/* Same login, separate data: agents get their dashboard; everyone else the
+            page that explains referring and turns it on. */}
         <li>
           {user?.isReferralAgent ? (
-            <PlainLink
-              to="/agent"
+            <NavLink
+              to="/account/agent"
               onClick={onNavigate}
-              className="flex items-center gap-4 px-4 py-3 rounded-lg font-label-md text-label-md transition-colors min-h-[44px] text-terracotta hover:bg-terracotta/10"
+              className={({ isActive }) =>
+                `flex items-center gap-4 px-4 py-3 rounded-lg font-label-md text-label-md transition-colors min-h-[44px] text-terracotta ${
+                  isActive ? 'font-bold border-r-4 border-terracotta bg-terracotta/10' : 'hover:bg-terracotta/10'
+                }`
+              }
             >
               <HandCoins size={20} />
               {t('layout.agentDashboard')}
-            </PlainLink>
+            </NavLink>
           ) : (
             <Link
               to="/become-agent"
@@ -141,13 +146,7 @@ export function AccountLayout() {
             {t('layout.customerPortal')}
           </span>
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              className="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full"
-              aria-label={t('layout.notifications')}
-            >
-              <Bell size={22} />
-            </button>
+            <NotificationBell />
             <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-sm font-label-md text-on-surface-variant border-2 border-surface-container-high shrink-0">
               {initials(displayName)}
             </div>

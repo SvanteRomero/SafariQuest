@@ -6,7 +6,7 @@ import { useTripPlan } from './tripPlanStore'
 
 /**
  * Resolves the trip plan's selected destination/experience ids against the catalog,
- * shared by PlanReview and PlanPayment so both agree on what's selected and whether
+ * shared by PlanReview and PlanRequest so both agree on what's selected and whether
  * data is still loading (the loading flag matters: evaluating selections before the
  * catalog fetches resolve reads as "nothing selected").
  */

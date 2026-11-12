@@ -22,7 +22,7 @@ export function PlanAccount() {
   useEffect(() => {
     // Already signed in (or just did on this step) — nothing left to do here.
     if (user) {
-      navigate('/plan/payment')
+      navigate('/plan/request')
       return
     }
     // Landed here directly without going through Review first.
@@ -46,7 +46,7 @@ export function PlanAccount() {
       } else {
         await login(signInEmail, password)
       }
-      navigate('/plan/payment')
+      navigate('/plan/request')
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : t('account.somethingWentWrong'))
     } finally {

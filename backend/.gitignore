@@ -5,3 +5,6 @@ db.sqlite3
 .env
 media/
 staticfiles/
+
+# Senjaropay credentials, kept out of git
+api.txt

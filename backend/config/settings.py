@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "analytics",
     "audit",
     "referrals",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -255,6 +256,25 @@ SNIPPE_NOTICES_SENDER_DOMAINS = [
 ]
 SNIPPE_NOTICES_REQUIRE_DKIM = os.environ.get("SNIPPE_NOTICES_REQUIRE_DKIM", "True") == "True"
 SNIPPE_STATUS_URL = os.environ.get("SNIPPE_STATUS_URL", "https://snippe-status.instatus.com")
+# Senjaropay takes USD card payments. Each API scope has its own key and secret, so
+# creating a payment and reading one back use different credentials.
+SENJAROPAY_API_URL = os.environ.get("SENJAROPAY_API_URL", "https://api.senjaropay.com").rstrip("/")
+SENJAROPAY_PAYMENTS_CREATE_KEY = os.environ.get("SENJAROPAY_PAYMENTS_CREATE_KEY", "")
+SENJAROPAY_PAYMENTS_CREATE_SECRET = os.environ.get("SENJAROPAY_PAYMENTS_CREATE_SECRET", "")
+SENJAROPAY_PAYMENTS_READ_KEY = os.environ.get("SENJAROPAY_PAYMENTS_READ_KEY", "")
+SENJAROPAY_PAYMENTS_READ_SECRET = os.environ.get("SENJAROPAY_PAYMENTS_READ_SECRET", "")
+SENJAROPAY_TRANSACTIONS_READ_KEY = os.environ.get("SENJAROPAY_TRANSACTIONS_READ_KEY", "")
+SENJAROPAY_TRANSACTIONS_READ_SECRET = os.environ.get("SENJAROPAY_TRANSACTIONS_READ_SECRET", "")
+SENJAROPAY_BALANCE_READ_KEY = os.environ.get("SENJAROPAY_BALANCE_READ_KEY", "")
+SENJAROPAY_BALANCE_READ_SECRET = os.environ.get("SENJAROPAY_BALANCE_READ_SECRET", "")
+# Where Senjaropay reports card payment changes — public HTTPS ending in
+# /api/payments/senjaropay/webhook/ (an ngrok URL locally). Optional: without it,
+# payments are still confirmed by the status checks.
+SENJAROPAY_WEBHOOK_URL = os.environ.get("SENJAROPAY_WEBHOOK_URL", "")
+# Developers → Webhook → Signing secret in the Senjaropay portal. Kept for verifying
+# webhook signatures once Senjaropay documents the scheme; until then webhooks are only
+# a prompt to ask the status API (bookings.views.SenjaropayWebhookView).
+SENJAROPAY_WEBHOOK_SECRET = os.environ.get("SENJAROPAY_WEBHOOK_SECRET", "")
 # Unannounced network trouble, spotted from Snippe's payment.failed webhooks: this many
 # failures on one network within the window, across at least this many different
 # payments and with no success in between, shows a warning for that network. It clears

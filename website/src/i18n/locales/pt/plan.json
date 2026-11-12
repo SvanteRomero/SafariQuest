@@ -9,7 +9,7 @@
     "details": "Detalhes",
     "review": "Revisão",
     "account": "Conta",
-    "payment": "Pagamento"
+    "request": "Pedido"
   },
   "travelers": {
     "adults_one": "{{count}} adulto",
@@ -82,7 +82,7 @@
   },
   "review": {
     "heading": "Reveja a sua viagem",
-    "subtitle": "Reserve um momento para verificar os detalhes do seu safári e depois continue para garantir a sua reserva com uma conta e um depósito.",
+    "subtitle": "Verifique os detalhes do seu safari e envie-os para nós — responderemos com um orçamento para a sua viagem.",
     "selectAtLeastOne": "Selecione pelo menos uma experiência antes de continuar.",
     "chooseStartDate": "Escolha uma data de início estimada antes de continuar.",
     "destinationsExperiences": "Destinos e experiências",
@@ -97,16 +97,18 @@
     "yourNotes": "As suas notas",
     "editSelections": "Editar seleções",
     "yourDetails": "Os seus dados",
-    "whereToSend": "Para onde devemos enviar a confirmação da sua reserva?",
+    "whereToSend": "Como podemos contactá-lo sobre a sua viagem.",
     "fullName": "Nome completo",
     "fullNamePlaceholder": "ex.: Joana Silva",
     "email": "E-mail",
     "phoneWhatsApp": "Telefone / WhatsApp",
     "countryCode": "Indicativo do país",
-    "depositSecures": "Um depósito garante a sua reserva.",
-    "nextPayDeposit": "A seguir, vai pagar um depósito para a confirmar.",
-    "nextCreateAccountPayDeposit": "A seguir, vai criar uma conta e pagar um depósito para a confirmar.",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "quoteFirst": "Ainda sem pagamento — primeiro fazemos o orçamento da sua viagem.",
+    "nextSendRequest": "A seguir envia o seu pedido, e o orçamento aparecerá em As minhas viagens.",
+    "nextCreateAccountSendRequest": "A seguir cria uma conta e envia o seu pedido, e o orçamento aparecerá em As minhas viagens.",
+    "signedInAs": "Sessão iniciada como {{email}} — o orçamento vai para esta conta.",
+    "useAnotherEmail": "Usar outro e-mail"
   },
   "account": {
     "createHeading": "Crie a sua conta",
@@ -119,15 +121,19 @@
     "signInAndContinue": "Iniciar sessão e continuar",
     "somethingWentWrong": "Algo correu mal. Tente novamente."
   },
-  "payment": {
-    "heading": "Pagamento",
-    "subtitle": "Pague o sinal por mobile money — M-Pesa, Airtel Money, Mixx by Yas ou Halotel — para garantir a sua reserva.",
-    "depositDueNow": "Depósito devido agora (30%)",
+  "request": {
+    "heading": "Envie o seu pedido de viagem",
+    "subtitle": "A nossa equipa vai orçamentar a viagem que criou — cada experiência, o estilo de alojamento e as suas notas — e enviar-lhe um orçamento.",
+    "stepQuote": "Preparamos um orçamento para toda a viagem.",
+    "stepEmail": "Aparece na sua conta, em As minhas viagens — avisamos quando estiver pronto, normalmente em um dia útil.",
+    "stepDeposit": "Paga um sinal de 30% em As minhas viagens para confirmar a reserva.",
+    "send": "Enviar pedido",
+    "sending": "A enviar…",
     "back": "Voltar",
-    "processing": "A processar…",
-    "payAndBook": "Pagar {{amount}} e reservar",
     "somethingWentWrong": "Algo correu mal. Tente novamente.",
-    "subtitleUsd": "A sua reserva é em dólares americanos (USD)."
+    "sentHeading": "Pedido enviado!",
+    "sentBody": "Recebemos a sua viagem. O orçamento aparecerá em As minhas viagens — receberá uma notificação quando estiver pronto — e poderá pagar o sinal aí.",
+    "goToMyTrips": "Ir para As minhas viagens"
   },
   "message": {
     "destinations": "Destinos: {{list}}",

@@ -130,5 +130,22 @@
     "submitting": "Envoi en cours…",
     "submitReport": "Envoyer le signalement",
     "failedToSubmit": "Échec de l'envoi de votre signalement."
+  },
+  "quote": {
+    "preparingHeading": "Nous préparons votre devis",
+    "preparingBody": "Notre équipe chiffre le voyage que vous avez conçu. Votre devis apparaîtra ici et vous pourrez payer l’acompte depuis cette page.",
+    "preparingShort": "Nous préparons votre devis. Il apparaîtra dans les détails de ce voyage, où vous pourrez payer l’acompte.",
+    "heading": "Votre devis",
+    "readyBody": "Voici le prix du voyage que vous avez conçu. Payez l’acompte pour confirmer votre réservation.",
+    "item": "Prestation",
+    "qty": "Qté",
+    "amount": "Montant",
+    "total": "Total",
+    "depositDue": "Acompte à payer maintenant (30 %)",
+    "depositDueDiscounted": "Acompte à payer maintenant (30 %, remise de parrainage appliquée)",
+    "balanceLater": "Le solde se paie plus tard depuis Mes voyages, avant le départ.",
+    "payDeposit": "Payer l’acompte ({{amount}})",
+    "readyShort": "Votre devis est prêt — acompte de {{amount}}.",
+    "viewAndPay": "Voir le devis et payer"
   }
 }
