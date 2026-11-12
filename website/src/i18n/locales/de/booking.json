@@ -248,7 +248,8 @@
     "cancel": "Rechnungsdaten ändern",
     "failedHeading": "Kartenzahlung fehlgeschlagen",
     "failedBody": "Die Zahlung wurde abgelehnt oder die Kartenseite ist abgelaufen, es wurde nichts belastet. Sie können es erneut versuchen.",
-    "tryAgain": "Erneut versuchen"
+    "tryAgain": "Erneut versuchen",
+    "completeHint": "Füllen Sie alle vier Felder oben aus, um fortzufahren."
   },
   "cardReturn": {
     "checkingHeading": "Ihre Kartenzahlung wird bestätigt…",

@@ -105,17 +105,29 @@ export function TripPayButton({
         {method === 'phone' ? (
           <PhoneNumberField id={`trip-${bookingId}-phone`} value={phone} onChange={setPhone} disabled={starting} />
         ) : (
-          <CardBillingFields idPrefix={`trip-${bookingId}-billing`} value={billing} onChange={setBilling} disabled={starting} />
+          <CardBillingFields
+            idPrefix={`trip-${bookingId}-billing`}
+            value={billing}
+            onChange={setBilling}
+            disabled={starting}
+            stacked
+          />
         )}
         {error && (
           <p role="alert" className="text-error text-sm">
             {error}
           </p>
         )}
+        {method === 'card' && !ready && (
+          <p id={`trip-${bookingId}-pay-hint`} className="text-xs text-on-surface-variant">
+            {t('cardPay.completeHint')}
+          </p>
+        )}
         <button
           type="button"
           onClick={() => void handleStart()}
           disabled={disabled || starting || !ready}
+          aria-describedby={method === 'card' && !ready ? `trip-${bookingId}-pay-hint` : undefined}
           className={BUTTON_CLASS}
         >
           <CreditCard size={18} weight="bold" />
